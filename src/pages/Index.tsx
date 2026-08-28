@@ -1,0 +1,1340 @@
+// Sweden.JP - Stockholm Japanese Community - Main index page
+import { useState, useEffect } from 'react';
+import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import db from '@/lib/shared/kliv-database';
+import auth from '@/lib/shared/kliv-auth';
+import { checkIsAdmin } from '@/lib/isAdmin';
+import { AuthModal } from '@/components/AuthModal';
+import { PostModal } from '@/components/PostModal';
+import Footer from '@/components/Footer';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import MapView from '@/components/MapView';
+import { statusLabels } from '@/constants/postLabels';
+
+const categoryIcons = {
+  'cat-for-sale': ShoppingBag,
+  'cat-job-seeking': User,
+  'cat-housing': Home,
+  'cat-events': Star,
+  'cat-services': Wrench,
+  'cat-bulletin': MessageSquare
+};
+
+const employmentTypeLabels = {
+  'full-time': 'フルタイム',
+  'part-time': 'パートタイム',
+  'contract': 'コントラクト',
+  'internship': 'インターン',
+  'other': 'その他'
+};
+
+const experienceLevelLabels = {
+  'entry': '初級',
+  'mid': '中級',
+  'senior': 'シニア',
+  'any': '経験問わず'
+};
+
+type ViewMode = 'grid' | 'list' | 'images' | 'map';
+
+const Index = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [categories, setCategories] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
+  const [forumTopics, setForumTopics] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedMapPost, setSelectedMapPost] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
+  const [userCounty, setUserCounty] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const postsPerPage = 20; // Posts per page
+
+  useEffect(() => {
+    loadData();
+    checkAuth();
+  }, []);
+
+  // Read category from URL params on mount and when URL changes
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
+
+  // Update posts when allPosts changes (for pagination)
+  useEffect(() => {
+    setPosts(allPosts);
+    setCurrentPage(1);
+  }, [allPosts]);
+
+  useEffect(() => {
+    if (searchTerm || selectedCategory || selectedMonth) {
+      loadFilteredPosts();
+    } else {
+      loadPosts();
+    }
+  }, [searchTerm, selectedCategory, selectedMonth]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedMonth]);
+
+  // Refresh posts when PostModal closes
+  useEffect(() => {
+    if (!isPostModalOpen) {
+      loadData();
+    }
+  }, [isPostModalOpen]);
+
+  // Check admin status
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (user) {
+        const adminStatus = await checkIsAdmin(user);
+        setIsAdmin(adminStatus);
+      }
+    };
+    checkAdmin();
+  }, [user]);
+
+  // Load unread message count
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      if (user && user.userUuid) {
+        try {
+          const unreadMessages = await db.query('messages', {
+            to_uuid: `eq.${user.userUuid}`,
+            is_read: 'eq.0',
+            _deleted: 'eq.0'
+          });
+          setUnreadCount(unreadMessages.length);
+        } catch (error) {
+          console.error('Error loading unread count:', error);
+        }
+      } else {
+        setUnreadCount(0);
+      }
+    };
+    loadUnreadCount();
+  }, [user]);
+
+  const loadData = async () => {
+    try {
+      const [categoriesData, locationsData, subcategoriesData, postsData, usersData, profilesData] = await Promise.all([
+        db.query('categories', { _deleted: 'eq.0' }),
+        db.query('locations', { _deleted: 'eq.0' }),
+        db.query('subcategories', { _deleted: 'eq.0' }),
+        db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' }),
+        db.query('users', { _deleted: 'eq.0' }),
+        db.query('user_profiles', { _deleted: 'eq.0' })
+      ]);
+      
+      // Try to load forum topics separately (may not exist in all environments)
+      let forumTopicsData = [];
+      try {
+        forumTopicsData = await db.query('forum_topics', { order: '_created_at.desc', limit: '100' });
+      } catch (forumError) {
+        console.warn('Forum topics table not available or error loading:', forumError);
+        forumTopicsData = [];
+      }
+      
+      setCategories(categoriesData);
+      setLocations(locationsData);
+      setSubcategories(subcategoriesData);
+      
+      // Create a Map for quick user lookup (performance optimization)
+      const userMap = new Map();
+      usersData.forEach(user => {
+        userMap.set(user.user_uuid, user);
+      });
+      
+      // Create a Map for quick profile lookup
+      const profileMap = new Map();
+      profilesData.forEach(profile => {
+        profileMap.set(profile.user_uuid, profile);
+      });
+      
+      // Parse images JSON for each post and get user info from Map
+      const postsWithImages = postsData.map(post => {
+        let images = [];
+        if (post.images) {
+          try {
+            if (typeof post.images === 'string') {
+              images = JSON.parse(post.images);
+            } else if (Array.isArray(post.images)) {
+              images = post.images;
+            }
+            if (!Array.isArray(images)) {
+              images = [];
+            }
+          } catch (e) {
+            console.warn('Error parsing images for post:', post._row_id, e);
+            images = [];
+          }
+        }
+
+        // Get user information from Maps (no additional DB query)
+        let userName = 'SverigeJP スタッフ';
+        if (post._created_by) {
+          const profile = profileMap.get(post._created_by);
+          const user = userMap.get(post._created_by);
+          
+          // プロフィールの表示名を優先、なければユーザーの名前、なければメール
+          if (profile && profile.display_name) {
+            userName = profile.display_name;
+          } else if (user) {
+            userName = user.first_name && user.last_name 
+              ? `${user.first_name} ${user.last_name}`
+              : user.email || 'SverigeJP スタッフ';
+          }
+        }
+        
+        // Get category and location info
+        const category = categoriesData.find(c => c.uuid === post.category_uuid);
+        const location = locationsData.find(l => l.uuid === post.location_uuid);
+        
+        return {
+          ...post,
+          images,
+          userName,
+          categoryName: category?.name_ja || '未分類',
+          categoryColor: category?.color || '#666',
+          locationName: location?.name_en || location?.name_ja || 'Ej angivet'
+        };
+      });
+      
+      setAllPosts(postsWithImages);
+      setForumTopics(forumTopicsData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkAuth = async () => {
+    try {
+      const currentUser = await auth.getUser();
+      setUser(currentUser);
+      
+      // Load user's profile to get their county and display name
+      if (currentUser) {
+        const profiles = await db.query('user_profiles', {
+          user_uuid: `eq.${currentUser.userUuid}`
+        });
+        if (profiles.length > 0) {
+          const profile = profiles[0];
+          if (profile.county) {
+            setUserCounty(profile.county);
+          }
+          // プロフィールをstateに保存してHeaderで使用
+          setUserProfile(profile);
+        }
+      }
+    } catch (error) {
+      // Not authenticated
+    }
+  };
+
+  const handleAuthSuccess = async (authUser: any) => {
+    setUser(authUser);
+    
+    // Reload user profile to get latest display name
+    if (authUser) {
+      try {
+        const profiles = await db.query('user_profiles', {
+          user_uuid: `eq.${authUser.userUuid}`
+        });
+        if (profiles.length > 0) {
+          setUserProfile(profiles[0]);
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    }
+    
+    loadData(); // Reload data to show user-specific content
+  };
+
+  const handlePostCreated = () => {
+    loadData(); // Reload posts to include the new one
+  };
+
+  const handleCategoryChange = (categoryUuid: string) => {
+    // 掲示板カテゴリーの場合はフォーラムページに遷移
+    if (categoryUuid === 'cat-bulletin') {
+      navigate('/forum');
+      return;
+    }
+    setSelectedCategory(categoryUuid);
+    // Update URL params
+    if (categoryUuid) {
+      setSearchParams({ category: categoryUuid });
+    } else {
+      setSearchParams({});
+    }
+    
+    // イベントカテゴリーが選択されたら月選択をセット
+    if (categoryUuid === 'cat-events') {
+      // 月選択が空なら今月をセット
+      if (!selectedMonth) {
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        setSelectedMonth(currentMonth);
+      }
+    } else {
+      // イベントカテゴリー以外が選択されたら月選択をクリア
+      setSelectedMonth('');
+    }
+  };
+
+  const handleLogin = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const handleRegister = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    await auth.signOut();
+    setUser(null);
+  };
+
+  const handleNewPost = () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+    } else {
+      // 投稿タイプ選択モーダルを開く
+      setIsPostModalOpen(true);
+    }
+  };
+
+  const handleMonthChange = (value) => {
+    setSelectedMonth(value);
+    // 月を選択したらカテゴリー選択をクリア（イベントのみ表示）
+    setSelectedCategory('cat-events');
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Get posts for current page
+  const getCurrentPagePosts = () => {
+    const startIndex = (currentPage - 1) * postsPerPage;
+    const endIndex = startIndex + postsPerPage;
+    return posts.slice(startIndex, endIndex);
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+  const currentPosts = getCurrentPagePosts();
+
+  const loadFilteredPosts = async () => {
+    try {
+      const filters = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
+      
+      if (selectedCategory) {
+        filters.category_uuid = `eq.${selectedCategory}`;
+      }
+      
+      let postsData = await db.query('posts', filters);
+      
+      // 月別フィルターの適用
+      if (selectedMonth) {
+        const [year, month] = selectedMonth.split('-').map(Number);
+        const startOfMonth = Math.floor(new Date(year, month - 1, 1).getTime() / 1000);
+        const endOfMonth = Math.floor(new Date(year, month, 0, 23, 59, 59).getTime() / 1000);
+        
+        postsData = postsData.filter(post => {
+          if (post.post_type === 'event' && post.event_date) {
+            return post.event_date >= startOfMonth && post.event_date <= endOfMonth;
+          }
+          // 月選択がある場合はイベント以外の投稿は表示しない
+          return false;
+        });
+      }
+      
+      // 古いイベントを表示から除外（1ヶ月前より古いイベントは非表示）
+      const now = new Date();
+      const oneMonthAgo = Math.floor(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000);
+      postsData = postsData.filter(post => {
+        if (post.post_type === 'event' && post.event_date) {
+          return post.event_date >= oneMonthAgo;
+        }
+        return true; // イベント以外は常に表示
+      });
+      
+      // Parse images JSON for each post
+      const postsWithImages = await Promise.all(postsData.map(async post => {
+        let images = [];
+        if (post.images) {
+          try {
+            if (typeof post.images === 'string') {
+              images = JSON.parse(post.images);
+            } else if (Array.isArray(post.images)) {
+              images = post.images;
+            }
+            // Ensure images is an array
+            if (!Array.isArray(images)) {
+              images = [];
+            }
+          } catch (e) {
+            console.warn('Error parsing images for post:', post._row_id, e);
+            images = [];
+
+          }
+        }
+
+        // Get user information
+        let userName = 'SverigeJP スタッフ';
+        if (post._created_by) {
+          try {
+            // First try to get display name from user_profiles
+            const profilesData = await db.query('user_profiles', {
+              user_uuid: `eq.${post._created_by}`,
+              _deleted: 'eq.0'
+            });
+            
+            if (profilesData && profilesData.length > 0 && profilesData[0].display_name) {
+              userName = profilesData[0].display_name;
+            } else {
+              // Fall back to first_name + last_name from users table
+              const usersData = await db.query('users', {
+                user_uuid: `eq.${post._created_by}`,
+                _deleted: 'eq.0'
+              });
+              if (usersData && usersData.length > 0) {
+                const user = usersData[0];
+                userName = user.first_name && user.last_name 
+                  ? `${user.first_name} ${user.last_name}`
+                  : user.email || 'SverigeJP スタッフ';
+              }
+            }
+          } catch (e) {
+            console.warn('Error fetching user for post:', post._row_id, e);
+          }
+        }
+        
+        // Get category and location info from state
+        const category = categories.find(c => c.uuid === post.category_uuid);
+        const location = locations.find(l => l.uuid === post.location_uuid);
+        
+        return {
+          ...post,
+          images,
+          userName,
+          categoryName: category?.name_ja || '未分類',
+          categoryColor: category?.color || '#666',
+          locationName: location?.name_en || location?.name_ja || 'Ej angivet'
+        };
+      }));
+      
+      // Client-side search for title/description
+      const filteredPosts = searchTerm
+        ? postsWithImages.filter(post => 
+            post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post.description.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : postsWithImages;
+      
+      setAllPosts(filteredPosts);
+    } catch (error) {
+      console.error('Error loading filtered posts:', error);
+    }
+  };
+
+  const loadPosts = async () => {
+    try {
+      const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' });
+      // Parse images JSON for each post
+      const postsWithImages = await Promise.all(postsData.map(async post => {
+        let images = [];
+        if (post.images) {
+          try {
+            if (typeof post.images === 'string') {
+              images = JSON.parse(post.images);
+            } else if (Array.isArray(post.images)) {
+              images = post.images;
+            }
+            // Ensure images is an array
+            if (!Array.isArray(images)) {
+              images = [];
+            }
+          } catch (e) {
+            console.warn('Error parsing images for post:', post._row_id, e);
+            images = [];
+          }
+        }
+
+        // Get user information
+        let userName = 'SverigeJP スタッフ';
+        if (post._created_by) {
+          try {
+            const usersData = await db.query('users', {
+              user_uuid: `eq.${post._created_by}`,
+              _deleted: 'eq.0'
+            });
+            if (usersData && usersData.length > 0) {
+              const user = usersData[0];
+              userName = user.first_name && user.last_name 
+                ? `${user.first_name} ${user.last_name}`
+                : user.email || 'SverigeJP スタッフ';
+            }
+          } catch (e) {
+            console.warn('Error fetching user for post:', post._row_id, e);
+          }
+        }
+        
+        // Get category and location info from state
+        const category = categories.find(c => c.uuid === post.category_uuid);
+        const location = locations.find(l => l.uuid === post.location_uuid);
+        
+        return {
+          ...post,
+          images,
+          userName,
+          categoryName: category?.name_ja || '未分類',
+          categoryColor: category?.color || '#666',
+          locationName: location?.name_en || location?.name_ja || 'Ej angivet'
+        };
+      }));
+      
+      // 古いイベントを表示から除外（1ヶ月前より古いイベントは非表示）
+      const now = new Date();
+      const oneMonthAgo = Math.floor(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000);
+      const postsFiltered = postsWithImages.filter(post => {
+        if (post.post_type === 'event' && post.event_date) {
+          return post.event_date >= oneMonthAgo;
+        }
+        return true; // イベント以外は常に表示
+      });
+      
+      setAllPosts(postsFiltered);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    }
+  };
+
+  const getCategoryName = (categoryUuid) => {
+    const category = categories.find(c => c.uuid === categoryUuid);
+    return category ? category.name_ja : '未分類';
+  };
+
+  const getSubcategoryName = (subcategoryUuid) => {
+    const subcategory = subcategories.find(s => s.uuid === subcategoryUuid);
+    return subcategory ? subcategory.name_ja : '';
+  };
+
+  const getLocationName = (locationId) => {
+    const location = locations.find(l => l.uuid === locationId);
+    return location ? location.name_en || location.name_ja : 'Ej angivet';
+  };
+
+  const getCategoryColor = (categoryUuid) => {
+    const category = categories.find(c => c.uuid === categoryUuid);
+    return category ? category.color : '#666';
+  };
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString('ja-JP', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatDateShort = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${month}/${day}`;
+  };
+
+  const getMonthOptions = () => {
+    const options = [];
+    const now = new Date();
+    
+    // 先月(-1) から6ヶ月先(+6) まで動的に生成
+    for (let i = -1; i <= 6; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      options.push({ 
+        value: `${y}-${m.toString().padStart(2, '0')}`, 
+        label: `${y}年${m}月` 
+      });
+    }
+    
+    return options;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center space-x-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+              <img 
+                src="/content/templates/sverigejplogo.png" 
+                alt="Sverige.JP Logo"
+                className="h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
+                style={{ width: '48px', height: '48px' }}
+              />
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-gray-900 hidden sm:block">Sverige.JP</h1>
+                <h1 className="text-base font-bold text-gray-900 sm:hidden">Sverige.JP</h1>
+                <p className="text-xs text-gray-600 hidden md:block">スウェーデン日本コミュニティ</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {user ? (
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-[150px]">
+                    {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => navigate('/profile')}>
+                    <span className="hidden sm:inline">プロフィール</span>
+                    <span className="sm:hidden">プロフ</span>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3 relative" onClick={() => navigate('/messages')}>
+                    <Mail className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center px-1 bg-red-500 text-white text-xs">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                  {isAdmin && (
+                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => navigate('/admin')}>
+                      <Shield className="w-4 h-4" />
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" className="h-8 text-xs px-2" onClick={handleSignOut}>
+                    <span className="hidden sm:inline">ログアウト</span>
+                    <span className="sm:hidden">ログアウト</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleLogin}>
+                    ログイン
+                  </Button>
+                  <Button size="sm" className="h-8 text-xs px-2" onClick={handleRegister}>
+                    新規登録
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search and Filter Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="投稿を検索..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNewPost}>
+              <Plus className="w-4 h-4 mr-2" />
+              新規投稿
+            </Button>
+          </div>
+
+          {/* Categories and View Toggle */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Button
+              variant={selectedCategory === '' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleCategoryChange('')}
+              className={selectedCategory === '' ? 'text-white border-2' : 'border-2 bg-white hover:bg-gray-50'}
+            >
+              全て
+            </Button>
+            {categories.map((category) => {
+              const IconComponent = categoryIcons[category.uuid] || Home;
+              return (
+                <Button
+                  key={category.uuid}
+                  variant={selectedCategory === category.uuid ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleCategoryChange(category.uuid)}
+                  className={selectedCategory === category.uuid ? 'text-white border-2' : 'border-2 bg-white hover:bg-gray-50'}
+                  style={{
+                    backgroundColor: selectedCategory === category.uuid ? category.color : undefined,
+                    borderColor: category.color,
+                    borderWidth: '2px'
+                  }}
+                >
+                  <IconComponent className="w-4 h-4 mr-1" />
+                  {category.name_ja}
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex justify-end mb-4">
+            <div className="inline-flex rounded-md border overflow-hidden">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-2 flex items-center gap-1 text-sm ${
+                  viewMode === 'list' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <List className="w-4 h-4" />
+                リスト
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-2 flex items-center gap-1 text-sm border-l ${
+                  viewMode === 'grid' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Grid3X3 className="w-4 h-4" />
+                カード
+              </button>
+              <button
+                onClick={() => setViewMode('images')}
+                className={`px-3 py-2 flex items-center gap-1 text-sm border-l ${
+                  viewMode === 'images' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <ImageIcon className="w-4 h-4" />
+                画像のみ
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`px-3 py-2 flex items-center gap-1 text-sm border-l ${
+                  viewMode === 'map' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <MapPin className="w-4 h-4" />
+                Map
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Month Filter for Events - Only show when events category is selected */}
+        {selectedCategory === 'cat-events' && (
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-gray-700">イベント月別：</label>
+              <Select value={selectedMonth} onValueChange={handleMonthChange}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="月を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getMonthOptions().map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Posts Display based on View Mode */}
+        {viewMode === 'grid' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentPosts.map((post) => (
+              <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg line-clamp-2">
+                        <Link to={`/post/${post._row_id}`} className="hover:text-blue-600 transition-colors">
+                          {post.title}
+                        </Link>
+                      </CardTitle>
+                      {/* Date and Price row */}
+                      <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                        <span>{formatDate(post._created_at)}</span>
+                        {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
+                          <span className="font-semibold text-blue-600">
+                            {employmentTypeLabels[post.employment_type] || post.employment_type}
+                          </span>
+                        )}
+                        {post.post_type === 'free' && post.price && (
+                          <span className="font-semibold text-green-600">
+                            {post.price} SEK
+                          </span>
+                        )}
+                        {post.post_type === 'event' && post.event_date_readable && (
+                          <span className="font-semibold text-purple-600">
+                            📅 {post.event_date_readable}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                      {/* Images */}
+                      <div className="mb-4">
+                        <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden">
+                          <img 
+                                src={
+                                  post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
+                                    ? post.images[0] 
+                                    : '/content/templates/sverige_blank.png'
+                                }
+                            alt="投稿画像"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (target.src !== '/content/templates/sverige_blank.png') {
+                                target.src = '/content/templates/sverige_blank.png';
+                              }
+                            }}
+                          />
+                          {post.images && Array.isArray(post.images) && post.images.length > 1 && (
+                            <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+                              {post.images.length}枚の画像
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-3">
+                    {post.description}
+                  </p>
+                  {post.category_uuid && (
+                    <button
+                      onClick={() => {
+                        setSelectedCategory(post.category_uuid);
+                        setSearchParams({ category: post.category_uuid });
+                      }}
+                      className="flex items-center text-xs text-blue-600 mb-2 hover:underline"
+                    >
+                      <Badge variant="secondary" className="text-xs">
+                        {getCategoryName(post.category_uuid)}
+                      </Badge>
+                      {post.subcategory_uuid && (
+                        <span className="ml-2 text-gray-700">
+                          {' > '}{getSubcategoryName(post.subcategory_uuid)}
+                        </span>
+                      )}
+                    </button>
+                  )}
+                  <div className="flex items-center text-xs text-gray-500 mb-2">
+                    <User className="w-3 h-3 mr-1" />
+                    {post.userName || 'SverigeJP スタッフ'}
+                  </div>
+                  {post.location_uuid && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <Home className="w-3 h-3 mr-1" />
+                      {getLocationName(post.location_uuid)}
+                    </div>
+                  )}
+                  {post.postal_code && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {post.postal_code}
+                    </div>
+                  )}
+                  {post.brand && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <span className="font-medium">ブランド:</span> {post.brand}
+                    </div>
+                  )}
+                  {post.model_name && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <span className="font-medium">モデル:</span> {post.model_name}
+                    </div>
+                  )}
+                  {post.size_dimensions && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <span className="font-medium">サイズ:</span> {post.size_dimensions}
+                    </div>
+                  )}
+                  {post.company_name && (
+                    <div className="flex items-center mb-2 text-xs text-gray-500">
+                      <span className="font-medium">会社:</span> {post.company_name}
+                    </div>
+                  )}
+                  {post.salary && (
+                    <div className="flex items-center mb-2 text-xs text-green-600">
+                      <span className="font-medium text-gray-700">給料:</span> {post.salary}
+                    </div>
+                  )}
+                  {/* Employment type and experience level */}
+                  <div className="flex gap-2 text-xs text-gray-600 mb-2">
+                    {post.employment_type && (
+                      <span>
+                        {employmentTypeLabels[post.employment_type] || post.employment_type}
+                      </span>
+                    )}
+                    {post.experience_level && (
+                      <span>
+                        {experienceLevelLabels[post.experience_level] || post.experience_level}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <Link to={`/post/${post._row_id}`}>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                      >
+                        詳細を見る
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* List View */}
+        {viewMode === 'list' && (
+          <>
+            {/* Category-based summary list - Only show when "All" is selected and no search term */}
+            {selectedCategory === '' && !searchTerm ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {categories
+                  .filter(cat => cat._deleted !== 1)
+                  .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+                  .map((category) => {
+                    // Special handling for bulletin board category - use forum_topics instead of posts
+                    const isBulletinBoard = category.uuid === 'cat-bulletin';
+                    const categoryItems = isBulletinBoard
+                      ? forumTopics.slice(0, 8)
+                      : allPosts
+                          .filter(post => post.category_uuid === category.uuid && post.status === 'active')
+                          .sort((a, b) => b._created_at - a._created_at)
+                          .slice(0, 8);
+                    
+                    const CategoryIcon = categoryIcons[category.uuid] || List;
+                    
+                    return (
+                      <div key={category.uuid} className="bg-white rounded-lg border">
+                        {/* Category Header */}
+                        <div className="border-b p-3">
+                          {isBulletinBoard ? (
+                            <Link to="/forum" className="block">
+                              <div className="flex items-center gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
+                                <CategoryIcon className="w-4 h-4" style={{ color: category.color }} />
+                                <h2 className="text-base font-semibold hover:text-blue-600 transition-colors">{category.name_ja}</h2>
+                              </div>
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => handleCategoryChange(category.uuid)}
+                              className="w-full text-left"
+                            >
+                              <div className="flex items-center gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
+                                <CategoryIcon className="w-4 h-4" style={{ color: category.color }} />
+                                <h2 className="text-base font-semibold hover:text-blue-600 transition-colors">{category.name_ja}</h2>
+                              </div>
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Category Posts/Topics */}
+                        <div className="p-3">
+                          {categoryItems.length === 0 ? (
+                            <p className="text-gray-500 text-xs py-2">投稿がありません</p>
+                          ) : (
+                            <div className="space-y-0">
+                              {categoryItems.map((item, index) => (
+                                <Link
+                                  key={item._row_id}
+                                  to={isBulletinBoard ? `/forum/${item._row_id}` : `/post/${item._row_id}`}
+                                  className={`block hover:bg-gray-50 transition-colors ${
+                                    index < categoryItems.length - 1 ? 'border-b border-dotted border-gray-200' : ''
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 py-1.5 px-1 min-w-0">
+                                    <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
+                                      {formatDateShort(item._created_at)}
+                                    </span>
+                                    <span className="text-xs truncate flex-1 min-w-0 leading-tight">
+                                      {item.title}
+                                    </span>
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* More Link */}
+                          {categoryItems.length > 0 && (
+                            isBulletinBoard ? (
+                              <Link
+                                to="/forum"
+                                className="text-blue-600 hover:underline text-xs mt-2 flex items-center gap-1"
+                              >
+                                もっと見る
+                                <ArrowRight className="w-3 h-3" />
+                              </Link>
+                            ) : (
+                              <button
+                                onClick={() => handleCategoryChange(category.uuid)}
+                                className="text-blue-600 hover:underline text-xs mt-2 flex items-center gap-1"
+                              >
+                                もっと見る
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : (
+              /* Traditional list view - for search results or specific category */
+              <div className="space-y-3">
+                {currentPosts.map((post) => (
+                  <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-3">
+                      <div className="flex gap-3">
+                            {/* Thumbnail */}
+                            <div className="flex-shrink-0">
+                              <Link to={`/post/${post._row_id}`}>
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded overflow-hidden bg-gray-100">
+                                  <img
+                                    src={
+                                      post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
+                                        ? post.images[0]
+                                        : '/content/templates/sverige_blank.png'
+                                    }
+                                    alt={post.title}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (target.src !== '/content/templates/sverige_blank.png') {
+                                        target.src = '/content/templates/sverige_blank.png';
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </Link>
+                            </div>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start gap-2 mb-1">
+                            <Link to={`/post/${post._row_id}`}>
+                              <h3 className="text-base font-semibold truncate hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
+                            </Link>
+                          </div>
+                          {/* Date and Price row */}
+                          <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                            <span>{formatDate(post._created_at)}</span>
+                            {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
+                              <span className="font-semibold text-blue-600">
+                                {employmentTypeLabels[post.employment_type] || post.employment_type}
+                              </span>
+                            )}
+                            {post.post_type === 'free' && post.price && (
+                              <span className="font-semibold text-green-600">
+                                {post.price} SEK
+                              </span>
+                            )}
+                            {post.post_type === 'event' && post.event_date_readable && (
+                              <span className="font-semibold text-purple-600">
+                                📅 {post.event_date_readable}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-gray-600 text-sm line-clamp-2 mb-2">
+                            {post.description}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                            {post.category_uuid && (
+                              <button
+                                onClick={() => {
+                                  setSelectedCategory(post.category_uuid);
+                                  setSearchParams({ category: post.category_uuid });
+                                }}
+                                className="flex items-center text-blue-700 hover:underline"
+                              >
+                                <span className="font-medium">{getCategoryName(post.category_uuid)}</span>
+                                {post.subcategory_uuid && (
+                                  <span className="ml-1">
+                                    {' > '}{getSubcategoryName(post.subcategory_uuid)}
+                                  </span>
+                                )}
+                              </button>
+                            )}
+                            <span className="flex items-center">
+                              <User className="w-3 h-3 mr-1" />
+                              {post.userName || 'SverigeJP スタッフ'}
+                            </span>
+                            {post.location_uuid && (
+                              <span className="flex items-center">
+                                <Home className="w-3 h-3 mr-1" />
+                                {getLocationName(post.location_uuid)}
+                              </span>
+                            )}
+                            {post.postal_code && (
+                              <span className="flex items-center">
+                                <MapPin className="w-3 h-3 mr-1" />
+                                {post.postal_code}
+                              </span>
+                            )}
+                            {post.brand && (
+                              <span className="flex items-center">
+                                <span className="font-medium">ブランド:</span> {post.brand}
+                              </span>
+                            )}
+                            {post.model_name && (
+                              <span className="flex items-center">
+                                <span className="font-medium">モデル:</span> {post.model_name}
+                              </span>
+                            )}
+                            {post.size_dimensions && (
+                              <span className="flex items-center">
+                                <span className="font-medium">サイズ:</span> {post.size_dimensions}
+                              </span>
+                            )}
+                            {post.company_name && (
+                              <span className="flex items-center">
+                                <span className="font-medium">会社:</span> {post.company_name}
+                              </span>
+                            )}
+                            {post.salary && (
+                              <span className="flex items-center font-semibold text-green-600">
+                                <span className="font-medium text-gray-700">給料:</span> {post.salary}
+                              </span>
+                            )}
+                            {post.employment_type && (
+                              <span className="flex items-center">
+                                <span className="font-medium">形態:</span> {employmentTypeLabels[post.employment_type] || post.employment_type}
+                              </span>
+                            )}
+                            {post.experience_level && (
+                              <span className="flex items-center">
+                                <span className="font-medium">経験:</span> {experienceLevelLabels[post.experience_level] || post.experience_level}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Action */}
+                        <div className="flex items-center flex-shrink-0">
+                          <Link to={`/post/${post._row_id}`}>
+                            <Button variant="outline" size="sm">
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Images Only View */}
+        {viewMode === 'images' && (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {currentPosts.filter(p => p.images && p.images.length > 0).map((post) => (
+              <Link key={post._row_id} to={`/post/${post._row_id}`}>
+                <div className="flex flex-col gap-1 hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-square rounded overflow-hidden bg-gray-100 group">
+                    <img 
+                      src={post.images[0]} 
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {post.images.length > 1 && (
+                      <div className="absolute top-1 right-1 bg-black/60 text-white px-1.5 py-0.5 rounded text-xs">
+                        {post.images.length}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(post._created_at)}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Map View - Shows location dots on map */}
+        {viewMode === 'map' && (
+          <div className="space-y-4">
+            {allPosts.filter(p => p.location_uuid).length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📍</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">地図表示できる投稿がありません</h3>
+                <p className="text-gray-500">場所を指定した投稿のみ地図に表示されます</p>
+              </div>
+            ) : (
+              <>
+                {/* Real Map using Leaflet */}
+                <MapView 
+                  posts={allPosts}
+                  locations={locations}
+                  onPostClick={(postId) => setSelectedMapPost(postId)}
+                  selectedPostId={selectedMapPost}
+                  getCategoryName={getCategoryName}
+                  getCategoryColor={getCategoryColor}
+                  getLocationName={getLocationName}
+                  formatDate={formatDate}
+                  userCounty={userCounty}
+                />
+
+                {/* Location Legend */}
+                <div className="bg-white rounded-lg p-4 border">
+                  <h3 className="font-semibold mb-2 text-sm">📍 場所一覧（最大50件）</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {allPosts.filter(p => p.location_uuid).slice(0, 50).map((post, index) => (
+                      <button
+                        key={post._row_id}
+                        onClick={() => setSelectedMapPost(post._row_id)}
+                        className={`
+                          text-left p-2 rounded border text-sm transition-all
+                          ${selectedMapPost === post._row_id 
+                            ? 'bg-blue-100 border-blue-500' 
+                            : 'bg-gray-50 hover:bg-gray-100'
+                          }
+                        `}
+                      >
+                        <div className="font-medium line-clamp-1">{post.title}</div>
+                        <div className="text-xs text-gray-500">{getLocationName(post.location_uuid)}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {posts.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📋</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">投稿が見つかりません</h3>
+            <p className="text-gray-500">検索条件を変えてみてください</p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              前へ
+            </Button>
+            
+            <div className="flex space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className="min-w-[40px]"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              次へ
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Auth and Post Modals */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
+        />
+        
+        <PostModal
+          isOpen={isPostModalOpen}
+          onClose={() => setIsPostModalOpen(false)}
+          onPostCreated={handlePostCreated}
+          user={user}
+        />
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Index;
