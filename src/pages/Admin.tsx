@@ -602,7 +602,7 @@ const Admin = () => {
       console.log(`🚫 ユーザー無効化開始: ${userUuid}`);
       
       // 管理者用Edge Functionを呼び出して無効化実行
-      const result = await functions.post('admin-user-action', {
+      const result = await functions.post('manage-user-action', {
         action: 'deactivate',
         targetUuid: userUuid
       });
@@ -642,7 +642,7 @@ const Admin = () => {
       console.log(`✅ ユーザー復活開始: ${userUuid}`);
       
       // 管理者用Edge Functionを呼び出して復活実行
-      const result = await functions.post('admin-user-action', {
+      const result = await functions.post('manage-user-action', {
         action: 'activate',
         targetUuid: userUuid
       });
@@ -685,7 +685,7 @@ const Admin = () => {
       console.log(`🗑️ 完全削除開始: ${userUuid} (${targetEmail})`);
       
       // 管理者用Edge Functionを呼び出して完全削除実行
-      const deleteResult = await functions.post('admin-user-action', {
+      const deleteResult = await functions.post('manage-user-action', {
         action: 'delete',
         targetUuid: userUuid
       });
@@ -703,7 +703,7 @@ const Admin = () => {
         console.log(`🔍 削除確認開始: ${userUuid} (${targetEmail})`);
         
         try {
-          const verifyResult = await functions.post('admin-user-action', {
+          const verifyResult = await functions.post('manage-user-action', {
             action: 'verify-delete',
             targetUuid: userUuid,
             targetEmail: targetEmail
