@@ -843,6 +843,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         _updated_at: Math.floor(Date.now() / 1000)
       };
 
+      // postsテーブルにはcountyカラムが存在しないため、値の有無にかかわらず送信しない
+      // (countyを含めると「no such column: county」で400エラーになる。県選択は市区選択の絞り込み用)
+      delete postData.county;
+
       // For events, compute event_date as unix timestamp and event_date_readable
       if (formData.category_uuid === 'cat-events' && formData.event_date) {
         const eventDate = new Date(formData.event_date);
