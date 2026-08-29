@@ -82,9 +82,9 @@ export default function ResetPasswordPage() {
       
       // エラーメッセージを整形
       let errorMessage = error.message || 'パスワードのリセットに失敗しました。';
-      
-      if (errorMessage.includes('invalid_token')) {
-        errorMessage = 'リセットトークンが無効です。有効期限が切れている可能性があります。再度パスワードリセットをリクエストしてください。';
+
+      if (errorMessage.includes('invalid_token') || /invalid.*(expired|token)|token.*(invalid|expired)/i.test(errorMessage)) {
+        errorMessage = 'リセットリンクが無効か、有効期限(24時間)が切れています。もう一度パスワードリセットをリクエストしてください。';
       } else if (errorMessage.includes('password_too_short')) {
         errorMessage = 'パスワードが短すぎます。最低8文字以上で入力してください。';
         setStatus('form');
@@ -93,8 +93,11 @@ export default function ResetPasswordPage() {
         setStatus('form');
       } else if (errorMessage.includes('email_rate_limit_exceeded')) {
         errorMessage = 'パスワードリセットの回数が上限を超えました。しばらくしてから再度お試しください。';
+      } else if (/^[\x00-\x7F]*$/.test(errorMessage)) {
+        // 未知の英語メッセージは汎用の日本語メッセージにフォールバック
+        errorMessage = 'パスワードのリセットに失敗しました。もう一度お試しください。';
       }
-      
+
       setMessage(errorMessage);
       setIsSubmitting(false);
     }
