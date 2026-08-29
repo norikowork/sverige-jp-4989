@@ -87,6 +87,18 @@ const PostDetail = () => {
     'any': '経験問わず'
   };
 
+  const roomsLabels = {
+    'studio': 'ワンルーム',
+    '1k': '1K',
+    '1dk': '1DK',
+    '1ldk': '1LDK',
+    '2k': '2K',
+    '2dk': '2DK',
+    '2ldk': '2LDK',
+    '3k': '3K以上',
+    'shared': 'シェアハウス'
+  };
+
   const loadAllPosts = async () => {
     try {
       const postsData = await db.query('posts', {
@@ -1484,6 +1496,54 @@ useEffect(() => {
                           <div>
                             <span className="font-medium">勤務地:</span>
                             <p className="text-blue-900 mt-0.5">{post.work_location}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Housing Information - Only show for housing postings */}
+                {(post.rent || post.rooms || post.area_sqm || post.available_date) && (
+                  <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center text-green-800">
+                      <Home className="w-5 h-5 mr-2" />
+                      住居詳細情報
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      {post.rent && (
+                        <div className="flex items-start text-green-700">
+                          <DollarSign className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">家賃:</span>
+                            <p className="text-green-900 mt-0.5">{post.rent}</p>
+                          </div>
+                        </div>
+                      )}
+                      {post.rooms && (
+                        <div className="flex items-start text-green-700">
+                          <Home className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">部屋数/タイプ:</span>
+                            <p className="text-green-900 mt-0.5">{roomsLabels[post.rooms] || post.rooms}</p>
+                          </div>
+                        </div>
+                      )}
+                      {post.area_sqm && (
+                        <div className="flex items-start text-green-700">
+                          <Package className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">広さ:</span>
+                            <p className="text-green-900 mt-0.5">{post.area_sqm}㎡</p>
+                          </div>
+                        </div>
+                      )}
+                      {post.available_date && (
+                        <div className="flex items-start text-green-700">
+                          <Calendar className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">入居可能日:</span>
+                            <p className="text-green-900 mt-0.5">{post.available_date}</p>
                           </div>
                         </div>
                       )}
