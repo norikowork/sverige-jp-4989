@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -403,7 +402,6 @@ const getMunicipalityNameWithKatakana = (municipality: string, county: string) =
 };
 
 export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }: PostModalProps) => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -626,14 +624,6 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    // 掲示板カテゴリーが選択されたらフォーラムページにリダイレクト
-    if (field === 'category_uuid' && value === 'cat-bulletin') {
-      // モーダルを閉じてフォーラムページに遷移
-      onClose();
-      navigate('/forum');
-      return;
-    }
-
     // County選択時にMunicipalityをクリア
     if (field === 'selectedCounty') {
       setSelectedCounty(value as string);
@@ -919,7 +909,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                       <SelectValue placeholder="選択してください" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category: any) => (
+                      {categories.filter((category: any) => category.uuid !== 'cat-bulletin').map((category: any) => (
                         <SelectItem key={category.uuid} value={category.uuid}>
                           {category.name_ja}
                         </SelectItem>

@@ -86,7 +86,7 @@ export default function ForumPage() {
     try {
       setLoading(true);
       const data = await db.query('forum_topics', {
-        is_hidden: 'eq.0',
+        is_hidden: 'neq.1',
         order: '_created_at.desc',
         limit: '100',
       });
