@@ -16,6 +16,31 @@ interface AuthModalProps {
   onAuthSuccess: (user: any) => void;
 }
 
+const translateAuthError = (message: string | undefined, fallback: string): string => {
+  const msg = message || '';
+
+  if (msg.includes('bad_credentials') || msg.includes('not recognized')) {
+    return 'メールアドレスまたはパスワードが正しくありません。';
+  }
+  if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user_already_exists')) {
+    return 'このメールアドレスは既に登録されています。ログインするか、パスワードをお忘れの場合は再設定をご利用ください。';
+  }
+  if (msg.includes('email_rate_limit_exceeded') || msg.includes('rate_limit')) {
+    return 'リクエストの回数が多すぎます。しばらくしてから再度お試しください。';
+  }
+  if (msg.includes('password_too_short') || msg.includes('insufficient_password_complexity')) {
+    return 'パスワードの強度が不十分です。8文字以上でより複雑なパスワードを設定してください。';
+  }
+  if (msg.includes('invalid_email') || msg.includes('email_address_invalid')) {
+    return 'メールアドレスの形式が正しくありません。';
+  }
+  if (msg.includes('Network') || msg.includes('network')) {
+    return '通信エラーが発生しました。ネットワーク状況を確認して再度お試しください。';
+  }
+
+  return fallback;
+};
+
 export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -119,7 +144,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) =>
         console.log('✅ ログイン成功[signIn]:', user.userUuid);
       } catch (signInErr: any) {
         console.error('❌ ログインエラー[signIn]:', signInErr);
-        setError(`ログインエラー[signIn]: ${signInErr.message || 'メールアドレスまたはパスワードが正しくありません'}`);
+        setError(translateAuthError(signInErr.message, 'ログインに失敗しました。しばらくしてから再度お試しください。'));
         setIsLoading(false);
         return;
       }
@@ -303,7 +328,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) =>
       
     } catch (err: any) {
       console.error('❌ 新規登録エラー[signUp]:', err);
-      setError(err.message || '登録に失敗しました');
+      setError(translateAuthError(err.message, '登録に失敗しました。しばらくしてから再度お試しください。'));
     } finally {
       setIsLoading(false);
     }
