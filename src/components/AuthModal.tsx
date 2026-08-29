@@ -55,6 +55,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetStep, setResetStep] = useState(1);
+  const [totpRequired, setTotpRequired] = useState(false);
+  const [totpCode, setTotpCode] = useState('');
   const [error, setError] = useState('');
   const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
   const [isResendingEmail, setIsResendingEmail] = useState(false);
@@ -148,8 +150,10 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         const result = await auth.signIn(loginEmail, loginPassword);
 
         if (result.status === 'totp_required') {
+          // 2段階認証コードの入力画面に切り替える(メールアドレスとパスワードは入力済みの値を再利用)
           console.log('🔐 2段階認証が必要[signIn]:', loginEmail);
-          setError('このアカウントには2段階認証(認証アプリ)が設定されています。現在このサイトでは認証アプリによるログインに対応していません。運営にお問い合わせください。');
+          setTotpRequired(true);
+          setTotpCode('');
           setIsLoading(false);
           return;
         }
@@ -162,7 +166,71 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         setIsLoading(false);
         return;
       }
-      
+
+      // サインイン後の共通処理(セッション確認〜プロフィール作成〜ログイン完了)に合流
+      await completeLogin(user);
+
+    } catch (unexpectedErr: any) {
+      console.error('❌ 予期しないエラー[unexpected]:', unexpectedErr);
+      setError(`予期しないエラー: ${unexpectedErr.message || '不明なエラーが発生しました'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 2段階認証コードの送信(signIn が totp_required を返した後に、認証コードでログインを完了する)
+  const handleTotpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      let user;
+      try {
+        // auth.submitTotp(email, password, code): 6桁の認証コードを付けて再度サインインする
+        const result = await auth.submitTotp(loginEmail, loginPassword, totpCode);
+
+        if (result.status === 'totp_required' || !result.user) {
+          console.error('❌ 2段階認証コード不正[submitTotp]:', loginEmail);
+          setError('認証コードが正しくありません。認証アプリに表示されている6桁のコードを確認して、もう一度お試しください。');
+          setIsLoading(false);
+          return;
+        }
+
+        user = result.user;
+        console.log('✅ 2段階認証ログイン成功[submitTotp]:', user.userUuid);
+      } catch (totpErr: any) {
+        console.error('❌ 2段階認証エラー[submitTotp]:', totpErr);
+        const msg = `${totpErr?.message || ''} ${totpErr?.code || ''}`;
+        if (msg.includes('rate_limit')) {
+          setError('試行回数が多すぎます。しばらくしてから再度お試しください。');
+        } else {
+          setError('認証コードが正しくありません。認証アプリに表示されている6桁のコードを確認して、もう一度お試しください。');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setTotpRequired(false);
+      await completeLogin(user);
+
+    } catch (unexpectedErr: any) {
+      console.error('❌ 予期しないエラー[totp]:', unexpectedErr);
+      setError(`予期しないエラー: ${unexpectedErr.message || '不明なエラーが発生しました'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 2段階認証コード入力から通常のログインフォームに戻る
+  const handleCancelTotp = () => {
+    setTotpRequired(false);
+    setTotpCode('');
+    setError('');
+  };
+
+  // サインイン成功後の共通処理(パスワードログイン・2段階認証ログインの両方から呼ばれる)
+  const completeLogin = async (user: any) => {
       // ステップ2: セッション確認 + emailVerifiedチェック（メール確認済みかどうか）
       // auth.getUser() はサインイン直後はキャッシュを返して通信しないため、
       // forceRefresh(true) で必ずサーバーにセッションを確認する。
@@ -297,13 +365,6 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       }
       
       console.log('🎉 ログインフロー完了:', user.userUuid);
-      
-    } catch (unexpectedErr: any) {
-      console.error('❌ 予期しないエラー[unexpected]:', unexpectedErr);
-      setError(`予期しないエラー: ${unexpectedErr.message || '不明なエラーが発生しました'}`);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
 
@@ -438,6 +499,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
     setNewPassword('');
     setConfirmPassword('');
     setResetStep(1);
+    setTotpRequired(false);
+    setTotpCode('');
     setError('');
     setIsEmailNotVerified(false);
     setResendSuccess(false);
@@ -486,7 +549,51 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
           </TabsList>
           
           <TabsContent value="login">
-            {isResetPassword ? (
+            {totpRequired ? (
+              <form onSubmit={handleTotpSubmit} className="space-y-4">
+                <div className="flex items-center mb-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancelTotp}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-1" />
+                    戻る
+                  </Button>
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-semibold">2段階認証</h3>
+                  <p className="text-sm text-gray-600">
+                    {loginEmail} に設定された認証アプリに表示されている6桁のコードを入力してください
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="totp-code">認証コード</Label>
+                  <Input
+                    id="totp-code"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    required
+                    autoFocus
+                    className="text-center text-lg tracking-[0.3em] font-mono"
+                  />
+                </div>
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+                <Button type="submit" className="w-full" disabled={isLoading || totpCode.length !== 6}>
+                  {isLoading ? '確認中...' : '認証してログイン'}
+                </Button>
+              </form>
+            ) : isResetPassword ? (
               <div className="space-y-4">
                 <div className="flex items-center mb-4">
                   <Button
