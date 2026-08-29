@@ -38,7 +38,6 @@ const Admin = () => {
   const [flaggedPosts, setFlaggedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [postFilter, setPostFilter] = useState('all');
@@ -64,7 +63,7 @@ const Admin = () => {
   });
 
   const [spamReports, setSpamReports] = useState([]);
-  const [spamReportsByPost, setSpamReportsByPost] = useState({});
+  const [spamReportsByPost, setSpamReportsByPost] = useState<Record<string, any[]>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -675,7 +674,7 @@ const Admin = () => {
   };
 
   const handleDeleteUser = async (userUuid) => {
-    const targetUser = users.find(u => u.user_uuid === userUuid);
+    const targetUser = allUsers.find(u => u.user_uuid === userUuid);
     const targetEmail = targetUser?.email || '';
     
     if (!window.confirm(`このユーザーを完全に削除します。元に戻せません。認証アカウントも削除され、同じメールで再登録できるようになります。\n\nメール: ${targetEmail}\n\nよろしいですか？`)) {
@@ -878,6 +877,33 @@ const Admin = () => {
       toast({
         title: "エラー",
         description: "投稿の再表示に失敗しました",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('本当にこの投稿を削除しますか？')) {
+      return;
+    }
+
+    try {
+      await db.update('posts',
+        { _row_id: `eq.${postId}` },
+        { status: 'removed' }
+      );
+
+      toast({
+        title: "投稿削除",
+        description: "投稿が削除されました",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "エラー",
+        description: "投稿の削除に失敗しました",
         variant: "destructive"
       });
     }
@@ -1957,90 +1983,6 @@ const Admin = () => {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Post Detail Modal */}
-        <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>投稿詳細</DialogTitle>
-            </DialogHeader>
-            {selectedPost && (
-              <div className="space-y-4">
-                <div>
-                  <Label>タイトル</Label>
-                  <Input 
-                    value={selectedPost.title}
-                    onChange={(e) => setSelectedPost({...selectedPost, title: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label>説明</Label>
-                  <Textarea 
-                    value={selectedPost.description}
-                    onChange={(e) => setSelectedPost({...selectedPost, description: e.target.value})}
-                    rows={4}
-                  />
-                </div>
-                <div>
-                  <Label>ステータス</Label>
-                  <Select 
-                    value={selectedPost.status} 
-                    onValueChange={(value) => setSelectedPost({...selectedPost, status: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">公開中</SelectItem>
-                      <SelectItem value="sold">完了</SelectItem>
-                      <SelectItem value="expired">期限切れ</SelectItem>
-                      <SelectItem value="flagged">報告済み</SelectItem>
-                      <SelectItem value="removed">削除</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {selectedPost.images && JSON.parse(selectedPost.images).length > 0 && (
-                  <div>
-                    <Label>画像</Label>
-                    <div className="grid grid-cols-3 gap-2 mt-2">
-                      {JSON.parse(selectedPost.images).map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img 
-                            src={image + '?w=200&h=200'} 
-                            alt={`Image ${index + 1}`}
-                            className="w-full h-32 object-cover rounded"
-                          />
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-1 right-1"
-                            onClick={() => handleDeleteImage(selectedPost._row_id, image)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setSelectedPost(null)}>
-                    キャンセル
-                  </Button>
-                  <Button onClick={() => handleUpdatePost(selectedPost._row_id, selectedPost)}>
-                    保存
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    onClick={() => handleDeletePost(selectedPost._row_id)}
-                  >
-                    削除
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
 
         {/* User Detail Modal */}
         <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
