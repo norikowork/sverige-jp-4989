@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Twitter, Facebook, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Twitter, Facebook, AlertCircle, CheckCircle, Wrench, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1194,7 +1194,7 @@ useEffect(() => {
                           {getCategoryName(post.category_uuid)}
                         </Badge>
                       )}
-                      {post.post_type === 'free' && post.price && (
+                      {post.post_type === 'free' && post.category_uuid !== 'cat-services' && post.price && (
                         <span className="text-green-600 font-semibold text-base sm:text-lg">
                           {post.price} SEK
                         </span>
@@ -1484,6 +1484,45 @@ useEffect(() => {
                           <div>
                             <span className="font-medium">勤務地:</span>
                             <p className="text-blue-900 mt-0.5">{post.work_location}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Service Information - Only show for service postings */}
+                {(post.service_fee || post.service_area || post.availability) && (
+                  <div className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center text-orange-800">
+                      <Wrench className="w-5 h-5 mr-2" />
+                      サービス詳細情報
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      {post.service_fee && (
+                        <div className="flex items-start text-orange-700">
+                          <DollarSign className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">サービス料金:</span>
+                            <p className="text-orange-900 mt-0.5">{post.service_fee}</p>
+                          </div>
+                        </div>
+                      )}
+                      {post.service_area && (
+                        <div className="flex items-start text-orange-700">
+                          <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">サービス提供エリア:</span>
+                            <p className="text-orange-900 mt-0.5">{post.service_area}</p>
+                          </div>
+                        </div>
+                      )}
+                      {post.availability && (
+                        <div className="flex items-start text-orange-700 sm:col-span-2">
+                          <Clock className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">対応可能時間:</span>
+                            <p className="text-orange-900 mt-0.5">{post.availability}</p>
                           </div>
                         </div>
                       )}
