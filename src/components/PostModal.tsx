@@ -837,6 +837,12 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       // (countyを含めると「no such column: county」で400エラーになる。県選択は市区選択の絞り込み用)
       delete postData.county;
 
+      // サービスカテゴリーには価格(price)欄が無いため、古いカテゴリーから変更した際などに
+      // 残った不要な値をここで必ずクリアする(公開ページで壊れた価格表示が残るのを防ぐ)
+      if (formData.category_uuid === 'cat-services') {
+        postData.price = '';
+      }
+
       // For events, compute event_date as unix timestamp and event_date_readable
       if (formData.category_uuid === 'cat-events' && formData.event_date) {
         const eventDate = new Date(formData.event_date);
