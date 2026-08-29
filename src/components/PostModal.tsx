@@ -1053,8 +1053,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
             </CardContent>
           </Card>
 
-          {/* 価格 - 仕事探しと住居以外のカテゴリーで表示 */}
-          {formData.category_uuid !== 'cat-job-seeking' && formData.category_uuid !== 'cat-housing' && (
+          {/* 価格 - 仕事探し・住居・サービス以外のカテゴリーで表示 */}
+          {formData.category_uuid !== 'cat-job-seeking' && formData.category_uuid !== 'cat-housing' && formData.category_uuid !== 'cat-services' && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -1394,28 +1394,6 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     placeholder="例：無料、100 SEK、要予約"
                   />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* その他のカテゴリ用 - 投稿タイプに応じた価格フィールド */}
-          {!['cat-for-sale', 'cat-job-seeking', 'cat-housing', 'cat-services', 'cat-events'].includes(formData.category_uuid) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">詳細情報</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {formData.post_type === 'paid' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="price">価格</Label>
-                    <Input
-                      id="price"
-                      value={formData.price}
-                      onChange={(e) => handleInputChange('price', e.target.value)}
-                      placeholder="例：500 SEK"
-                    />
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}
