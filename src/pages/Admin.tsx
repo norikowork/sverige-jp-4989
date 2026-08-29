@@ -102,7 +102,7 @@ const Admin = () => {
     try {
       const [userProfiles, posts, flagged, categoriesData, spamReportsData] = await Promise.all([
         db.query('user_profiles', { _deleted: 'eq.0', order: '_created_at.desc' }),
-        db.query('posts', { _deleted: 'eq.0', order: '_created_at.desc' }),
+        db.query('posts', { _deleted: 'eq.0', status: 'neq.removed', order: '_created_at.desc' }),
         db.query('posts', { status: 'eq.flagged', order: '_created_at.desc' }),
         db.query('categories', { _deleted: 'eq.0' }),
         db.query('spam_reports', { order: '_created_at.desc' })
