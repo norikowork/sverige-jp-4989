@@ -309,7 +309,6 @@ const getMunicipalityNameWithKatakana = (municipality: string, county: string) =
     'Nordanstig': 'ノルダンスティグ',
     
     // Västernorrland
-    'Sundsvall': 'スンツヴァル',
     'Örnsköldsvik': 'エルンスシェルドヴィーク',
     'Härnösand': 'ヘールネーサンド',
     'Kramfors': 'クランフォース',
@@ -364,7 +363,6 @@ const getMunicipalityNameWithKatakana = (municipality: string, county: string) =
     'Karlstad': 'カールスタード',
     'Kristinehamn': 'クリスティーネハムン',
     'Arvika': 'アーヴィカ',
-    'Karlskoga': 'カールルスコーガ',
     'Forshaga': 'フォールシェーエ',
     'Hammarö': 'ハンマレーエ',
     'Kil': 'キル',
@@ -428,6 +426,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     show_detailed_address: false,
     county: '',
     street: '',
+    cross_street: '',
     city: '',
     zip_code: '',
     brand: '',
@@ -456,9 +455,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     // Contact fields
     contact_method: 'email',
     phone: '',
-    email: user?.email || '',
-    // Detailed address
-    zip_code: ''
+    email: user?.email || ''
   });
   const [error, setError] = useState('');
 
@@ -493,6 +490,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         location_uuid: editingPost.location_uuid || editingPost.location || '',
         // Detailed address fields
         show_detailed_address: editingPost.show_detailed_address || false,
+        county: editingPost.county || '',
         street: editingPost.street || '',
         cross_street: editingPost.cross_street || '',
         city: editingPost.city || '',
@@ -558,6 +556,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       location_uuid: '',
       // Detailed address fields
       show_detailed_address: false,
+      county: '',
       street: '',
       cross_street: '',
       city: '',
@@ -626,7 +625,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     // 掲示板カテゴリーが選択されたらフォーラムページにリダイレクト
     if (field === 'category_uuid' && value === 'cat-bulletin') {
       // モーダルを閉じてフォーラムページに遷移
@@ -637,7 +636,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
 
     // County選択時にMunicipalityをクリア
     if (field === 'selectedCounty') {
-      setSelectedCounty(value);
+      setSelectedCounty(value as string);
       setFormData(prev => ({ ...prev, location_uuid: '' }));
       return;
     }
@@ -767,15 +766,15 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     let categorySpecificFields = true;
     
     if (formData.category_uuid === 'cat-for-sale') {
-      categorySpecificFields = formData.price && formData.condition;
+      categorySpecificFields = !!(formData.price && formData.condition);
     } else if (formData.category_uuid === 'cat-job-seeking') {
-      categorySpecificFields = formData.company_name && formData.salary && formData.employment_type && formData.experience_level;
+      categorySpecificFields = !!(formData.company_name && formData.salary && formData.employment_type && formData.experience_level);
     } else if (formData.category_uuid === 'cat-housing') {
-      categorySpecificFields = formData.rent;
+      categorySpecificFields = !!formData.rent;
     } else if (formData.category_uuid === 'cat-services') {
-      categorySpecificFields = formData.service_fee;
+      categorySpecificFields = !!formData.service_fee;
     } else if (formData.category_uuid === 'cat-events') {
-      categorySpecificFields = formData.event_date;
+      categorySpecificFields = !!formData.event_date;
     }
     
     return commonFields && hasSubcategory && categorySpecificFields;
@@ -831,9 +830,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         throw new Error('この投稿を編集する権限がありません。自分の投稿のみ編集できます。');
       }
 
-      const { location_id, ...cleanFormData } = formData;
       const postData: any = {
-        ...cleanFormData,
+        ...formData,
         images: JSON.stringify(imageUrls),
         location_uuid: formData.location_uuid,
         show_detailed_address: formData.show_detailed_address || false,
