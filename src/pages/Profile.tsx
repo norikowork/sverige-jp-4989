@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link, useNavigate } from 'react-router-dom';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
-import { content } from '@/lib/shared/kliv-content';
+import content from '@/lib/shared/kliv-content';
 import { useToast } from '@/hooks/use-toast';
 import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
@@ -397,7 +397,7 @@ const Profile = () => {
     setIsPostModalOpen(true);
   };
 
-  const handlePostUpdated = async (updatedPost) => {
+  const handlePostUpdated = async (updatedPost?: any) => {
     console.log('handlePostUpdated called with:', updatedPost);
     setIsPostModalOpen(false);
     setEditingPost(null);
