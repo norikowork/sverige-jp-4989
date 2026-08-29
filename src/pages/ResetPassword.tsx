@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'form'>('loading');
   const [message, setMessage] = useState('');
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
