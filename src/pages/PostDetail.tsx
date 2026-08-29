@@ -1836,7 +1836,7 @@ useEffect(() => {
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)}
         defaultTab={authModalTab}
-        onSuccess={handleAuthSuccess}
+        onAuthSuccess={handleAuthSuccess}
       />
 
       <Footer />
