@@ -14,6 +14,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthSuccess: (user: any) => void;
+  defaultTab?: string;
 }
 
 const translateAuthError = (message: string | undefined, fallback: string): string => {
@@ -41,7 +42,7 @@ const translateAuthError = (message: string | undefined, fallback: string): stri
   return fallback;
 };
 
-export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) => {
+export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -460,7 +461,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess }: AuthModalProps) =>
           <DialogTitle>アカウント</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue={defaultTab || 'login'} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">ログイン</TabsTrigger>
             <TabsTrigger value="register">新規登録</TabsTrigger>
