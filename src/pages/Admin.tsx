@@ -36,6 +36,8 @@ const Admin = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
   const [flaggedPosts, setFlaggedPosts] = useState([]);
+  const [forumTopics, setForumTopics] = useState([]);
+  const [forumReplyCounts, setForumReplyCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -100,25 +102,36 @@ const Admin = () => {
 
   const loadAdminData = async () => {
     try {
-      const [userProfiles, posts, flagged, categoriesData, spamReportsData] = await Promise.all([
+      const [userProfiles, posts, flagged, categoriesData, spamReportsData, forumTopicsData, forumRepliesData] = await Promise.all([
         db.query('user_profiles', { _deleted: 'eq.0', order: '_created_at.desc' }),
         db.query('posts', { _deleted: 'eq.0', status: 'neq.removed', order: '_created_at.desc' }),
         db.query('posts', { status: 'eq.flagged', order: '_created_at.desc' }),
         db.query('categories', { _deleted: 'eq.0' }),
-        db.query('spam_reports', { order: '_created_at.desc' })
+        db.query('spam_reports', { order: '_created_at.desc' }),
+        db.query('forum_topics', { order: '_created_at.desc' }),
+        db.query('forum_replies', {})
       ]);
-      
+
       // ユーザーリストはuser_profilesのみを使用
       setAllUsers(userProfiles);
-      
+
       // 共通ヘルパー関数で投稿者名を追加
       const postsWithCreatorNames = await addAuthorNamesToPosts(posts, userProfiles);
       const flaggedWithCreatorNames = await addAuthorNamesToPosts(flagged, userProfiles);
-      
+      const forumTopicsWithCreatorNames = await addAuthorNamesToPosts(forumTopicsData, userProfiles);
+
       setAllPosts(postsWithCreatorNames);
       setFlaggedPosts(flaggedWithCreatorNames);
       setCategories(categoriesData);
       setSpamReports(spamReportsData || []);
+      setForumTopics(forumTopicsWithCreatorNames);
+
+      // トピックごとの返信数を集計
+      const replyCounts: Record<string, number> = {};
+      (forumRepliesData || []).forEach((reply: any) => {
+        replyCounts[reply.topic_id] = (replyCounts[reply.topic_id] || 0) + 1;
+      });
+      setForumReplyCounts(replyCounts);
       
       // Group spam reports by post_id
       const groupedReports = {};
@@ -909,6 +922,77 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteForumTopic = async (topicId) => {
+    if (!window.confirm('このトピックを削除しますか？すべての返信も削除されます。')) {
+      return;
+    }
+
+    try {
+      await db.delete('forum_replies', { topic_id: `eq.${topicId}` });
+      await db.delete('forum_topics', { _row_id: `eq.${topicId}` });
+
+      toast({
+        title: "トピック削除",
+        description: "トピックを削除しました",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error deleting forum topic:', error);
+      toast({
+        title: "エラー",
+        description: "トピックの削除に失敗しました",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleHideForumTopic = async (topicId) => {
+    try {
+      await db.update('forum_topics',
+        { _row_id: `eq.${topicId}` },
+        { is_hidden: 1 }
+      );
+
+      toast({
+        title: "非表示完了",
+        description: "トピックを非表示にしました",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error hiding forum topic:', error);
+      toast({
+        title: "エラー",
+        description: "トピックの非表示に失敗しました",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleShowForumTopic = async (topicId) => {
+    try {
+      await db.update('forum_topics',
+        { _row_id: `eq.${topicId}` },
+        { is_hidden: 0 }
+      );
+
+      toast({
+        title: "再表示完了",
+        description: "トピックを再表示しました",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error showing forum topic:', error);
+      toast({
+        title: "エラー",
+        description: "トピックの再表示に失敗しました",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleMarkAsOk = async (postId, adminName) => {
     try {
       // 投稿を再表示する（問題なし＝公開に戻す）
@@ -1407,6 +1491,7 @@ const Admin = () => {
         <Tabs defaultValue="posts" className="space-y-6">
           <TabsList>
             <TabsTrigger value="posts">投稿管理</TabsTrigger>
+            <TabsTrigger value="forum">掲示板管理</TabsTrigger>
             <TabsTrigger value="users">ユーザー管理</TabsTrigger>
             <TabsTrigger value="categories">カテゴリ管理</TabsTrigger>
             <TabsTrigger value="spam_reports">
@@ -1518,6 +1603,75 @@ const Admin = () => {
                       )}
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="forum">
+            <Card>
+              <CardHeader>
+                <CardTitle>掲示板管理</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {forumTopics.map((topic: any) => (
+                    <div key={topic._row_id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg">{topic.title}</h3>
+                          <div className="flex items-center space-x-2 mb-2 mt-1">
+                            {topic.is_hidden === 1 && (
+                              <Badge variant="destructive">非表示中</Badge>
+                            )}
+                            <Badge variant="outline">
+                              トピックID: {topic._row_id}
+                            </Badge>
+                            <Badge variant="outline">
+                              投稿者: {topic.creatorDisplayName} (ID: {topic.creatorId})
+                            </Badge>
+                            <Badge variant="outline">
+                              返信数: {forumReplyCounts[topic._row_id] || 0}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            投稿日: {formatDate(topic._created_at)}
+                          </p>
+                        </div>
+                        <div className="flex space-x-2 ml-4">
+                          {topic.is_hidden === 1 ? (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleShowForumTopic(topic._row_id)}
+                            >
+                              再表示する
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleHideForumTopic(topic._row_id)}
+                            >
+                              非表示にする
+                            </Button>
+                          )}
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteForumTopic(topic._row_id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {forumTopics.length === 0 && (
+                    <p className="text-gray-500 text-center py-8">
+                      掲示板のトピックはありません
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
