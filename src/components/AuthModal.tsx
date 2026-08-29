@@ -76,7 +76,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       if (existingProfile.length === 0) {
         // 新規作成：user_uuid, email, display_name, role: 'user', is_blocked: 0, phone: ''
         const userEmail = user.email || '';
-        const userDisplayName = user.name || user.email || '';
+        // KlivUser に name は無く firstName / lastName に入るため、結合して表示名にする
+        const userDisplayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email || '';
         
         console.log('➕ 新規プロフィール作成:', {
           user_uuid: user.userUuid,
@@ -139,9 +140,21 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       console.log('🔐 ログイン開始:', loginEmail);
       
       // ステップ1: ログイン
+      // auth.signIn() は { status, user } の入れ物を返す:
+      //   - status: 'authenticated' → user にログインユーザー情報が入る
+      //   - status: 'totp_required' → 認証アプリの2段階認証が必要(この時点ではセッション未発行)
       let user;
       try {
-        user = await auth.signIn(loginEmail, loginPassword);
+        const result = await auth.signIn(loginEmail, loginPassword);
+
+        if (result.status === 'totp_required') {
+          console.log('🔐 2段階認証が必要[signIn]:', loginEmail);
+          setError('このアカウントには2段階認証(認証アプリ)が設定されています。現在このサイトでは認証アプリによるログインに対応していません。運営にお問い合わせください。');
+          setIsLoading(false);
+          return;
+        }
+
+        user = result.user;
         console.log('✅ ログイン成功[signIn]:', user.userUuid);
       } catch (signInErr: any) {
         console.error('❌ ログインエラー[signIn]:', signInErr);
@@ -150,20 +163,22 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         return;
       }
       
-      // ステップ2: emailVerifiedチェック（メール確認済みかどうか）
+      // ステップ2: セッション確認 + emailVerifiedチェック（メール確認済みかどうか）
+      // auth.getUser() はサインイン直後はキャッシュを返して通信しないため、
+      // forceRefresh(true) で必ずサーバーにセッションを確認する。
+      // セッションが確立していなければ、このまま続けると未ログイン状態での
+      // DB書き込み(匿名リクエストによる403)が発生するため、ここで中断する。
+      let emailVerified: boolean | undefined;
       try {
-        console.log('📧 emailVerifiedチェック開始[emailVerifiedCheck]:', user.userUuid);
-        
-        let emailVerified = user.emailVerified;
-        console.log('📧 signIn戻り値のemailVerified:', emailVerified);
-        
-        // signInの戻り値にemailVerifiedがない場合、auth.getUser()で取得
-        if (emailVerified === undefined || emailVerified === null) {
-          console.log('📧 emailVerifiedがundefinedのため、auth.getUser()で再取得');
-          const refreshedUser = await auth.getUser();
-          emailVerified = refreshedUser.emailVerified;
-          console.log('📧 auth.getUser()のemailVerified:', emailVerified);
+        const refreshedUser = await auth.getUser(true);
+        if (!refreshedUser) {
+          console.error('⚠️ セッション確認失敗[getUser]:', loginEmail);
+          setError('ログインは受理されましたが、セッションの確認に失敗しました。Cookieの設定が有効になっているかご確認のうえ、再度お試しください。');
+          setIsLoading(false);
+          return;
         }
+        emailVerified = refreshedUser.emailVerified;
+        console.log('📧 サーバー確認済みセッション[emailVerified]:', user.userUuid, emailVerified);
         
         if (emailVerified === false) {
           console.log('🚫 emailVerifiedがfalseのため、サインアウト[emailVerified]:', user.userUuid);
@@ -185,8 +200,11 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         console.log('✅ emailVerifiedがtrue[emailVerified]:', user.userUuid);
         
       } catch (emailVerifiedErr: any) {
-        console.error('⚠️ emailVerifiedチェックエラー[emailVerifiedCheck]:', emailVerifiedErr);
-        // emailVerifiedチェックが失敗してもログインは続行（安全性のため）
+        console.error('⚠️ セッション確認エラー[getUser]:', emailVerifiedErr);
+        // セッションが確認できないまま続けると未ログイン状態でのDB書き込みが発生するため中断する
+        setError('ログインは受理されましたが、セッションの確認に失敗しました。再度お試しください。');
+        setIsLoading(false);
+        return;
       }
       
       // ステップ3: プロフィール確実に作成（onAuthSuccessの前に実行）
