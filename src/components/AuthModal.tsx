@@ -57,6 +57,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
   const [resetStep, setResetStep] = useState(1);
   const [totpRequired, setTotpRequired] = useState(false);
   const [totpCode, setTotpCode] = useState('');
+  const [useRecoveryCode, setUseRecoveryCode] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState('');
   const [error, setError] = useState('');
   const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
   const [isResendingEmail, setIsResendingEmail] = useState(false);
@@ -186,26 +188,31 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
 
     try {
       let user;
+      // 認証アプリの6桁コード or リカバリーコードのどちらかでサインインを完了する
+      const wrongCodeMessage = useRecoveryCode
+        ? 'リカバリーコードが正しくないか、既に使用済みです。もう一度ご確認ください。'
+        : '認証コードが正しくありません。認証アプリに表示されている6桁のコードを確認して、もう一度お試しください。';
       try {
-        // auth.submitTotp(email, password, code): 6桁の認証コードを付けて再度サインインする
-        const result = await auth.submitTotp(loginEmail, loginPassword, totpCode);
+        const result = useRecoveryCode
+          ? await auth.submitRecoveryCode(loginEmail, loginPassword, recoveryCode.trim())
+          : await auth.submitTotp(loginEmail, loginPassword, totpCode);
 
         if (result.status === 'totp_required' || !result.user) {
-          console.error('❌ 2段階認証コード不正[submitTotp]:', loginEmail);
-          setError('認証コードが正しくありません。認証アプリに表示されている6桁のコードを確認して、もう一度お試しください。');
+          console.error('❌ 2段階認証コード不正[submit2FA]:', loginEmail);
+          setError(wrongCodeMessage);
           setIsLoading(false);
           return;
         }
 
         user = result.user;
-        console.log('✅ 2段階認証ログイン成功[submitTotp]:', user.userUuid);
+        console.log('✅ 2段階認証ログイン成功[submit2FA]:', user.userUuid);
       } catch (totpErr: any) {
-        console.error('❌ 2段階認証エラー[submitTotp]:', totpErr);
+        console.error('❌ 2段階認証エラー[submit2FA]:', totpErr);
         const msg = `${totpErr?.message || ''} ${totpErr?.code || ''}`;
         if (msg.includes('rate_limit')) {
           setError('試行回数が多すぎます。しばらくしてから再度お試しください。');
         } else {
-          setError('認証コードが正しくありません。認証アプリに表示されている6桁のコードを確認して、もう一度お試しください。');
+          setError(wrongCodeMessage);
         }
         setIsLoading(false);
         return;
@@ -226,6 +233,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
   const handleCancelTotp = () => {
     setTotpRequired(false);
     setTotpCode('');
+    setUseRecoveryCode(false);
+    setRecoveryCode('');
     setError('');
   };
 
@@ -501,6 +510,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
     setResetStep(1);
     setTotpRequired(false);
     setTotpCode('');
+    setUseRecoveryCode(false);
+    setRecoveryCode('');
     setError('');
     setIsEmailNotVerified(false);
     setResendSuccess(false);
@@ -568,29 +579,64 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
                     {loginEmail} に設定された認証アプリに表示されている6桁のコードを入力してください
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="totp-code">認証コード</Label>
-                  <Input
-                    id="totp-code"
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    value={totpCode}
-                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123456"
-                    required
-                    autoFocus
-                    className="text-center text-lg tracking-[0.3em] font-mono"
-                  />
-                </div>
+                {!useRecoveryCode ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="totp-code">認証コード</Label>
+                    <Input
+                      id="totp-code"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="123456"
+                      required
+                      autoFocus
+                      className="text-center text-lg tracking-[0.3em] font-mono"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="recovery-code">リカバリーコード</Label>
+                    <Input
+                      id="recovery-code"
+                      type="text"
+                      autoComplete="off"
+                      value={recoveryCode}
+                      onChange={(e) => setRecoveryCode(e.target.value)}
+                      placeholder="xxxxx-xxxxx"
+                      required
+                      autoFocus
+                      className="text-center font-mono"
+                    />
+                    <p className="text-xs text-gray-500">
+                      2段階認証を設定した際に表示された10個のコードのいずれかを入力してください(各コード1回のみ使用可)
+                    </p>
+                  </div>
+                )}
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full" disabled={isLoading || totpCode.length !== 6}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || (!useRecoveryCode ? totpCode.length !== 6 : recoveryCode.trim().length < 6)}
+                >
                   {isLoading ? '確認中...' : '認証してログイン'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 h-auto text-sm"
+                  onClick={() => {
+                    setUseRecoveryCode(!useRecoveryCode);
+                    setError('');
+                  }}
+                >
+                  {useRecoveryCode ? '認証コード入力に戻る' : '認証アプリを紛失した場合はリカバリーコードでログイン'}
                 </Button>
               </form>
             ) : isResetPassword ? (
