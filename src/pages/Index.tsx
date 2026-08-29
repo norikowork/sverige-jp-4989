@@ -355,7 +355,7 @@ const Index = () => {
 
   const loadFilteredPosts = async () => {
     try {
-      const filters = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
+      const filters: Record<string, string> = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
       
       if (selectedCategory) {
         filters.category_uuid = `eq.${selectedCategory}`;
