@@ -102,7 +102,8 @@ const PostDetail = () => {
     try {
       const postsData = await db.query('posts', {
         _deleted: 'eq.0',
-        is_hidden: 'eq.0'
+        is_hidden: 'eq.0',
+        status: 'neq.removed'
       }, { orderBy: '_created_at', orderDirection: 'desc' });
       setAllPosts(postsData || []);
     } catch (error) {
@@ -141,7 +142,8 @@ const PostDetail = () => {
     try {
       const postsData = await db.query('posts', {
         _row_id: `eq.${postId}`,
-        _deleted: 'eq.0'
+        _deleted: 'eq.0',
+        status: 'neq.removed'
       });
 
       if (postsData && postsData.length > 0) {
