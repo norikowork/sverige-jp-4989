@@ -382,14 +382,15 @@ useEffect(() => {
 
   useEffect(() => {
     if (allPosts.length > 0 && post) {
-      const currentIndex = allPosts.findIndex(p => p._row_id === post._row_id);
+      const categoryPosts = allPosts.filter(p => p.category_uuid === post.category_uuid);
+      const currentIndex = categoryPosts.findIndex(p => p._row_id === post._row_id);
       if (currentIndex > 0) {
-        setPreviousPost(allPosts[currentIndex - 1]);
+        setPreviousPost(categoryPosts[currentIndex - 1]);
       } else {
         setPreviousPost(null);
       }
-      if (currentIndex >= 0 && currentIndex < allPosts.length - 1) {
-        setNextPost(allPosts[currentIndex + 1]);
+      if (currentIndex >= 0 && currentIndex < categoryPosts.length - 1) {
+        setNextPost(categoryPosts[currentIndex + 1]);
       } else {
         setNextPost(null);
       }
@@ -1269,7 +1270,10 @@ useEffect(() => {
                     </span>
                   </Button>
                   <div className="px-2 text-xs text-gray-500">
-                    {allPosts.findIndex(p => p?._row_id === post._row_id) + 1} / {allPosts.length}
+                    {(() => {
+                      const categoryPosts = allPosts.filter(p => p?.category_uuid === post.category_uuid);
+                      return `${categoryPosts.findIndex(p => p?._row_id === post._row_id) + 1} / ${categoryPosts.length}`;
+                    })()}
                   </div>
                   <Button
                     variant="outline"
