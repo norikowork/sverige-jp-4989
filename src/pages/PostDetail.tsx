@@ -18,7 +18,6 @@ import auth from '@/lib/shared/kliv-auth';
 import functions from '@/lib/shared/kliv-functions';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { statusLabels, postTypeLabels } from '@/constants/postLabels';
 import { getMessageLimit } from '@/constants/plans';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 
@@ -1184,12 +1183,6 @@ useEffect(() => {
                       <span className="text-xs text-gray-400 font-mono">#{post._row_id}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className="text-gray-600"
-                      >
-                        {post.post_type === 'event' ? 'イベント' : (postTypeLabels[post.post_type] ?? post.post_type)}
-                      </Badge>
                       {post.condition && (
                         <Badge
                           variant="secondary"
