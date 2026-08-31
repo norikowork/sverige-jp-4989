@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Search, Clock, User, Reply, Home, Briefcase, GraduationCap, Car, Heart, Stethoscope, Baby, ShoppingBag, Plane, Calendar, Users, Wrench, DollarSign, FileText, Coffee, Shield } from 'lucide-react';
+import { MessageSquare, Search, Clock, User, Reply, Home, Briefcase, GraduationCap, Car, Heart, Stethoscope, Baby, ShoppingBag, Plane, Calendar, Users, Wrench, DollarSign, FileText, Coffee, Shield, Star } from 'lucide-react';
 import ForumTopicForm from '@/components/ForumTopicForm';
 import { FORUM_CATEGORIES } from '@/constants/forumCategories';
 import db from '@/lib/shared/kliv-database.js';
@@ -42,6 +42,16 @@ const categoryInfo: Record<string, { icon: any; color: string }> = {
   'その他': { icon: Coffee, color: 'bg-gray-500' },
 };
 
+// トップページ/投稿詳細ページと共通の投稿カテゴリータブ用アイコン
+const postCategoryIcons = {
+  'cat-for-sale': ShoppingBag,
+  'cat-job-seeking': User,
+  'cat-housing': Home,
+  'cat-events': Star,
+  'cat-services': Wrench,
+  'cat-bulletin': MessageSquare
+};
+
 export default function ForumPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [topics, setTopics] = useState<ForumTopic[]>([]);
@@ -52,6 +62,7 @@ export default function ForumPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [replyCounts, setReplyCounts] = useState<Record<number, number>>({});
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [postCategories, setPostCategories] = useState<any[]>([]);
 
   // Filter states
   const categoryFilter = searchParams.get('category') || '';
@@ -60,6 +71,7 @@ export default function ForumPage() {
   useEffect(() => {
     loadTopics();
     loadUser();
+    loadPostCategories();
   }, []);
 
   useEffect(() => {
@@ -80,6 +92,26 @@ export default function ForumPage() {
   const loadUser = async () => {
     const currentUser = await auth.getUser();
     setUser(currentUser);
+  };
+
+  const loadPostCategories = async () => {
+    try {
+      const data = await db.query('categories', { _deleted: 'eq.0' });
+      setPostCategories(data || []);
+    } catch (error) {
+      console.error('Failed to load post categories:', error);
+    }
+  };
+
+  // トップページ/投稿詳細ページと共通のカテゴリータブ。掲示板カテゴリーは
+  // このページ自体の絞り込み(?category=)と名前が衝突するため、専用の
+  // URLパラメータは使わずトップページ/このページへの画面遷移として扱う
+  const handlePostCategoryChange = (categoryId: string) => {
+    if (!categoryId || categoryId === 'cat-bulletin') {
+      window.location.href = '/forum';
+      return;
+    }
+    window.location.href = `/?category=${categoryId}`;
   };
 
   const loadTopics = async () => {
@@ -232,6 +264,33 @@ export default function ForumPage() {
       {/* Main Content */}
       <div className="flex-1 bg-gray-50 py-8">
         <div className="container mx-auto px-4">
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePostCategoryChange('')}
+            className="border-2 bg-white hover:bg-gray-50"
+          >
+            全て
+          </Button>
+          {postCategories.map((category) => {
+            const IconComponent = postCategoryIcons[category.uuid] || Home;
+            return (
+              <Button
+                key={category.uuid}
+                variant="outline"
+                size="sm"
+                onClick={() => handlePostCategoryChange(category.uuid)}
+                className="border-2 bg-white hover:bg-gray-50"
+                style={{ borderColor: category.color, borderWidth: '2px' }}
+              >
+                <IconComponent className="w-4 h-4 mr-1" />
+                {category.name_ja}
+              </Button>
+            );
+          })}
+        </div>
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">情報・掲示板</h1>
           <p className="text-gray-600">
