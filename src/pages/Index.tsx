@@ -1,5 +1,5 @@
 // Sweden.JP - Stockholm Japanese Community - Main index page
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -155,6 +155,7 @@ const Index = () => {
   }, [user]);
 
   const loadData = async () => {
+    const requestId = ++loadRequestIdRef.current;
     try {
       const [categoriesData, locationsData, subcategoriesData, postsData, usersData, profilesData] = await Promise.all([
         db.query('categories', { _deleted: 'eq.0' }),
@@ -239,6 +240,7 @@ const Index = () => {
         };
       });
       
+      if (requestId !== loadRequestIdRef.current) return;
       setAllPosts(postsWithImages);
       setForumTopics(forumTopicsData);
     } catch (error) {
@@ -368,7 +370,14 @@ const Index = () => {
   const totalPages = Math.ceil(posts.length / postsPerPage);
   const currentPosts = getCurrentPagePosts();
 
+  // loadPosts/loadFilteredPostsは他ページからの遷移直後などに続けて呼ばれることがあり、
+  // 後から呼ばれたリクエストより先に古いリクエストの結果が返ってくると、
+  // 正しい絞り込み結果が古い結果で上書きされてしまう。リクエストごとに番号を振り、
+  // 自分より新しいリクエストが発生していたら結果を反映しないようにする。
+  const loadRequestIdRef = useRef(0);
+
   const loadFilteredPosts = async () => {
+    const requestId = ++loadRequestIdRef.current;
     try {
       const filters: Record<string, string> = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
       
@@ -476,6 +485,7 @@ const Index = () => {
           )
         : postsWithImages;
       
+      if (requestId !== loadRequestIdRef.current) return;
       setAllPosts(filteredPosts);
     } catch (error) {
       console.error('Error loading filtered posts:', error);
@@ -483,6 +493,7 @@ const Index = () => {
   };
 
   const loadPosts = async () => {
+    const requestId = ++loadRequestIdRef.current;
     try {
       const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' });
       // Parse images JSON for each post
@@ -548,6 +559,7 @@ const Index = () => {
         return true; // イベント以外は常に表示
       });
       
+      if (requestId !== loadRequestIdRef.current) return;
       setAllPosts(postsFiltered);
     } catch (error) {
       console.error('Error loading posts:', error);
