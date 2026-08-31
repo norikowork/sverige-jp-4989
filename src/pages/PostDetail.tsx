@@ -1617,7 +1617,7 @@ useEffect(() => {
                           <Package className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                           <div>
                             <span className="font-medium">広さ:</span>
-                            <p className="text-green-900 mt-0.5">{post.area_sqm}㎡</p>
+                            <p className="text-green-900 mt-0.5">{post.area_sqm.includes('㎡') ? post.area_sqm : `${post.area_sqm}㎡`}</p>
                           </div>
                         </div>
                       )}

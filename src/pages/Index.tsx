@@ -178,7 +178,7 @@ const Index = () => {
       // Try to load forum topics separately (may not exist in all environments)
       let forumTopicsData = [];
       try {
-        forumTopicsData = await db.query('forum_topics', { order: '_created_at.desc', limit: '100' });
+        forumTopicsData = await db.query('forum_topics', { is_hidden: 'neq.1', order: '_created_at.desc', limit: '100' });
       } catch (forumError) {
         console.warn('Forum topics table not available or error loading:', forumError);
         forumTopicsData = [];
