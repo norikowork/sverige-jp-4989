@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, MessageSquare, Clock, User, Reply, Loader2, Send, Trash2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Clock, User, Reply, Loader2, Send, Trash2, ShoppingBag, Home, Star, Wrench } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Footer from '@/components/Footer';
 import db from '@/lib/shared/kliv-database.js';
@@ -31,6 +31,16 @@ interface ForumReply {
   user_name?: string;
 }
 
+// トップページ/投稿詳細ページ/掲示板一覧と共通の投稿カテゴリータブ用アイコン
+const postCategoryIcons = {
+  'cat-for-sale': ShoppingBag,
+  'cat-job-seeking': User,
+  'cat-housing': Home,
+  'cat-events': Star,
+  'cat-services': Wrench,
+  'cat-bulletin': MessageSquare
+};
+
 export default function ForumTopicDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -40,16 +50,35 @@ export default function ForumTopicDetail() {
   const [replyBody, setReplyBody] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [postCategories, setPostCategories] = useState<any[]>([]);
 
   useEffect(() => {
     loadTopic();
     loadReplies();
     loadUser();
+    loadPostCategories();
   }, [id]);
 
   const loadUser = async () => {
     const currentUser = await auth.getUser();
     setUser(currentUser);
+  };
+
+  const loadPostCategories = async () => {
+    try {
+      const data = await db.query('categories', { _deleted: 'eq.0' });
+      setPostCategories(data || []);
+    } catch (error) {
+      console.error('Failed to load post categories:', error);
+    }
+  };
+
+  const handlePostCategoryChange = (categoryId: string) => {
+    if (!categoryId || categoryId === 'cat-bulletin') {
+      navigate('/forum');
+      return;
+    }
+    navigate(`/?category=${categoryId}`);
   };
 
   const loadTopic = async () => {
@@ -195,6 +224,33 @@ export default function ForumTopicDetail() {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 bg-gray-50 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePostCategoryChange('')}
+            className="border-2 bg-white hover:bg-gray-50"
+          >
+            全て
+          </Button>
+          {postCategories.map((category) => {
+            const IconComponent = postCategoryIcons[category.uuid] || Home;
+            return (
+              <Button
+                key={category.uuid}
+                variant="outline"
+                size="sm"
+                onClick={() => handlePostCategoryChange(category.uuid)}
+                className="border-2 bg-white hover:bg-gray-50"
+                style={{ borderColor: category.color, borderWidth: '2px' }}
+              >
+                <IconComponent className="w-4 h-4 mr-1" />
+                {category.name_ja}
+              </Button>
+            );
+          })}
+        </div>
+
         {/* Back Button */}
         <Link to="/forum">
           <Button variant="ghost" className="mb-4">
