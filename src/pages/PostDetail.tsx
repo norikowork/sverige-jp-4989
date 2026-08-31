@@ -96,6 +96,15 @@ const PostDetail = () => {
     'any': '経験問わず'
   };
 
+  // 価格表示を整形する（「無料」の場合はSEKを付けない、価格に既にSEKが
+  // 含まれている場合は二重に付けない）
+  const formatPrice = (price: string) => {
+    if (price === '無料' || price === '0') {
+      return '無料';
+    }
+    return /sek/i.test(price) ? price : `${price} SEK`;
+  };
+
   const roomsLabels = {
     'studio': 'ワンルーム',
     '1k': '1K',
@@ -1279,7 +1288,7 @@ useEffect(() => {
                       )}
                       {post.post_type === 'free' && post.category_uuid !== 'cat-services' && post.price && (
                         <span className="text-green-600 font-semibold text-base sm:text-lg">
-                          {post.price} SEK
+                          {formatPrice(post.price)}
                         </span>
                       )}
                       {post.post_type === 'event' && post.event_date_readable && (
