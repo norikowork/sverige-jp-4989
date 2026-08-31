@@ -1538,7 +1538,11 @@ const Admin = () => {
                     <div key={post._row_id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{post.title}</h3>
+                          <h3 className="font-semibold text-lg">
+                            <Link to={`/post/${post._row_id}`} className="hover:text-blue-600 hover:underline">
+                              {post.title}
+                            </Link>
+                          </h3>
                           <p className="text-gray-600 text-sm mb-2">{post.description?.substring(0, 100)}...</p>
                           <div className="flex items-center space-x-2 mb-2">
                             <Badge variant="outline">
