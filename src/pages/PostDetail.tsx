@@ -1286,7 +1286,7 @@ useEffect(() => {
                           {getCategoryName(post.category_uuid)}
                         </Badge>
                       )}
-                      {post.post_type === 'free' && post.category_uuid !== 'cat-services' && post.price && (
+                      {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                         <span className="text-green-600 font-semibold text-base sm:text-lg">
                           {formatPrice(post.price)}
                         </span>

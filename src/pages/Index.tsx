@@ -849,7 +849,7 @@ const Index = () => {
                             {employmentTypeLabels[post.employment_type] || post.employment_type}
                           </span>
                         )}
-                        {post.post_type === 'free' && post.category_uuid !== 'cat-services' && post.price && (
+                        {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                           <span className="font-semibold text-green-600">
                             {formatPrice(post.price)}
                           </span>
@@ -1122,7 +1122,7 @@ const Index = () => {
                                 {employmentTypeLabels[post.employment_type] || post.employment_type}
                               </span>
                             )}
-                            {post.post_type === 'free' && post.category_uuid !== 'cat-services' && post.price && (
+                            {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                               <span className="font-semibold text-green-600">
                                 {formatPrice(post.price)}
                               </span>
