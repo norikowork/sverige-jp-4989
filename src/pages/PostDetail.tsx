@@ -1083,6 +1083,11 @@ useEffect(() => {
   };
 
   const handleCategoryChange = (categoryId) => {
+    // 掲示板カテゴリーの場合はフォーラムページに遷移(トップページと同じ挙動)
+    if (categoryId === 'cat-bulletin') {
+      navigate('/forum');
+      return;
+    }
     navigate(categoryId ? `/?category=${categoryId}` : '/');
   };
 
