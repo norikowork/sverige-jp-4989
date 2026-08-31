@@ -56,6 +56,7 @@ const Index = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedMapPost, setSelectedMapPost] = useState(null);
@@ -73,7 +74,7 @@ const Index = () => {
     checkAuth();
   }, []);
 
-  // Read category and search term from URL params on mount and when URL changes
+  // Read category/search from URL params on mount and when URL changes
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
@@ -91,18 +92,28 @@ const Index = () => {
     setCurrentPage(1);
   }, [allPosts]);
 
+  // 検索語の入力が落ち着いてから(300ms)実際の検索を実行する
+  // (1文字ごとに検索を実行すると、複数のリクエストが前後して結果が
+  // 入れ替わりチラつく原因になっていたため)
   useEffect(() => {
-    if (searchTerm || selectedCategory || selectedMonth) {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (debouncedSearchTerm || selectedCategory || selectedMonth) {
       loadFilteredPosts();
     } else {
       loadPosts();
     }
-  }, [searchTerm, selectedCategory, selectedMonth]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedMonth]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
 
   // Refresh posts when PostModal closes
   useEffect(() => {
@@ -458,10 +469,10 @@ const Index = () => {
       }));
       
       // Client-side search for title/description
-      const filteredPosts = searchTerm
-        ? postsWithImages.filter(post => 
-            post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            post.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const filteredPosts = debouncedSearchTerm
+        ? postsWithImages.filter(post =>
+            post.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            post.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
           )
         : postsWithImages;
       
