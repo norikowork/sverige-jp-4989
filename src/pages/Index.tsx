@@ -73,11 +73,15 @@ const Index = () => {
     checkAuth();
   }, []);
 
-  // Read category from URL params on mount and when URL changes
+  // Read category and search term from URL params on mount and when URL changes
   useEffect(() => {
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
       setSelectedCategory(categoryParam);
+    }
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
     }
   }, [searchParams]);
 

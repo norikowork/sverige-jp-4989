@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Twitter, Facebook, AlertCircle, CheckCircle, Wrench, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Twitter, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,11 +21,21 @@ import { useToast } from '@/hooks/use-toast';
 import { getMessageLimit } from '@/constants/plans';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 
+const categoryIcons = {
+  'cat-for-sale': ShoppingBag,
+  'cat-job-seeking': User,
+  'cat-housing': Home,
+  'cat-events': Star,
+  'cat-services': Wrench,
+  'cat-bulletin': MessageSquare
+};
+
 const PostDetail = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [post, setPost] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactMessage, setContactMessage] = useState('');
@@ -1072,6 +1082,19 @@ useEffect(() => {
     }
   };
 
+  const handleCategoryChange = (categoryId) => {
+    navigate(categoryId ? `/?category=${categoryId}` : '/');
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -1165,7 +1188,54 @@ useEffect(() => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-8">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                placeholder="投稿を検索..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <Button type="button" className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/')}>
+            <Plus className="w-4 h-4 mr-2" />
+            新規投稿
+          </Button>
+        </form>
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleCategoryChange('')}
+            className="border-2 bg-white hover:bg-gray-50"
+          >
+            全て
+          </Button>
+          {categories.map((category) => {
+            const IconComponent = categoryIcons[category.uuid] || Home;
+            return (
+              <Button
+                key={category.uuid}
+                variant="outline"
+                size="sm"
+                onClick={() => handleCategoryChange(category.uuid)}
+                className="border-2 bg-white hover:bg-gray-50"
+                style={{ borderColor: category.color, borderWidth: '2px' }}
+              >
+                <IconComponent className="w-4 h-4 mr-1" />
+                {category.name_ja}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8">
         <Button
           variant="ghost"
           onClick={handleGoBack}
