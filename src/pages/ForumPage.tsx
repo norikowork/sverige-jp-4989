@@ -107,11 +107,11 @@ export default function ForumPage() {
   // このページ自体の絞り込み(?category=)と名前が衝突するため、専用の
   // URLパラメータは使わずトップページ/このページへの画面遷移として扱う
   const handlePostCategoryChange = (categoryId: string) => {
-    if (!categoryId || categoryId === 'cat-bulletin') {
+    if (categoryId === 'cat-bulletin') {
       window.location.href = '/forum';
       return;
     }
-    window.location.href = `/?category=${categoryId}`;
+    window.location.href = categoryId ? `/?category=${categoryId}` : '/';
   };
 
   const loadTopics = async () => {

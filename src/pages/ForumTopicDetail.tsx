@@ -147,11 +147,11 @@ export default function ForumTopicDetail() {
   };
 
   const handlePostCategoryChange = (categoryId: string) => {
-    if (!categoryId || categoryId === 'cat-bulletin') {
+    if (categoryId === 'cat-bulletin') {
       navigate('/forum');
       return;
     }
-    navigate(`/?category=${categoryId}`);
+    navigate(categoryId ? `/?category=${categoryId}` : '/');
   };
 
   const loadTopic = async () => {
