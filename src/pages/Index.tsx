@@ -132,7 +132,14 @@ const Index = () => {
   }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
 
   // Refresh posts when PostModal closes
+  // (初回マウント時もisPostModalOpen=falseで発火してしまい、mount用の
+  // loadData()呼び出しと重複していたため、初回は実行しないようにする)
+  const isInitialPostModalRef = useRef(true);
   useEffect(() => {
+    if (isInitialPostModalRef.current) {
+      isInitialPostModalRef.current = false;
+      return;
+    }
     if (!isPostModalOpen) {
       loadData();
     }
