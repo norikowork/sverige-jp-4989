@@ -61,6 +61,7 @@ const Index = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [forumTopics, setForumTopics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [postsLoading, setPostsLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -387,6 +388,7 @@ const Index = () => {
 
   const loadFilteredPosts = async () => {
     const requestId = ++loadRequestIdRef.current;
+    setPostsLoading(true);
     try {
       const filters: Record<string, string> = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
       
@@ -496,13 +498,16 @@ const Index = () => {
       
       if (requestId !== loadRequestIdRef.current) return;
       setAllPosts(filteredPosts);
+      setPostsLoading(false);
     } catch (error) {
       console.error('Error loading filtered posts:', error);
+      if (requestId === loadRequestIdRef.current) setPostsLoading(false);
     }
   };
 
   const loadPosts = async () => {
     const requestId = ++loadRequestIdRef.current;
+    setPostsLoading(true);
     try {
       const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' });
       // Parse images JSON for each post
@@ -570,8 +575,10 @@ const Index = () => {
       
       if (requestId !== loadRequestIdRef.current) return;
       setAllPosts(postsFiltered);
+      setPostsLoading(false);
     } catch (error) {
       console.error('Error loading posts:', error);
+      if (requestId === loadRequestIdRef.current) setPostsLoading(false);
     }
   };
 
@@ -984,8 +991,12 @@ const Index = () => {
         {/* List View */}
         {viewMode === 'list' && (
           <>
-            {/* Category-based summary list - Only show when "All" is selected and no search term */}
-            {selectedCategory === '' && !searchTerm ? (
+            {postsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-500">読み込み中...</p>
+              </div>
+            ) : selectedCategory === '' && !searchTerm ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {categories
                   .filter(cat => cat._deleted !== 1)
@@ -1306,7 +1317,7 @@ const Index = () => {
           </div>
         )}
 
-        {posts.length === 0 && !(selectedCategory === '' && !searchTerm) && (
+        {!postsLoading && posts.length === 0 && !(selectedCategory === '' && !searchTerm) && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📋</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">投稿が見つかりません</h3>
