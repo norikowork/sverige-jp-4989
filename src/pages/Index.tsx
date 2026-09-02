@@ -112,12 +112,18 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // 初回マウント時にフィルターが何も無い場合は、loadData()が既に
+  // 投稿一覧を読み込み済みなので loadPosts() の二重呼び出しを避ける
+  // (二重に読み込むと表示が完了するまで無駄に時間がかかっていた)
+  const isFirstFilterRunRef = useRef(true);
+
   useEffect(() => {
     if (debouncedSearchTerm || selectedCategory || selectedMonth) {
       loadFilteredPosts();
-    } else {
+    } else if (!isFirstFilterRunRef.current) {
       loadPosts();
     }
+    isFirstFilterRunRef.current = false;
   }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
 
   // Reset page when filters change
