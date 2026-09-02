@@ -1306,7 +1306,7 @@ const Index = () => {
           </div>
         )}
 
-        {posts.length === 0 && (
+        {posts.length === 0 && !(selectedCategory === '' && !searchTerm) && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📋</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">投稿が見つかりません</h3>
