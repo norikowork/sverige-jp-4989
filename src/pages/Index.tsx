@@ -436,8 +436,19 @@ const Index = () => {
         return true; // イベント以外は常に表示
       });
       
+      // ユーザー情報を一括取得してMapで引けるようにする
+      // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
+      const [profilesData, usersData] = await Promise.all([
+        db.query('user_profiles', { _deleted: 'eq.0' }),
+        db.query('users', { _deleted: 'eq.0' })
+      ]);
+      const profileMap = new Map();
+      profilesData.forEach((profile: any) => profileMap.set(profile.user_uuid, profile));
+      const userMap = new Map();
+      usersData.forEach((user: any) => userMap.set(user.user_uuid, user));
+
       // Parse images JSON for each post
-      const postsWithImages = await Promise.all(postsData.map(async post => {
+      const postsWithImages = postsData.map(post => {
         let images = [];
         if (post.images) {
           try {
@@ -457,40 +468,25 @@ const Index = () => {
           }
         }
 
-        // Get user information
+        // Get user information from Maps (no additional DB query per post)
         let userName = 'SverigeJP スタッフ';
         if (post._created_by) {
-          try {
-            // First try to get display name from user_profiles
-            const profilesData = await db.query('user_profiles', {
-              user_uuid: `eq.${post._created_by}`,
-              _deleted: 'eq.0'
-            });
-            
-            if (profilesData && profilesData.length > 0 && profilesData[0].display_name) {
-              userName = profilesData[0].display_name;
-            } else {
-              // Fall back to first_name + last_name from users table
-              const usersData = await db.query('users', {
-                user_uuid: `eq.${post._created_by}`,
-                _deleted: 'eq.0'
-              });
-              if (usersData && usersData.length > 0) {
-                const user = usersData[0];
-                userName = user.first_name && user.last_name 
-                  ? `${user.first_name} ${user.last_name}`
-                  : user.email || 'SverigeJP スタッフ';
-              }
-            }
-          } catch (e) {
-            console.warn('Error fetching user for post:', post._row_id, e);
+          const profile = profileMap.get(post._created_by);
+          const user = userMap.get(post._created_by);
+
+          if (profile && profile.display_name) {
+            userName = profile.display_name;
+          } else if (user) {
+            userName = user.first_name && user.last_name
+              ? `${user.first_name} ${user.last_name}`
+              : user.email || 'SverigeJP スタッフ';
           }
         }
-        
+
         // Get category and location info from state
         const category = categories.find(c => c.uuid === post.category_uuid);
         const location = locations.find(l => l.uuid === post.location_uuid);
-        
+
         return {
           ...post,
           images,
@@ -499,7 +495,7 @@ const Index = () => {
           categoryColor: category?.color || '#666',
           locationName: location?.name_en || location?.name_ja || 'Ej angivet'
         };
-      }));
+      });
       
       // Client-side search for title/description
       const filteredPosts = debouncedSearchTerm
@@ -523,8 +519,20 @@ const Index = () => {
     setPostsLoading(true);
     try {
       const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' });
+
+      // ユーザー情報を一括取得してMapで引けるようにする
+      // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
+      const [profilesData, usersData] = await Promise.all([
+        db.query('user_profiles', { _deleted: 'eq.0' }),
+        db.query('users', { _deleted: 'eq.0' })
+      ]);
+      const profileMap = new Map();
+      profilesData.forEach((profile: any) => profileMap.set(profile.user_uuid, profile));
+      const userMap = new Map();
+      usersData.forEach((user: any) => userMap.set(user.user_uuid, user));
+
       // Parse images JSON for each post
-      const postsWithImages = await Promise.all(postsData.map(async post => {
+      const postsWithImages = postsData.map(post => {
         let images = [];
         if (post.images) {
           try {
@@ -543,29 +551,25 @@ const Index = () => {
           }
         }
 
-        // Get user information
+        // Get user information from Maps (no additional DB query per post)
         let userName = 'SverigeJP スタッフ';
         if (post._created_by) {
-          try {
-            const usersData = await db.query('users', {
-              user_uuid: `eq.${post._created_by}`,
-              _deleted: 'eq.0'
-            });
-            if (usersData && usersData.length > 0) {
-              const user = usersData[0];
-              userName = user.first_name && user.last_name 
-                ? `${user.first_name} ${user.last_name}`
-                : user.email || 'SverigeJP スタッフ';
-            }
-          } catch (e) {
-            console.warn('Error fetching user for post:', post._row_id, e);
+          const profile = profileMap.get(post._created_by);
+          const user = userMap.get(post._created_by);
+
+          if (profile && profile.display_name) {
+            userName = profile.display_name;
+          } else if (user) {
+            userName = user.first_name && user.last_name
+              ? `${user.first_name} ${user.last_name}`
+              : user.email || 'SverigeJP スタッフ';
           }
         }
-        
+
         // Get category and location info from state
         const category = categories.find(c => c.uuid === post.category_uuid);
         const location = locations.find(l => l.uuid === post.location_uuid);
-        
+
         return {
           ...post,
           images,
@@ -574,7 +578,7 @@ const Index = () => {
           categoryColor: category?.color || '#666',
           locationName: location?.name_en || location?.name_ja || 'Ej angivet'
         };
-      }));
+      });
       
       // 古いイベントを表示から除外（1ヶ月前より古いイベントは非表示）
       const now = new Date();
