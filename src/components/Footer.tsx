@@ -112,13 +112,13 @@ const Footer = () => {
               © 2024 Sverige.JP. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
                 プライバシー
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              </Link>
+              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
                 利用規約
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+              </Link>
+              <a href="mailto:support@sverige.jp" className="text-gray-400 hover:text-white text-sm transition-colors">
                 お問い合わせ
               </a>
             </div>
