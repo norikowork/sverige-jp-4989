@@ -112,6 +112,9 @@ const Footer = () => {
               © 2024 Sverige.JP. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link to="/safety" className="text-gray-400 hover:text-white text-sm transition-colors">
+                安全にご利用いただくために
+              </Link>
               <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
                 プライバシー
               </Link>
