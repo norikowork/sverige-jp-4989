@@ -121,6 +121,9 @@ const Footer = () => {
               <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
                 利用規約
               </Link>
+              <Link to="/prohibited" className="text-gray-400 hover:text-white text-sm transition-colors">
+                禁止事項
+              </Link>
               <a href="mailto:support@sverige.jp" className="text-gray-400 hover:text-white text-sm transition-colors">
                 お問い合わせ
               </a>
