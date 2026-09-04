@@ -15,6 +15,7 @@ import Help from "./pages/Help";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Safety from "./pages/Safety";
+import Prohibited from "./pages/Prohibited";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/safety" element={<Safety />} />
+          <Route path="/prohibited" element={<Prohibited />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
