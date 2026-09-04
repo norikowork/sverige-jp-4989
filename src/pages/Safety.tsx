@@ -123,6 +123,7 @@ const Safety = () => {
           本ページの内容は一般的な注意喚起であり、すべての被害を防止できるものではありません。
           詳しい利用条件は<Link to="/terms" className="text-blue-600 hover:underline">利用規約</Link>、
           個人情報の取り扱いは<Link to="/privacy" className="text-blue-600 hover:underline">プライバシーポリシー</Link>
+          、投稿できない物品・内容は<Link to="/prohibited" className="text-blue-600 hover:underline">禁止されている投稿内容</Link>
           をご覧ください。
         </p>
       </div>
