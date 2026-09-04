@@ -778,26 +778,28 @@ const Admin = () => {
 
   const handleBlockUser = async (userUuid) => {
     try {
-      // 常にuser_profiles.is_blockedを更新
-      await db.update('user_profiles',
-        { user_uuid: `eq.${userUuid}` },
-        { 
-          is_blocked: 1,
-          _updated_at: Math.floor(Date.now() / 1000)
-        }
-      );
-      
+      // 管理者用Edge Functionを呼び出してブロック実行（他ユーザーの行はRLSで直接更新できないため）
+      const result = await functions.post('manage-user-action', {
+        action: 'update',
+        targetUuid: userUuid,
+        fields: { is_blocked: 1 }
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'ブロックに失敗しました');
+      }
+
       toast({
         title: "ユーザーブロック完了",
         description: "ユーザーがブロックされました",
       });
-      
+
       loadAdminData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error blocking user:', error);
       toast({
         title: "エラー",
-        description: "ユーザーのブロックに失敗しました",
+        description: `ユーザーのブロックに失敗しました: ${error.message || '不明なエラー'}`,
         variant: "destructive"
       });
     }
@@ -805,26 +807,28 @@ const Admin = () => {
 
   const handleUnblockUser = async (userUuid) => {
     try {
-      // 常にuser_profiles.is_blockedを更新
-      await db.update('user_profiles',
-        { user_uuid: `eq.${userUuid}` },
-        { 
-          is_blocked: 0,
-          _updated_at: Math.floor(Date.now() / 1000)
-        }
-        );
-      
+      // 管理者用Edge Functionを呼び出してブロック解除実行（他ユーザーの行はRLSで直接更新できないため）
+      const result = await functions.post('manage-user-action', {
+        action: 'update',
+        targetUuid: userUuid,
+        fields: { is_blocked: 0 }
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'ブロック解除に失敗しました');
+      }
+
       toast({
         title: "ユーザーブロック解除完了",
         description: "ユーザーのブロックが解除されました",
       });
-      
+
       loadAdminData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error unblocking user:', error);
       toast({
         title: "エラー",
-        description: "ユーザーのブロック解除に失敗しました",
+        description: `ユーザーのブロック解除に失敗しました: ${error.message || '不明なエラー'}`,
         variant: "destructive"
       });
     }
@@ -1286,30 +1290,34 @@ const Admin = () => {
 
   const handleSaveUser = async () => {
     try {
-      await db.update('user_profiles',
-        { _row_id: `eq.${editingUser._row_id}` },
-        {
+      const result = await functions.post('manage-user-action', {
+        action: 'update',
+        targetUuid: editingUser.user_uuid,
+        fields: {
           display_name: userForm.display_name,
           email: userForm.email,
           role: userForm.role,
-          is_blocked: userForm.is_blocked ? 1 : 0,
-          _updated_at: Math.floor(Date.now() / 1000)
+          is_blocked: userForm.is_blocked ? 1 : 0
         }
-      );
-      
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'ユーザーの更新に失敗しました');
+      }
+
       toast({
         title: "ユーザー更新完了",
         description: "ユーザー情報が更新されました",
       });
-      
+
       setIsUserModalOpen(false);
       setEditingUser(null);
       loadAdminData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user:', error);
       toast({
         title: "エラー",
-        description: "ユーザーの更新に失敗しました",
+        description: `ユーザーの更新に失敗しました: ${error.message || '不明なエラー'}`,
         variant: "destructive"
       });
     }
