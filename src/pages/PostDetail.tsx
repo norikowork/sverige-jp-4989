@@ -599,22 +599,8 @@ useEffect(() => {
         break;
 
       case 'facebook':
-        // Facebookでシェア（URLコピー）
-        try {
-          await navigator.clipboard.writeText(url);
-          toast({
-            title: "URLコピー完了",
-            description: "Facebookに貼り付けて投稿できます",
-          });
-          console.log('🔗 Copied share URL:', url);
-        } catch (error) {
-          console.error('Failed to copy URL:', error);
-          toast({
-            title: "エラー",
-            description: "URLのコピーに失敗しました",
-            variant: "destructive"
-          });
-        }
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        window.open(facebookUrl, '_blank');
         break;
 
       case 'linkedin':
