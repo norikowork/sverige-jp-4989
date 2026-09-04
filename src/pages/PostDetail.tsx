@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Twitter, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, X, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1310,9 +1310,9 @@ useEffect(() => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleShare('twitter')}
-                      className="flex items-center gap-2 bg-sky-50 hover:bg-sky-100 border-sky-300 text-sky-700"
+                      className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border-gray-400 text-gray-900"
                     >
-                      <Twitter className="w-4 h-4" />
+                      <X className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="outline"
