@@ -144,6 +144,17 @@ const Help = () => {
                   </p>
                 </AccordionContent>
               </AccordionItem>
+
+              <AccordionItem value="q7">
+                <AccordionTrigger>パスワードを忘れてしまいました</AccordionTrigger>
+                <AccordionContent>
+                  <p className="text-gray-700 leading-relaxed">
+                    ログイン画面の「パスワードをお忘れですか？」から再設定できます。詳しい手順は
+                    <Link to="/help/password-reset" className="text-blue-600 hover:underline">こちら</Link>
+                    をご覧ください。
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </CardContent>
         </Card>
