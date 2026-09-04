@@ -64,6 +64,11 @@ const Safety = () => {
               見知らぬ相手に伝えないでください。取引は、実際に会って商品を確認した後の
               現金または銀行振込を基本にすることをおすすめします。
             </p>
+            <p className="text-gray-700 mt-3">
+              詐欺メール・電話・SMSの実例や、被害に遭った場合の相談先など、詳しくは
+              <Link to="/scams" className="text-blue-600 hover:underline">「詐欺について」</Link>
+              のページにまとめています。
+            </p>
           </CardContent>
         </Card>
 
