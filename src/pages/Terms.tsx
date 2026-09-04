@@ -66,7 +66,11 @@ const Terms = () => {
 
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-3">4. 禁止事項</h2>
-              <p className="mb-2">本サービスの利用にあたり、以下の行為を禁止します。</p>
+              <p className="mb-2">
+                本サービスの利用にあたり、以下の行為を禁止します。投稿できない物品・内容の詳しい一覧は
+                <Link to="/prohibited" className="text-blue-600 hover:underline">「禁止されている投稿内容」</Link>
+                のページにまとめています。
+              </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>法令、公序良俗に違反する行為、または違反するおそれのある行為</li>
                 <li>盗品・違法薬物・武器・偽造品など、違法な物品・サービスの売買や勧誘</li>
