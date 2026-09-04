@@ -16,6 +16,14 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Safety from "./pages/Safety";
 import Prohibited from "./pages/Prohibited";
+import Scams from "./pages/Scams";
+import ScamsAvoiding from "./pages/ScamsAvoiding";
+import ScamsIdentifying from "./pages/ScamsIdentifying";
+import ScamsReporting from "./pages/ScamsReporting";
+import ScamsEmailExamples from "./pages/ScamsEmailExamples";
+import ScamsPhoneExamples from "./pages/ScamsPhoneExamples";
+import ScamsPhishing from "./pages/ScamsPhishing";
+import PasswordResetHelp from "./pages/PasswordResetHelp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +48,14 @@ const App = () => (
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/safety" element={<Safety />} />
           <Route path="/prohibited" element={<Prohibited />} />
+          <Route path="/scams" element={<Scams />} />
+          <Route path="/scams/avoiding" element={<ScamsAvoiding />} />
+          <Route path="/scams/identifying" element={<ScamsIdentifying />} />
+          <Route path="/scams/reporting" element={<ScamsReporting />} />
+          <Route path="/scams/email-examples" element={<ScamsEmailExamples />} />
+          <Route path="/scams/phone-examples" element={<ScamsPhoneExamples />} />
+          <Route path="/scams/phishing" element={<ScamsPhishing />} />
+          <Route path="/help/password-reset" element={<PasswordResetHelp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
