@@ -2,22 +2,19 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
+import SiteHeader from '@/components/SiteHeader';
 
 const Privacy = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            ホームに戻る
-          </Link>
-        </div>
-      </div>
+      <SiteHeader />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <Link to="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          ホームに戻る
+        </Link>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">プライバシーポリシー</h1>
         <p className="text-sm text-gray-500 mb-8">最終改定日: 2026年9月4日</p>
 
