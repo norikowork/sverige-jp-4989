@@ -69,6 +69,11 @@ const Profile = () => {
     try {
       const currentUser = await auth.getUser();
       if (!currentUser) {
+        toast({
+          title: "ログインが必要です",
+          description: "プロフィールを見るにはログインしてください。",
+          variant: "destructive"
+        });
         navigate('/');
         return;
       }
