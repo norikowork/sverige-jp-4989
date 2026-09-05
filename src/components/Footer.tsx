@@ -49,7 +49,7 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">リンク</h4>
             <div className="grid grid-cols-2 gap-4">
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-xs">
                 <li>
                   <Link to="/" className="text-gray-300 hover:text-white transition-colors">
                     ホーム
@@ -76,7 +76,7 @@ const Footer = () => {
                   </a>
                 </li>
               </ul>
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-xs">
                 <li>
                   <a href="/?category=cat-events" className="text-gray-300 hover:text-white transition-colors">
                     イベントお知らせ
@@ -114,16 +114,16 @@ const Footer = () => {
               © {currentYear} Sverige.JP. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/safety" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/safety" className="text-gray-400 hover:text-white text-xs transition-colors">
                 安全にご利用いただくために
               </Link>
-              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-xs transition-colors">
                 プライバシー
               </Link>
-              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/terms" className="text-gray-400 hover:text-white text-xs transition-colors">
                 利用規約
               </Link>
-              <a href="mailto:support@sverige.jp" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <a href="mailto:support@sverige.jp" className="text-gray-400 hover:text-white text-xs transition-colors">
                 お問い合わせ
               </a>
             </div>
