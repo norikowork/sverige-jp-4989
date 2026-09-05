@@ -87,13 +87,9 @@ const Index = () => {
   // Read category/search from URL params on mount and when URL changes
   useEffect(() => {
     const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
+    setSelectedCategory(categoryParam || '');
     const searchParam = searchParams.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
+    setSearchTerm(searchParam || '');
   }, [searchParams]);
 
   // Update posts when allPosts changes (for pagination)
