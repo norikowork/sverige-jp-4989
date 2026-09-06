@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus, Truck, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1486,6 +1486,28 @@ useEffect(() => {
                     <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{post.description}</p>
                   </div>
                 </div>
+
+                {/* Shipping / Tracking Info */}
+                {post.category_uuid === 'cat-for-sale' && post.tracking_number && (
+                  <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="text-base sm:text-lg font-semibold mb-2 flex items-center text-blue-900">
+                      <Truck className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      配送状況
+                    </h3>
+                    <p className="text-sm text-blue-900 mb-2">
+                      PostNordで発送済みです。追跡番号: <span className="font-mono">{post.tracking_number}</span>
+                    </p>
+                    <a
+                      href={`https://tracking.postnord.com/se/?id=${encodeURIComponent(post.tracking_number)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-sm text-blue-700 hover:underline font-medium"
+                    >
+                      PostNordで追跡する
+                      <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                    </a>
+                  </div>
+                )}
 
                 {/* Product Information */}
                 {(post.brand || post.model_name || post.size_dimensions) && (
