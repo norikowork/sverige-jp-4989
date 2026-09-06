@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload } from 'lucide-react';
+import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -58,6 +58,9 @@ const Profile = () => {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [profilePhotoUploading, setProfilePhotoUploading] = useState(false);
+  const [trackingPost, setTrackingPost] = useState(null);
+  const [trackingNumberInput, setTrackingNumberInput] = useState('');
+  const [savingTracking, setSavingTracking] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -394,6 +397,46 @@ const Profile = () => {
       });
     } finally {
       setDeletingPost(null);
+    }
+  };
+
+  const handleOpenTracking = (post) => {
+    setTrackingPost(post);
+    setTrackingNumberInput(post.tracking_number || '');
+  };
+
+  const handleSaveTracking = async () => {
+    if (!trackingPost) return;
+
+    try {
+      setSavingTracking(true);
+
+      await db.update('posts',
+        { _row_id: `eq.${trackingPost._row_id}` },
+        { tracking_number: trackingNumberInput.trim() }
+      );
+
+      setUserPosts(prev => prev.map(post =>
+        post._row_id === trackingPost._row_id
+          ? { ...post, tracking_number: trackingNumberInput.trim() }
+          : post
+      ));
+
+      toast({
+        title: "配送情報を保存しました",
+        description: "追跡番号が投稿詳細ページに表示されます",
+      });
+
+      setTrackingPost(null);
+    } catch (error) {
+      console.error('Error saving tracking number:', error);
+      toast({
+        title: "エラー",
+        description: "配送情報の保存に失敗しました",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingTracking(false);
     }
   };
 
@@ -1070,6 +1113,16 @@ const Profile = () => {
                           >
                             詳細
                           </Button>
+                          {post.category_uuid === 'cat-for-sale' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenTracking(post)}
+                            >
+                              <Truck className="w-4 h-4 mr-1" />
+                              {post.tracking_number ? '配送情報を編集' : '配送情報を入力'}
+                            </Button>
+                          )}
                           {post.status === 'active' && (
                             <>
                               <Button
@@ -1183,6 +1236,41 @@ const Profile = () => {
           user={user}
           editingPost={editingPost}
         />
+
+        {/* Tracking Number Dialog */}
+        <Dialog open={!!trackingPost} onOpenChange={() => setTrackingPost(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <Truck className="w-5 h-5 mr-2" />
+                配送情報
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                PostNordで発送した際の追跡番号を入力してください。投稿詳細ページに表示され、
+                購入者が配送状況を確認できるようになります。
+              </p>
+              <div>
+                <Label htmlFor="tracking-number">PostNord 追跡番号</Label>
+                <Input
+                  id="tracking-number"
+                  value={trackingNumberInput}
+                  onChange={(e) => setTrackingNumberInput(e.target.value)}
+                  placeholder="例: 1234567890123"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setTrackingPost(null)}>
+                  キャンセル
+                </Button>
+                <Button onClick={handleSaveTracking} disabled={savingTracking}>
+                  {savingTracking ? '保存中...' : '保存する'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
 
       <Footer />
