@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Shield, Settings } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Shield, Settings, Truck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Footer from '@/components/Footer';
@@ -82,6 +82,32 @@ const Help = () => {
           <CardContent>
             <p className="text-gray-700 leading-relaxed">
               自分の投稿への連絡を「メールで受け取る（初期設定）」か「メールを隠す（サイト内メッセージのみ）」かは、プロフィール画面の「連絡の受け取り方」から変更できます。メールを知られたくない場合は「メールを隠す」を選んでください。
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Shipping Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl">
+              <Truck className="w-6 h-6 mr-2 text-orange-600" />
+              配送で取引する（電話・メールなしでOK）
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-gray-700 leading-relaxed">
+              「売ります」カテゴリの投稿は、直接会わずにPostNordでの配送で取引することもできます。電話番号やメールアドレスを教え合う必要はありません。
+            </p>
+            <ol className="list-decimal pl-6 space-y-2 text-gray-700 leading-relaxed">
+              <li>買い手はサイト内メッセージで購入の意思と発送先住所を売り手に伝えます</li>
+              <li>売り手はPostNordで商品を発送し、控えの追跡番号を受け取ります</li>
+              <li>売り手はプロフィール画面の自分の投稿一覧から「配送情報を入力」を選び、追跡番号を登録します</li>
+              <li>登録した追跡番号は投稿詳細ページに表示され、買い手はいつでも配送状況を確認できます</li>
+            </ol>
+            <p className="text-sm text-gray-500">
+              ※ 発送先住所のやり取りはサイト内メッセージで行ってください（住所自体は配送に必要なため、売り手に伝わります）。代金の授受については、
+              <Link to="/scams/avoiding" className="text-blue-600 hover:underline">詐欺を避けるために</Link>
+              のページもあわせてご確認ください。
             </p>
           </CardContent>
         </Card>
