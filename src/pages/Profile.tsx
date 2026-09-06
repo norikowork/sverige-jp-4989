@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload, Truck } from 'lucide-react';
+import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload, Truck, CircleX, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -61,6 +61,7 @@ const Profile = () => {
   const [trackingPost, setTrackingPost] = useState(null);
   const [trackingNumberInput, setTrackingNumberInput] = useState('');
   const [savingTracking, setSavingTracking] = useState(false);
+  const [togglingPost, setTogglingPost] = useState(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -437,6 +438,37 @@ const Profile = () => {
       });
     } finally {
       setSavingTracking(false);
+    }
+  };
+
+  const handleToggleSold = async (post) => {
+    const newStatus = post.status === 'sold' ? 'active' : 'sold';
+
+    try {
+      setTogglingPost(post._row_id);
+
+      await db.update('posts',
+        { _row_id: `eq.${post._row_id}` },
+        { status: newStatus }
+      );
+
+      setUserPosts(prev => prev.map(p =>
+        p._row_id === post._row_id ? { ...p, status: newStatus } : p
+      ));
+
+      toast({
+        title: newStatus === 'sold' ? "投稿を終了しました" : "投稿を再開しました",
+        description: newStatus === 'sold' ? "一覧には表示されなくなります" : "一覧に再度表示されます",
+      });
+    } catch (error) {
+      console.error('Error toggling post status:', error);
+      toast({
+        title: "エラー",
+        description: "ステータスの変更に失敗しました",
+        variant: "destructive"
+      });
+    } finally {
+      setTogglingPost(null);
     }
   };
 
@@ -1121,6 +1153,26 @@ const Profile = () => {
                             >
                               <Truck className="w-4 h-4 mr-1" />
                               {post.tracking_number ? '配送情報を編集' : '配送情報を入力'}
+                            </Button>
+                          )}
+                          {(post.status === 'active' || post.status === 'sold') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleToggleSold(post)}
+                              disabled={togglingPost === post._row_id}
+                            >
+                              {post.status === 'sold' ? (
+                                <>
+                                  <RotateCcw className="w-4 h-4 mr-1" />
+                                  再開する
+                                </>
+                              ) : (
+                                <>
+                                  <CircleX className="w-4 h-4 mr-1" />
+                                  投稿を終了
+                                </>
+                              )}
                             </Button>
                           )}
                           {post.status === 'active' && (
