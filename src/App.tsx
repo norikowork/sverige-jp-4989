@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieNotice from "./components/CookieNotice";
 import Index from "./pages/Index";
+import Activate from "./pages/Activate";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import PostDetail from "./pages/PostDetail";
@@ -40,6 +41,7 @@ const App = () => (
         <CookieNotice />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/activate" element={<Activate />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/post/:postId" element={<PostDetail />} />
