@@ -75,6 +75,22 @@ export default function ForumTopicDetail() {
     checkAdmin();
   }, [user]);
 
+  useEffect(() => {
+    // 自分が立てたトピックを開いたら、そのトピックへの返信を既読にする
+    const markRepliesAsRead = async () => {
+      if (!topic || !user || topic._created_by !== user.userUuid) return;
+      try {
+        await db.update('forum_replies',
+          { topic_id: `eq.${topic._row_id}`, is_read: 'eq.0' },
+          { is_read: 1 }
+        );
+      } catch (error) {
+        console.error('Failed to mark replies as read:', error);
+      }
+    };
+    markRepliesAsRead();
+  }, [topic, user]);
+
   const loadUser = async () => {
     const currentUser = await auth.getUser();
     setUser(currentUser);
