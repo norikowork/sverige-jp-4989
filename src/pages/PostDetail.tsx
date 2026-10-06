@@ -348,7 +348,7 @@ useEffect(() => {
       
       // Ensure image URL is absolute
       if (firstImageUrl.startsWith('/')) {
-        firstImageUrl = 'https://create-classifieds-stockholm.kliv.site' + firstImageUrl;
+        firstImageUrl = window.location.origin + firstImageUrl;
       }
       
       // Add cache buster to image URL to prevent Facebook caching
