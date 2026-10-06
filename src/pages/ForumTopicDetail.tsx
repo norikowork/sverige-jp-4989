@@ -12,6 +12,7 @@ import SiteHeader from '@/components/SiteHeader';
 import AuthModal from '@/components/AuthModal';
 import db from '@/lib/shared/kliv-database.js';
 import auth from '@/lib/shared/kliv-auth.js';
+import functions from '@/lib/shared/kliv-functions.js';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { toast } from 'sonner';
 
@@ -80,10 +81,12 @@ export default function ForumTopicDetail() {
     const markRepliesAsRead = async () => {
       if (!topic || !user || topic._created_by !== user.userUuid) return;
       try {
-        await db.update('forum_replies',
-          { topic_id: `eq.${topic._row_id}`, is_read: 'eq.0' },
-          { is_read: 1 }
-        );
+        // 他人が書いた返信の更新はRLSで直接できないため、管理者用Edge Functionと
+        // 同じ考え方の専用Edge Function(呼び出し元がトピック所有者か検証した上で
+        // 特権クライアントで更新)を経由する
+        await functions.post('mark-topic-replies-read', {
+          topicId: topic._row_id
+        });
       } catch (error) {
         console.error('Failed to mark replies as read:', error);
       }
