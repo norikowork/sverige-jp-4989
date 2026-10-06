@@ -7,9 +7,13 @@ import AuthModal from '@/components/AuthModal';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
 import { checkIsAdmin } from '@/lib/isAdmin';
+import { useToast } from '@/hooks/use-toast';
+
+const FORUM_NOTICE_KEY = 'sverige_jp_forum_notice_shown';
 
 const SiteHeader = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -55,7 +59,36 @@ const SiteHeader = () => {
             is_read: 'eq.0',
             _deleted: 'eq.0'
           });
-          setUnreadCount(unreadMessages.length);
+
+          // 自分が立てた掲示板トピックへの未読返信数も合算する
+          let forumUnreadCount = 0;
+          try {
+            const ownTopics = await db.query('forum_topics', {
+              _created_by: `eq.${user.userUuid}`
+            });
+            const ownTopicIds = new Set(ownTopics.map((t) => t._row_id));
+            if (ownTopicIds.size > 0) {
+              const unreadReplies = await db.query('forum_replies', {
+                is_read: 'eq.0'
+              });
+              forumUnreadCount = unreadReplies.filter(
+                (r) => ownTopicIds.has(r.topic_id) && r._created_by !== user.userUuid
+              ).length;
+            }
+          } catch (error) {
+            console.error('Error loading forum unread count:', error);
+          }
+
+          setUnreadCount(unreadMessages.length + forumUnreadCount);
+
+          // ログインしているセッション中に一度だけ、掲示板の新着返信をお知らせする
+          if (forumUnreadCount > 0 && !sessionStorage.getItem(FORUM_NOTICE_KEY)) {
+            toast({
+              title: "掲示板に新しい返信があります",
+              description: `あなたが投稿したトピックに${forumUnreadCount}件の新しい返信があります。`,
+            });
+            sessionStorage.setItem(FORUM_NOTICE_KEY, 'true');
+          }
         } catch (error) {
           console.error('Error loading unread count:', error);
         }
