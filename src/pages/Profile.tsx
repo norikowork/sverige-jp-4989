@@ -173,6 +173,25 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
+      const trimmedDisplayName = editForm.display_name.trim();
+
+      if (trimmedDisplayName) {
+        const existingProfiles = await db.query('user_profiles', {
+          display_name: `eq.${trimmedDisplayName}`
+        });
+        const isDuplicate = existingProfiles.some(
+          (p) => p.user_uuid !== user.userUuid
+        );
+        if (isDuplicate) {
+          toast({
+            title: "この表示名は既に使われています",
+            description: "別の表示名を入力してください",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       console.log('Saving profile with editForm:', editForm);
       const now = Math.floor(Date.now() / 1000);
 
