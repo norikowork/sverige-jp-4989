@@ -36,8 +36,12 @@ interface ForumReply {
 }
 
 // トップページ/投稿詳細ページ/掲示板一覧と共通の投稿カテゴリータブ用アイコン
+const BuyIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+);
+
 const postCategoryIcons = {
-  'cat-for-sale': ShoppingBag,
+  'cat-for-sale': BuyIcon,
   'cat-job-seeking': User,
   'cat-housing': Home,
   'cat-events': Star,

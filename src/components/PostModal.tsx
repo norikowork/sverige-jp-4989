@@ -24,8 +24,12 @@ interface PostModalProps {
   editingPost?: any;
 }
 
+const BuyIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+);
+
 const categoryIcons = {
-  'cat-for-sale': ShoppingBag,
+  'cat-for-sale': BuyIcon,
   'cat-wanted': Search,
   'cat-job-offering': Briefcase,
   'cat-job-seeking': User

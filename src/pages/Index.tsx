@@ -16,8 +16,12 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import MapView from '@/components/MapView';
 import { statusLabels } from '@/constants/postLabels';
 
+const BuyIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+);
+
 const categoryIcons = {
-  'cat-for-sale': ShoppingBag,
+  'cat-for-sale': BuyIcon,
   'cat-job-seeking': User,
   'cat-housing': Home,
   'cat-events': Star,

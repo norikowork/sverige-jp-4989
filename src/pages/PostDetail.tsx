@@ -21,8 +21,12 @@ import { useToast } from '@/hooks/use-toast';
 import { getMessageLimit } from '@/constants/plans';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 
+const BuyIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+);
+
 const categoryIcons = {
-  'cat-for-sale': ShoppingBag,
+  'cat-for-sale': BuyIcon,
   'cat-job-seeking': User,
   'cat-housing': Home,
   'cat-events': Star,
