@@ -43,7 +43,7 @@ const categoryInfo: Record<string, { icon: any; color: string }> = {
 
 // トップページ/投稿詳細ページと共通の投稿カテゴリータブ用アイコン
 const BuyIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain scale-125`} />
 );
 
 const postCategoryIcons = {

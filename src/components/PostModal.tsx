@@ -25,7 +25,7 @@ interface PostModalProps {
 }
 
 const BuyIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain`} />
+  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain scale-125`} />
 );
 
 const categoryIcons = {
