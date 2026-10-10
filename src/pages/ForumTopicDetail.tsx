@@ -40,9 +40,13 @@ const BuyIcon = ({ className }: { className?: string }) => (
   <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain scale-[1.4375]`} />
 );
 
+const JobIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/job.png" alt="仕事探し" className={`${className} object-contain scale-[1.4375]`} />
+);
+
 const postCategoryIcons = {
   'cat-for-sale': BuyIcon,
-  'cat-job-seeking': User,
+  'cat-job-seeking': JobIcon,
   'cat-housing': Home,
   'cat-events': Star,
   'cat-services': Wrench,
