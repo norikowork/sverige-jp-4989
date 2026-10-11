@@ -25,11 +25,11 @@ interface PostModalProps {
 }
 
 const BuyIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain scale-[1.4375]`} />
+  <span className={className}>🛍️</span>
 );
 
 const JobIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/job.png" alt="仕事探し" className={`${className} object-contain scale-[1.4375]`} />
+  <span className={className}>🧳</span>
 );
 
 const categoryIcons = {

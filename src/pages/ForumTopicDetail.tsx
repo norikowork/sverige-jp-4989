@@ -37,17 +37,21 @@ interface ForumReply {
 
 // トップページ/投稿詳細ページ/掲示板一覧と共通の投稿カテゴリータブ用アイコン
 const BuyIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/buy.png" alt="売ります" className={`${className} object-contain scale-[1.4375]`} />
+  <span className={className}>🛍️</span>
 );
 
 const JobIcon = ({ className }: { className?: string }) => (
-  <img src="/content/templates/job.png" alt="仕事探し" className={`${className} object-contain scale-[1.4375]`} />
+  <span className={className}>🧳</span>
+);
+
+const HusIcon = ({ className }: { className?: string }) => (
+  <img src="/content/templates/hus.png" alt="住居" className={`${className} object-contain scale-[1.4375]`} />
 );
 
 const postCategoryIcons = {
   'cat-for-sale': BuyIcon,
   'cat-job-seeking': JobIcon,
-  'cat-housing': Home,
+  'cat-housing': HusIcon,
   'cat-events': Star,
   'cat-services': Wrench,
   'cat-bulletin': MessageSquare
