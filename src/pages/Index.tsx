@@ -133,6 +133,7 @@ const Index = () => {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [selectedArea, setSelectedArea] = useState('');
   const [subcategoryCounts, setSubcategoryCounts] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
