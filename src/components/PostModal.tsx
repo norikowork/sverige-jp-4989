@@ -759,7 +759,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     
     // サブカテゴリ必須チェック
     const subcategoryRequired = 
-      ['cat-for-sale', 'cat-job-seeking', 'cat-housing', 'cat-services'].includes(formData.category_uuid);
+      ['cat-for-sale', 'cat-job-seeking', 'cat-housing', 'cat-services', 'cat-events'].includes(formData.category_uuid);
     const hasSubcategory = !subcategoryRequired || formData.subcategory_uuid;
     
     // カテゴリ固有の必須フィールド
@@ -934,8 +934,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                   </Select>
                 </div>
 
-                {/* サブカテゴリー - 売ります、仕事探し、住居、サービスのみ表示 */}
-                {(formData.category_uuid === 'cat-for-sale' || formData.category_uuid === 'cat-job-seeking' || formData.category_uuid === 'cat-housing' || formData.category_uuid === 'cat-services') && (
+                {/* サブカテゴリー - 売ります、仕事探し、住居、サービス、イベントお知らせのみ表示 */}
+                {(formData.category_uuid === 'cat-for-sale' || formData.category_uuid === 'cat-job-seeking' || formData.category_uuid === 'cat-housing' || formData.category_uuid === 'cat-services' || formData.category_uuid === 'cat-events') && (
                   <div className="space-y-2">
                     <Label htmlFor="subcategory">サブカテゴリー *</Label>
                     <Select 
