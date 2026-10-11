@@ -15,6 +15,7 @@ import Footer from '@/components/Footer';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import MapView from '@/components/MapView';
 import { statusLabels } from '@/constants/postLabels';
+import { SERVICE_SUBCATEGORY_GROUPS, SERVICE_SUBCATEGORY_EMOJI } from '@/constants/serviceSubcategories';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
