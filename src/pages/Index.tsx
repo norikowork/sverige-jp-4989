@@ -122,30 +122,35 @@ const Index = () => {
     setSelectedSubcategory(subcategoryParam || '');
   }, [searchParams]);
 
-  // サービスカテゴリーが選択されたら、サブカテゴリーごとの投稿件数を取得する
-  // (絞り込み中のallPostsとは別に、常にcat-services全体を対象に数える)
+  // カテゴリーが選択されたら、サブカテゴリーごとの投稿件数を取得する
+  // (絞り込み中のallPostsとは別に、常に選択中カテゴリー全体を対象に数える。
+  // サブカテゴリーを持たないカテゴリーでは単に使われないだけなので、
+  // どのカテゴリーでも同じ処理でよい)
   useEffect(() => {
-    const loadServiceSubcategoryCounts = async () => {
-      if (selectedCategory !== 'cat-services') return;
+    const loadSubcategoryCounts = async () => {
+      if (!selectedCategory) {
+        setSubcategoryCounts({});
+        return;
+      }
       try {
-        const servicePosts = await db.query('posts', {
-          category_uuid: 'eq.cat-services',
+        const categoryPosts = await db.query('posts', {
+          category_uuid: `eq.${selectedCategory}`,
           status: 'eq.active',
           _deleted: 'eq.0',
           is_hidden: 'eq.0'
         });
         const counts: Record<string, number> = {};
-        servicePosts.forEach((post: any) => {
+        categoryPosts.forEach((post: any) => {
           if (post.subcategory_uuid) {
             counts[post.subcategory_uuid] = (counts[post.subcategory_uuid] || 0) + 1;
           }
         });
-        setServiceSubcategoryCounts(counts);
+        setSubcategoryCounts(counts);
       } catch (error) {
-        console.error('Error loading service subcategory counts:', error);
+        console.error('Error loading subcategory counts:', error);
       }
     };
-    loadServiceSubcategoryCounts();
+    loadSubcategoryCounts();
   }, [selectedCategory]);
 
   // Update posts when allPosts changes (for pagination)
