@@ -83,8 +83,12 @@ export default function ActivatePage() {
         let errorMessage = error.message || 'アカウントの有効化に失敗しました。';
         
         // わかりやすいエラーメッセージに変換
-        if (errorMessage.includes('invalid_token')) {
-          errorMessage = 'トークンが無効です。有効期限が切れている可能性があります。再度新規登録をお願いします。';
+        if (
+          errorMessage.includes('invalid_token') ||
+          errorMessage.toLowerCase().includes('invalid or has expired') ||
+          errorMessage.toLowerCase().includes('invalid or expired')
+        ) {
+          errorMessage = 'リンクが無効か、有効期限が切れています。お手数ですが、再度新規登録、またはログイン画面から確認メールの再送をお願いします。';
         } else if (errorMessage.includes('template_not_configured')) {
           errorMessage = 'メールテンプレートが設定されていません。管理者にお問い合わせください。';
         } else if (errorMessage.includes('email_rate_limit_exceeded')) {
