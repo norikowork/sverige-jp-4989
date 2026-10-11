@@ -1583,7 +1583,7 @@ const Index = () => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {totalPages > 1 && !(selectedCategory === '' && !searchTerm) && (
           <div className="flex justify-center items-center space-x-2 mt-8">
             <Button
               variant="outline"
