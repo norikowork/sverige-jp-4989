@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,6 +15,7 @@ import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
 import { ShoppingBag, Search, Briefcase, User, Trash2, Package, MapPin, Mail, Phone, Image as ImageIcon, X, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
+import { SERVICE_SUBCATEGORY_GROUPS } from '@/constants/serviceSubcategories';
 
 interface PostModalProps {
   isOpen: boolean;
@@ -944,14 +945,30 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                         <SelectValue placeholder="選択してください" />
                       </SelectTrigger>
                       <SelectContent>
-                        {subcategories
-                          .filter((sub: any) => sub.category_uuid === formData.category_uuid)
-                          .sort((a: any, b: any) => a.sort_order - b.sort_order)
-                          .map((subcategory: any) => (
-                            <SelectItem key={subcategory.uuid} value={subcategory.uuid}>
-                              {subcategory.name_ja}
-                            </SelectItem>
-                          ))}
+                        {formData.category_uuid === 'cat-services' ? (
+                          SERVICE_SUBCATEGORY_GROUPS.map((group) => (
+                            <SelectGroup key={group.label}>
+                              <SelectLabel>{group.label}</SelectLabel>
+                              {subcategories
+                                .filter((sub: any) => sub.category_uuid === 'cat-services' && group.items.includes(sub.name_ja))
+                                .sort((a: any, b: any) => group.items.indexOf(a.name_ja) - group.items.indexOf(b.name_ja))
+                                .map((subcategory: any) => (
+                                  <SelectItem key={subcategory.uuid} value={subcategory.uuid}>
+                                    {subcategory.name_ja}
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
+                          ))
+                        ) : (
+                          subcategories
+                            .filter((sub: any) => sub.category_uuid === formData.category_uuid)
+                            .sort((a: any, b: any) => a.sort_order - b.sort_order)
+                            .map((subcategory: any) => (
+                              <SelectItem key={subcategory.uuid} value={subcategory.uuid}>
+                                {subcategory.name_ja}
+                              </SelectItem>
+                            ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
