@@ -863,6 +863,23 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         postData.event_date_readable = format(eventDate, 'yyyy年MM月dd日 (EEEE)');
       }
 
+      // イベント場所の文字列から自動で座標を取得し、地図に会場のピンポイントで
+      // 表示できるようにする(失敗しても投稿自体は続行し、座標なしのまま保存する)
+      if (formData.category_uuid === 'cat-events' && formData.event_location) {
+        try {
+          const geocodeResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.event_location + ', Sweden')}&limit=1`
+          );
+          const geocodeData = await geocodeResponse.json();
+          if (geocodeData && geocodeData.length > 0) {
+            postData.latitude = parseFloat(geocodeData[0].lat);
+            postData.longitude = parseFloat(geocodeData[0].lon);
+          }
+        } catch (geocodeError) {
+          console.error('Error geocoding event location:', geocodeError);
+        }
+      }
+
       if (editingPost) {
         console.log('Updating post:', editingPost._row_id, postData);
         await db.update('posts', { _row_id: `eq.${editingPost._row_id}` }, postData);
