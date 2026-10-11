@@ -938,7 +938,7 @@ const Index = () => {
                     );
                     if (!sub) return null;
                     const isActive = selectedSubcategory === sub.uuid;
-                    const count = serviceSubcategoryCounts[sub.uuid] || 0;
+                    const count = subcategoryCounts[sub.uuid] || 0;
                     return (
                       <button
                         key={sub.uuid}
