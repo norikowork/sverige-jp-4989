@@ -28,13 +28,25 @@ const HusIcon = ({ className }: { className?: string }) => (
   <img src="/content/templates/hus.png" alt="住居" className={`${className} object-contain scale-[1.4375]`} />
 );
 
+const EventIcon = ({ className }: { className?: string }) => (
+  <span className={className}>📢</span>
+);
+
+const ServiceIcon = ({ className }: { className?: string }) => (
+  <span className={className}>🈂️</span>
+);
+
+const BulletinIcon = ({ className }: { className?: string }) => (
+  <span className={className}>📌</span>
+);
+
 const categoryIcons = {
   'cat-for-sale': BuyIcon,
   'cat-job-seeking': JobIcon,
   'cat-housing': HusIcon,
-  'cat-events': Star,
-  'cat-services': Wrench,
-  'cat-bulletin': MessageSquare
+  'cat-events': EventIcon,
+  'cat-services': ServiceIcon,
+  'cat-bulletin': BulletinIcon
 };
 
 const employmentTypeLabels = {
