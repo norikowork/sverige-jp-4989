@@ -100,7 +100,7 @@ const Index = () => {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [serviceSubcategoryCounts, setServiceSubcategoryCounts] = useState<Record<string, number>>({});
+  const [subcategoryCounts, setSubcategoryCounts] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [userCounty, setUserCounty] = useState<string | null>(null);
