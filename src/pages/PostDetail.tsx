@@ -1467,6 +1467,21 @@ useEffect(() => {
                         </div>
                       )}
 
+                      {post.event_url && (
+                        <div className="flex items-center text-purple-700">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          <span className="font-medium">公式サイト:</span>
+                          <a
+                            href={post.event_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 text-purple-700 underline hover:text-purple-900"
+                          >
+                            詳細を見る
+                          </a>
+                        </div>
+                      )}
+
                       {/* Calendar Add Buttons */}
                       <div className="pt-3 border-t border-purple-200">
                         <p className="text-sm font-medium text-purple-800 mb-2">カレンダーに追加:</p>
