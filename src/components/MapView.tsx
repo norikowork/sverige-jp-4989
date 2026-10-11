@@ -16,6 +16,8 @@ interface Post {
   categoryName?: string;
   locationName?: string;
   categoryColor?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface Location {
@@ -133,13 +135,14 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
   const [isCardVisible, setIsCardVisible] = useState(false);
 
   // Memoize posts with valid locations to avoid recalculating
+  // 投稿自身に緯度経度があればそれを優先し(個別の会場などピンポイントな位置)、
+  // 無ければ location_uuid の市区町村レベルの座標にフォールバックする
   const postsWithLocation = useMemo(() => {
     const validPosts = posts.filter(post => {
+      if (post.latitude && post.longitude) return true;
       const location = locations.find(l => l.uuid === post.location_uuid);
-      console.log('Post:', post._row_id, 'Title:', post.title, 'Location UUID:', post.location_uuid, 'Found location:', location);
       return location && location.latitude && location.longitude;
     }).slice(0, 50);
-    console.log('Valid posts with locations:', validPosts.length);
     return validPosts;
   }, [posts, locations]);
 
@@ -265,11 +268,11 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
     // Add or update markers
     postsWithLocation.forEach((post) => {
       const location = locations.find(l => l.uuid === post.location_uuid);
-      if (!location || !location.latitude || !location.longitude) return;
+      const lat = post.latitude ?? location?.latitude;
+      const lng = post.longitude ?? location?.longitude;
+      if (!lat || !lng) return;
 
       const postId = post._row_id;
-      const lat = location.latitude;
-      const lng = location.longitude;
       currentMarkerIds.add(postId);
       bounds.push([lat, lng]);
 
