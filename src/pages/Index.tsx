@@ -472,6 +472,9 @@ const Index = () => {
       if (selectedCategory) {
         filters.category_uuid = `eq.${selectedCategory}`;
       }
+      if (selectedSubcategory) {
+        filters.subcategory_uuid = `eq.${selectedSubcategory}`;
+      }
       
       let postsData = await db.query('posts', filters);
       
