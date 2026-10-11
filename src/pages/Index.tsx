@@ -965,6 +965,41 @@ const Index = () => {
           </div>
         )}
 
+        {/* Subcategory Grid for Events - Only show when events category is selected */}
+        {selectedCategory === 'cat-events' && (
+          <div className="mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              {EVENT_SUBCATEGORIES.map((itemName) => {
+                const sub = subcategories.find(
+                  (s: any) => s.category_uuid === 'cat-events' && s.name_ja === itemName
+                );
+                if (!sub) return null;
+                const isActive = selectedSubcategory === sub.uuid;
+                const count = subcategoryCounts[sub.uuid] || 0;
+                return (
+                  <button
+                    key={sub.uuid}
+                    onClick={() => handleSubcategoryChange(sub.uuid)}
+                    className={`p-2.5 rounded-lg border-2 transition-all ${
+                      isActive
+                        ? 'border-blue-500 bg-blue-50 shadow-md'
+                        : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <span className="text-2xl mb-1">{EVENT_SUBCATEGORY_EMOJI[itemName] || '🔸'}</span>
+                      <div className="flex items-center gap-1 text-xs">
+                        <span className="font-medium text-gray-700 line-clamp-1">{itemName}</span>
+                        <span className="text-gray-500 whitespace-nowrap">({count})</span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Posts Display based on View Mode */}
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
