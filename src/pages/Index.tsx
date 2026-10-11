@@ -167,12 +167,33 @@ const Index = () => {
         return;
       }
       try {
-        const categoryPosts = await db.query('posts', {
+        let categoryPosts = await db.query('posts', {
           category_uuid: `eq.${selectedCategory}`,
           status: 'eq.active',
           _deleted: 'eq.0',
           is_hidden: 'eq.0'
         });
+
+        if (selectedArea) {
+          const locationCountyMap = new Map<string, string>();
+          locations.forEach((loc: any) => locationCountyMap.set(loc.uuid, loc.county));
+          categoryPosts = categoryPosts.filter((post: any) =>
+            post.location_uuid && locationCountyMap.get(post.location_uuid) === selectedArea
+          );
+        }
+
+        if (selectedMonth) {
+          const [year, month] = selectedMonth.split('-').map(Number);
+          const startOfMonth = Math.floor(new Date(year, month - 1, 1).getTime() / 1000);
+          const endOfMonth = Math.floor(new Date(year, month, 0, 23, 59, 59).getTime() / 1000);
+          categoryPosts = categoryPosts.filter((post: any) => {
+            if (post.post_type === 'event' && post.event_date) {
+              return post.event_date >= startOfMonth && post.event_date <= endOfMonth;
+            }
+            return false;
+          });
+        }
+
         const counts: Record<string, number> = {};
         categoryPosts.forEach((post: any) => {
           if (post.subcategory_uuid) {
@@ -185,7 +206,7 @@ const Index = () => {
       }
     };
     loadSubcategoryCounts();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedArea, selectedMonth, locations]);
 
   // Update posts when allPosts changes (for pagination)
   useEffect(() => {
