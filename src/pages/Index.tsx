@@ -950,6 +950,31 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Area Filter - Only show for categories where area matters */}
+        {AREA_FILTER_CATEGORIES.includes(selectedCategory) && (
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-gray-700">エリア別：</label>
+              <Select value={selectedArea} onValueChange={(value) => setSelectedArea(value === 'all' ? '' : value)}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="すべてのエリア" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべてのエリア</SelectItem>
+                  {Array.from(new Set(locations.map((loc: any) => loc.county)))
+                    .filter(Boolean)
+                    .sort()
+                    .map((county: any) => (
+                      <SelectItem key={county} value={county}>
+                        {getCountyNameWithKatakana(county)}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         {/* Month Filter for Events - Only show when events category is selected */}
         {selectedCategory === 'cat-events' && (
           <div className="mb-6">
