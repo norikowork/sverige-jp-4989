@@ -419,8 +419,9 @@ const Index = () => {
       return;
     }
     setSelectedCategory(categoryUuid);
-    // カテゴリーを切り替えたらサブカテゴリーの絞り込みはリセットする
+    // カテゴリーを切り替えたらサブカテゴリー・エリアの絞り込みはリセットする
     setSelectedSubcategory('');
+    setSelectedArea('');
     // Update URL params
     if (categoryUuid) {
       setSearchParams({ category: categoryUuid });
