@@ -90,8 +90,12 @@ export default function SingleLocationMap({ locationName, latitude, longitude, c
       // Otherwise, fall back to geocoding
       const geocodeLocation = async () => {
         try {
+          // locationNameは投稿のlocation_uuidに対応する地名(都市名)なので、
+          // ここで別の都市名を固定で付け足すと誤った場所が検索されてしまう
+          // (以前は ", Stockholm, Sweden" を常に付け足していたため、
+          // ストックホルム以外の投稿で間違った位置が検索される原因になっていた)
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName + ', Stockholm, Sweden')}&limit=1`
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName + ', Sweden')}&limit=1`
           );
           const data = await response.json();
 
