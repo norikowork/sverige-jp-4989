@@ -1810,10 +1810,10 @@ useEffect(() => {
               <Card>
                 <CardContent className="p-0">
                   <div className="w-full" style={{ height: '300px' }}>
-                    <SingleLocationMap 
+                    <SingleLocationMap
                       locationName={getLocationName(post.location_uuid)}
-                      latitude={getLocationData(post.location_uuid)?.latitude}
-                      longitude={getLocationData(post.location_uuid)?.longitude}
+                      latitude={post.latitude ?? getLocationData(post.location_uuid)?.latitude}
+                      longitude={post.longitude ?? getLocationData(post.location_uuid)?.longitude}
                       className="w-full h-full"
                     />
                   </div>
