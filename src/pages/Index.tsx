@@ -402,6 +402,17 @@ const Index = () => {
     }
   };
 
+  const handleSubcategoryChange = (subcategoryUuid: string) => {
+    // 同じサブカテゴリーをもう一度押したら選択解除
+    const newSubcategory = selectedSubcategory === subcategoryUuid ? '' : subcategoryUuid;
+    setSelectedSubcategory(newSubcategory);
+    if (newSubcategory) {
+      setSearchParams({ category: 'cat-services', subcategory: newSubcategory });
+    } else {
+      setSearchParams({ category: 'cat-services' });
+    }
+  };
+
   const handleLogin = () => {
     setIsAuthModalOpen(true);
   };
