@@ -1107,6 +1107,11 @@ const Index = () => {
                       </CardTitle>
                       {/* Date and Price row */}
                       <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                        {post.post_type === 'event' && post.event_date_readable && (
+                          <span className="font-semibold text-purple-600">
+                            📅 {post.event_date_readable}
+                          </span>
+                        )}
                         <span>{formatDate(post._created_at)}</span>
                         {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
                           <span className="font-semibold text-blue-600">
@@ -1116,11 +1121,6 @@ const Index = () => {
                         {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                           <span className="font-semibold text-green-600">
                             {formatPrice(post.price)}
-                          </span>
-                        )}
-                        {post.post_type === 'event' && post.event_date_readable && (
-                          <span className="font-semibold text-purple-600">
-                            📅 {post.event_date_readable}
                           </span>
                         )}
                       </div>
@@ -1384,6 +1384,11 @@ const Index = () => {
                           </div>
                           {/* Date and Price row */}
                           <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                            {post.post_type === 'event' && post.event_date_readable && (
+                              <span className="font-semibold text-purple-600">
+                                📅 {post.event_date_readable}
+                              </span>
+                            )}
                             <span>{formatDate(post._created_at)}</span>
                             {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
                               <span className="font-semibold text-blue-600">
@@ -1393,11 +1398,6 @@ const Index = () => {
                             {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                               <span className="font-semibold text-green-600">
                                 {formatPrice(post.price)}
-                              </span>
-                            )}
-                            {post.post_type === 'event' && post.event_date_readable && (
-                              <span className="font-semibold text-purple-600">
-                                📅 {post.event_date_readable}
                               </span>
                             )}
                           </div>
