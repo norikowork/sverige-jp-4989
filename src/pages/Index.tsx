@@ -175,12 +175,12 @@ const Index = () => {
       loadPosts();
     }
     isFirstFilterRunRef.current = false;
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory]);
 
   // Refresh posts when PostModal closes
   // (初回マウント時もisPostModalOpen=falseで発火してしまい、mount用の
