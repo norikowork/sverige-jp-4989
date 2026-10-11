@@ -117,7 +117,35 @@ const Index = () => {
     setSelectedCategory(categoryParam || '');
     const searchParam = searchParams.get('search');
     setSearchTerm(searchParam || '');
+    const subcategoryParam = searchParams.get('subcategory');
+    setSelectedSubcategory(subcategoryParam || '');
   }, [searchParams]);
+
+  // サービスカテゴリーが選択されたら、サブカテゴリーごとの投稿件数を取得する
+  // (絞り込み中のallPostsとは別に、常にcat-services全体を対象に数える)
+  useEffect(() => {
+    const loadServiceSubcategoryCounts = async () => {
+      if (selectedCategory !== 'cat-services') return;
+      try {
+        const servicePosts = await db.query('posts', {
+          category_uuid: 'eq.cat-services',
+          status: 'eq.active',
+          _deleted: 'eq.0',
+          is_hidden: 'eq.0'
+        });
+        const counts: Record<string, number> = {};
+        servicePosts.forEach((post: any) => {
+          if (post.subcategory_uuid) {
+            counts[post.subcategory_uuid] = (counts[post.subcategory_uuid] || 0) + 1;
+          }
+        });
+        setServiceSubcategoryCounts(counts);
+      } catch (error) {
+        console.error('Error loading service subcategory counts:', error);
+      }
+    };
+    loadServiceSubcategoryCounts();
+  }, [selectedCategory]);
 
   // Update posts when allPosts changes (for pagination)
   useEffect(() => {
