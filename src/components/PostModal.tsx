@@ -533,7 +533,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         // Contact fields
         contact_method: editingPost.contact_method || 'email',
         phone: editingPost.phone || '',
-        email: editingPost.email || ''
+        // メールアドレスは常にログイン中アカウントの登録メールを使用する(編集不可)
+        email: user?.email || ''
       };
       
       setFormData(newFormData);
@@ -1480,10 +1481,13 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                   id="contact-email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="your@email.com"
+                  disabled
+                  readOnly
                   required
                 />
+                <p className="text-xs text-gray-500">
+                  アカウント登録時のメールアドレスが使用されます(変更はできません)。
+                </p>
               </div>
 
               {(formData.contact_method === 'phone' || formData.contact_method === 'both') && (
