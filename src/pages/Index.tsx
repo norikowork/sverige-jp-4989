@@ -413,9 +413,9 @@ const Index = () => {
     const newSubcategory = selectedSubcategory === subcategoryUuid ? '' : subcategoryUuid;
     setSelectedSubcategory(newSubcategory);
     if (newSubcategory) {
-      setSearchParams({ category: 'cat-services', subcategory: newSubcategory });
+      setSearchParams({ category: selectedCategory, subcategory: newSubcategory });
     } else {
-      setSearchParams({ category: 'cat-services' });
+      setSearchParams({ category: selectedCategory });
     }
   };
 
