@@ -543,7 +543,18 @@ const Index = () => {
         }
         return true; // イベント以外は常に表示
       });
-      
+
+      // エリア(県)別フィルターの適用
+      // posts自体にはcountyが保存されていないため、locationsから
+      // location_uuid -> county のマップを作って突き合わせる
+      if (selectedArea) {
+        const locationCountyMap = new Map<string, string>();
+        locations.forEach((loc: any) => locationCountyMap.set(loc.uuid, loc.county));
+        postsData = postsData.filter(post =>
+          post.location_uuid && locationCountyMap.get(post.location_uuid) === selectedArea
+        );
+      }
+
       // ユーザー情報を一括取得してMapで引けるようにする
       // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
       const [profilesData, usersData] = await Promise.all([
