@@ -459,6 +459,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     event_date: '',
     event_location: '',
     event_fee: '',
+    event_url: '',
     // Contact fields
     contact_method: 'email',
     phone: '',
@@ -530,6 +531,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
           : '',
         event_location: editingPost.event_location || '',
         event_fee: editingPost.event_fee || '',
+        event_url: editingPost.event_url || '',
         // Contact fields
         contact_method: editingPost.contact_method || 'email',
         phone: editingPost.phone || '',
@@ -593,6 +595,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       event_date: '',
       event_location: '',
       event_fee: '',
+      event_url: '',
       // Contact fields
       contact_method: 'email',
       phone: '',
@@ -1418,6 +1421,17 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     value={formData.event_fee}
                     onChange={(e) => handleInputChange('event_fee', e.target.value)}
                     placeholder="例：無料、100 SEK、要予約"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="event_url">イベントURL(公式サイト等)</Label>
+                  <Input
+                    id="event_url"
+                    type="url"
+                    value={formData.event_url}
+                    onChange={(e) => handleInputChange('event_url', e.target.value)}
+                    placeholder="例：https://example.com/event"
                   />
                 </div>
               </CardContent>
