@@ -51,6 +51,39 @@ const categoryIcons = {
   'cat-bulletin': BulletinIcon
 };
 
+// エリア(県)別フィルター用の表示名マッピング
+const countyNameMap: Record<string, string> = {
+  'Stockholm': 'ストックホルム',
+  'Uppsala': 'ウプサラ',
+  'Södermanland': 'セーデルマンランド',
+  'Östergötland': 'エステルイェータランド',
+  'Jönköping': 'ヨンシェーピング',
+  'Kronoberg': 'クルノベリ',
+  'Kalmar': 'カルマル',
+  'Gotland': 'ゴットランド',
+  'Blekinge': 'ブレキンゲ',
+  'Skåne': 'スコーネ',
+  'Halland': 'ハッランド',
+  'Västra Götaland': 'ヴェストラ・イェータランド',
+  'Värmland': 'ヴェルムランド',
+  'Örebro': 'エーレブルー',
+  'Västmanland': 'ヴェストマンランド',
+  'Dalarna': 'ダルナ',
+  'Gävleborg': 'イェヴレボリ',
+  'Västernorrland': 'ヴェステルノールランド',
+  'Jämtland': 'イェムトランド',
+  'Västerbotten': 'ヴェステルボッテン',
+  'Norrbotten': 'ノールボッテン',
+  'Other': 'スウェーデン以外'
+};
+
+const getCountyNameWithKatakana = (county: string) => {
+  return countyNameMap[county] ? `${county} (${countyNameMap[county]})` : county;
+};
+
+// エリア別フィルターを表示するカテゴリー
+const AREA_FILTER_CATEGORIES = ['cat-for-sale', 'cat-job-seeking', 'cat-housing', 'cat-events', 'cat-services'];
+
 const employmentTypeLabels = {
   'full-time': 'フルタイム',
   'part-time': 'パートタイム',
