@@ -1116,7 +1116,9 @@ const Index = () => {
                             📅 {post.event_date_readable}
                           </span>
                         )}
-                        <span>{formatDate(post._created_at)}</span>
+                        {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
+                          <span>{formatDate(post._created_at)}</span>
+                        )}
                         {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
                           <span className="font-semibold text-blue-600">
                             {employmentTypeLabels[post.employment_type] || post.employment_type}
@@ -1393,7 +1395,9 @@ const Index = () => {
                                 📅 {post.event_date_readable}
                               </span>
                             )}
-                            <span>{formatDate(post._created_at)}</span>
+                            {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
+                              <span>{formatDate(post._created_at)}</span>
+                            )}
                             {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
                               <span className="font-semibold text-blue-600">
                                 {employmentTypeLabels[post.employment_type] || post.employment_type}
