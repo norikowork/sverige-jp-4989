@@ -590,7 +590,14 @@ useEffect(() => {
 
   // Share functionality
   const handleShare = async (platform) => {
-    const url = window.location.href;
+    // シェア用のURLはEdge Function(share-post)経由にする。
+    // LINE/Facebook等のリンクプレビューはJavaScriptを実行しないため、
+    // 通常の/post/:idのURLだとReact側で書き換えたog:imageが見えず、
+    // 固定ロゴしか表示されない。share-postはボットにはog:image付きの
+    // HTMLを、人間には/post/:idへのリダイレクトを返す。
+    const url = post?._row_id
+      ? `${window.location.origin}/api/v2/function/share-post?id=${post._row_id}`
+      : window.location.href;
     const title = post?.title || 'Sverige.JP - スウェーデン日本コミュニティ';
     const text = post?.description || '';
 
