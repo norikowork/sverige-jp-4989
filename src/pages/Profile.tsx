@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
 import content from '@/lib/shared/kliv-content';
+import { toAsciiFile } from '@/lib/asciiFilename';
 import { useToast } from '@/hooks/use-toast';
 import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
@@ -285,7 +286,8 @@ const Profile = () => {
     try {
       setProfilePhotoUploading(true);
 
-      const result = await content.uploadFile(file, '/content/profile-photos/');
+      // 日本語・スペース入りのファイル名でも安全なASCII名で保存する
+      const result = await content.uploadFile(toAsciiFile(file, 'profile'), '/content/profile-photos/');
       const photoUrl = result.path || result.contentUrl || result.url || result.fileUrl;
 
       // プロフィールを更新

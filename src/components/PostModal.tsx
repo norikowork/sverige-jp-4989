@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import db from '@/lib/shared/kliv-database';
 import content from '@/lib/shared/kliv-content';
+import { toAsciiFile } from '@/lib/asciiFilename';
 import auth from '@/lib/shared/kliv-auth';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
@@ -692,7 +693,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     
     for (const file of filesToUpload) {
       try {
-        const result = await content.uploadFile(file, '/content/uploads/');
+        // 日本語・スペース入りのファイル名はLINE等のOGPクローラーで画像が表示されないためASCII名へ変換
+        const result = await content.uploadFile(toAsciiFile(file, 'post'), '/content/uploads/');
         
         // 結果の様々な可能性をチェック
         let imageUrl = null;
