@@ -1111,11 +1111,11 @@ const Index = () => {
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentPosts.map((post) => (
-              <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
+              <Card key={post._row_id} className="hover:shadow-lg transition-shadow min-w-0">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0 overflow-hidden">
-                      <CardTitle className="text-lg line-clamp-2">
+                      <CardTitle className="text-lg line-clamp-2 break-words">
                         <Link to={`/post/${post._row_id}`} className="hover:text-blue-600 transition-colors">
                           {post.title}
                         </Link>
@@ -1367,7 +1367,7 @@ const Index = () => {
               /* Traditional list view - for search results or specific category */
               <div className="space-y-3">
                 {currentPosts.map((post) => (
-                  <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
+                  <Card key={post._row_id} className="hover:shadow-lg transition-shadow min-w-0">
                     <CardContent className="p-3">
                       <div className="flex gap-3">
                             {/* Thumbnail */}
