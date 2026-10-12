@@ -1489,6 +1489,14 @@ useEffect(() => {
                         </div>
                       )}
 
+                      {post.phone && (
+                        <div className="flex items-center text-purple-700">
+                          <Phone className="w-4 h-4 mr-2" />
+                          <span className="font-medium">電話番号:</span>
+                          <span className="ml-2">{post.phone}</span>
+                        </div>
+                      )}
+
                       {/* Calendar Add Buttons */}
                       <div className="pt-3 border-t border-purple-200">
                         <p className="text-sm font-medium text-purple-800 mb-2">カレンダーに追加:</p>
