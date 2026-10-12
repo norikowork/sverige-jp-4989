@@ -1091,6 +1091,20 @@ useEffect(() => {
     });
   };
 
+  // 説明文内の **テキスト** を太字で表示する(簡易的なMarkdown風記法)。
+  // 元のタイトル(翻訳前の英語/スウェーデン語)を説明文の先頭に太字で
+  // 残す運用のために追加。
+  const renderDescriptionWithBold = (text: string) => {
+    if (!text) return text;
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   const handleNavigateToPost = (postId) => {
     if (postId) {
       navigate(`/post/${postId}`);
@@ -1537,7 +1551,7 @@ useEffect(() => {
                 <div className="mb-6">
                   <h3 className="text-base sm:text-lg font-semibold mb-3">詳細</h3>
                   <div className="prose max-w-none">
-                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{post.description}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{renderDescriptionWithBold(post.description)}</p>
                   </div>
                 </div>
 
