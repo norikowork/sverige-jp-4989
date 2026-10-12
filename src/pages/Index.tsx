@@ -1530,16 +1530,26 @@ const Index = () => {
         {/* Images Only View */}
         {viewMode === 'images' && (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {currentPosts.filter(p => p.images && p.images.length > 0).map((post) => (
+            {currentPosts.map((post) => (
               <Link key={post._row_id} to={`/post/${post._row_id}`}>
                 <div className="flex flex-col gap-1 hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square rounded overflow-hidden bg-gray-100 group">
                     <img 
-                      src={post.images[0]} 
+                      src={
+                        post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
+                          ? post.images[0]
+                          : '/content/templates/sverige_blank.png'
+                      }
                       alt={post.title}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== '/content/templates/sverige_blank.png') {
+                          target.src = '/content/templates/sverige_blank.png';
+                        }
+                      }}
                     />
-                    {post.images.length > 1 && (
+                    {post.images && post.images.length > 1 && (
                       <div className="absolute top-1 right-1 bg-black/60 text-white px-1.5 py-0.5 rounded text-xs">
                         {post.images.length}
                       </div>
