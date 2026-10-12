@@ -620,8 +620,23 @@ useEffect(() => {
         break;
 
       case 'line':
-        const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}`;
-        window.open(lineUrl, '_blank');
+        // LINEの外部共有ウィジェット(social-plugins.line.me)は、PC・モバイル
+        // 共に「LINEアプリで開きますか?」の確認が失敗して何も送れないことが
+        // あったため、URLをコピーしてLINEに直接貼り付けてもらう方式にする
+        try {
+          await navigator.clipboard.writeText(url);
+          toast({
+            title: "URLをコピーしました",
+            description: "LINEのトーク画面に貼り付けて送ってください",
+          });
+        } catch (error) {
+          console.error('Failed to copy:', error);
+          toast({
+            title: "エラー",
+            description: "URLのコピーに失敗しました",
+            variant: "destructive"
+          });
+        }
         break;
 
       case 'twitter':
