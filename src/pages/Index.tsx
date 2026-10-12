@@ -984,7 +984,15 @@ const Index = () => {
                   <SelectItem value="all">すべてのエリア</SelectItem>
                   {Array.from(new Set(locations.map((loc: any) => loc.county)))
                     .filter(Boolean)
-                    .sort()
+                    .sort((a: any, b: any) => {
+                      if (a === 'Other') return 1;
+                      if (b === 'Other') return -1;
+                      if (a === 'Stockholm') return -1;
+                      if (b === 'Stockholm') return 1;
+                      if (a === 'Västra Götaland') return -1;
+                      if (b === 'Västra Götaland') return 1;
+                      return a.localeCompare(b);
+                    })
                     .map((county: any) => (
                       <SelectItem key={county} value={county}>
                         {getCountyNameWithKatakana(county)}
