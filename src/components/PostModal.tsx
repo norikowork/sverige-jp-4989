@@ -657,41 +657,106 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     }
   };
 
+  // iPhoneの写真(HEIC等)や高解像度の画像でも、アップロード前にブラウザ側で
+  // 自動的にリサイズ・再圧縮してJPEGに変換する。明らかに巨大/不審なファイル
+  // (ABUSE_MAX_BYTES超)は圧縮を試みる前に弾く。
+  const ABUSE_MAX_BYTES = 25 * 1024 * 1024; // 25MB — これを超える生ファイルは拒否
+  const TARGET_MAX_BYTES = 1 * 1024 * 1024; // 1MB — 圧縮後の目標サイズ
+  const MAX_DIMENSION = 1920; // 長辺の最大ピクセル数
+
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+          if (width >= height) {
+            height = Math.round((height / width) * MAX_DIMENSION);
+            width = MAX_DIMENSION;
+          } else {
+            width = Math.round((width / height) * MAX_DIMENSION);
+            height = MAX_DIMENSION;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas not supported'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const tryEncode = (quality: number) => {
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              reject(new Error('画像の変換に失敗しました'));
+              return;
+            }
+            if (blob.size > TARGET_MAX_BYTES && quality > 0.4) {
+              tryEncode(quality - 0.15);
+              return;
+            }
+            const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+            resolve(new File([blob], newName, { type: 'image/jpeg' }));
+          }, 'image/jpeg', quality);
+        };
+        tryEncode(0.85);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('画像を読み込めませんでした(対応していない形式の可能性があります)'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
   const handleImageUpload = async (files: FileList | null) => {
     if (!files) return;
 
     const fileArray = Array.from(files);
-    
-    // 1ファイル1MBのサイズ制限チェック
-    const maxSizeBytes = 1 * 1024 * 1024; // 1MB
-    const validFiles = fileArray.filter(file => {
-      if (file.size > maxSizeBytes) {
+
+    // 明らかに巨大/不審なファイルは圧縮を試みる前に拒否する
+    const withinAbuseLimit = fileArray.filter(file => {
+      if (file.size > ABUSE_MAX_BYTES) {
         toast({
-          title: "ファイルサイズ超過",
-          description: `${file.name}は ${(file.size / (1024 * 1024)).toFixed(2)}MB です。1ファイル1MBまでにしてください。`,
+          title: "ファイルサイズが大きすぎます",
+          description: `${file.name}は ${(file.size / (1024 * 1024)).toFixed(1)}MB です。25MBまでのファイルをご利用ください。`,
           variant: "destructive"
         });
         return false;
       }
       return true;
     });
-    
-    if (validFiles.length === 0) return;
-    
-    if (validFiles.length < fileArray.length) {
-      toast({
-        title: "一部のファイルがサイズ制限を超えました",
-        description: "1ファイルのサイズは1MBまでにしてください。"
-      });
-    }
-    
+
+    if (withinAbuseLimit.length === 0) return;
+
     const remainingSlots = 3 - imageUrls.length;
-    const filesToUpload = validFiles.slice(0, remainingSlots);
-    if (filesToUpload.length === 0) return;
+    const filesToProcess = withinAbuseLimit.slice(0, remainingSlots);
+    if (filesToProcess.length === 0) return;
+
+    // 選んだ画像をアップロード前に自動でリサイズ・圧縮する
+    const validFiles: File[] = [];
+    for (const file of filesToProcess) {
+      try {
+        validFiles.push(await compressImage(file));
+      } catch (err) {
+        toast({
+          title: "画像の最適化に失敗しました",
+          description: `${file.name}: ${(err as Error)?.message || 'Unknown error'}`,
+          variant: "destructive"
+        });
+      }
+    }
+
+    if (validFiles.length === 0) return;
 
     const newUrls: string[] = [];
     
-    for (const file of filesToUpload) {
+    for (const file of validFiles) {
       try {
         // 日本語・スペース入りのファイル名はLINE等のOGPクローラーで画像が表示されないためASCII名へ変換
         const result = await content.uploadFile(toAsciiFile(file, 'post'), '/content/uploads/');
