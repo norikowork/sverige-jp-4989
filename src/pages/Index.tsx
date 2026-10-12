@@ -1114,7 +1114,7 @@ const Index = () => {
               <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg line-clamp-2">
                         <Link to={`/post/${post._row_id}`} className="hover:text-blue-600 transition-colors">
                           {post.title}
