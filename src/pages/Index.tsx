@@ -1395,7 +1395,7 @@ const Index = () => {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start gap-2 mb-1">
-                            <Link to={`/post/${post._row_id}`}>
+                            <Link to={`/post/${post._row_id}`} className="block min-w-0 flex-1">
                               <h3 className="text-base font-semibold truncate hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
                             </Link>
                           </div>
