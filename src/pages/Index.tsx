@@ -1021,7 +1021,7 @@ const Index = () => {
         {selectedCategory === 'cat-services' && (
           <div className="mb-6">
             <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
-              <p>🇯🇵 のマークは、日本人または日系人が経営・関係しているビジネス・サービスを表しています。</p>
+              <p>🇯🇵 のマークは、日本人または日系人、日系企業が経営・関係しているサービスを表しています。</p>
               <p className="mt-1">日本語対応のサービスをご存知でしたら、ぜひ support@sverige.jp までご情報をお寄せください。</p>
             </div>
             {SERVICE_SUBCATEGORY_GROUPS.map((group) => (
