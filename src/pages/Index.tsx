@@ -1033,9 +1033,23 @@ const Index = () => {
               <p>🇯🇵 のマークは、日本人または日系人、日系企業が経営・関係しているサービスを表しています。</p>
               <p className="mt-1">日本語対応のサービスをご存知でしたら、ぜひ support@sverige.jp までご情報をお寄せください。</p>
             </div>
-            {SERVICE_SUBCATEGORY_GROUPS.map((group) => (
+            <div className="flex gap-2 mb-4">
+              {SERVICE_SUBCATEGORY_GROUPS.map((group) => (
+                <button
+                  key={group.label}
+                  onClick={() => setSelectedServiceGroup(group.label)}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all ${
+                    selectedServiceGroup === group.label
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300'
+                  }`}
+                >
+                  {group.label}
+                </button>
+              ))}
+            </div>
+            {SERVICE_SUBCATEGORY_GROUPS.filter((group) => group.label === selectedServiceGroup).map((group) => (
               <div key={group.label} className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">{group.label}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                   {group.items.map((itemName) => {
                     const sub = subcategories.find(
