@@ -1072,6 +1072,9 @@ const Index = () => {
         {/* Subcategory Grid for Events - Only show when events category is selected */}
         {selectedCategory === 'cat-events' && (
           <div className="mb-6">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
+              🇯🇵 のマークは、日本人または日系人、日系企業が関係しているイベントです。
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
               {EVENT_SUBCATEGORIES.map((itemName) => {
                 const sub = subcategories.find(
