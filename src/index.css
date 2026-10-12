@@ -35,6 +35,8 @@
   --radius-lg: var(--radius);
 
   --font-sans: "Lucida Grande", Meiryo, メイリオ, "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", sans-serif;
+
+  --text-xs: 1rem;
 }
 
 :root {
