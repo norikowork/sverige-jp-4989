@@ -1020,6 +1020,9 @@ const Index = () => {
         {/* Subcategory Grid for Services - Only show when services category is selected */}
         {selectedCategory === 'cat-services' && (
           <div className="mb-6">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
+              日本語対応のサービスをご存知でしたら、ぜひ support@sverige.jp までご情報をお寄せください。
+            </div>
             {SERVICE_SUBCATEGORY_GROUPS.map((group) => (
               <div key={group.label} className="mb-6">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">{group.label}</h3>
