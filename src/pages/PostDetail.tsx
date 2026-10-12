@@ -1684,7 +1684,7 @@ useEffect(() => {
                 )}
 
                 {/* Service Information - Only show for service postings */}
-                {(post.service_fee || post.service_area || post.availability || post.service_url) && (
+                {(post.service_fee || post.service_area || post.availability || post.service_url || ((post.post_type === 'service' || post.category_uuid === 'cat-services') && post.phone)) && (
                   <div className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
                     <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center text-orange-800">
                       <Wrench className="w-5 h-5 mr-2" />
@@ -1706,6 +1706,15 @@ useEffect(() => {
                           <div>
                             <span className="font-medium">サービス提供エリア:</span>
                             <p className="text-orange-900 mt-0.5">{post.service_area}</p>
+                          </div>
+                        </div>
+                      )}
+                      {(post.post_type === 'service' || post.category_uuid === 'cat-services') && post.phone && (
+                        <div className="flex items-start text-orange-700">
+                          <Phone className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">電話番号:</span>
+                            <p className="text-orange-900 mt-0.5">{post.phone}</p>
                           </div>
                         </div>
                       )}
