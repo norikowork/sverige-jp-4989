@@ -1397,6 +1397,17 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     placeholder="例：平日9:00-18:00、土日要相談"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="service_phone">店舗の電話番号</Label>
+                  <Input
+                    id="service_phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="例：08-123 45 67"
+                  />
+                </div>
               </CardContent>
             </Card>
           )}
