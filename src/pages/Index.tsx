@@ -108,6 +108,13 @@ const formatPrice = (price: string) => {
   return /sek/i.test(price) ? price : `${price} SEK`;
 };
 
+// 説明文の一覧プレビューでは太字表示をせず、**マーカーだけ取り除いて表示する
+// (投稿詳細ページ側では renderDescriptionWithBold で実際に太字表示する)
+const stripBoldMarkers = (text: string) => {
+  if (!text) return text;
+  return text.replace(/\*\*([^*]+)\*\*/g, '$1');
+};
+
 type ViewMode = 'grid' | 'list' | 'images' | 'map';
 
 const Index = () => {
@@ -1186,7 +1193,7 @@ const Index = () => {
                         </div>
                       </div>
                   <p className="text-gray-600 text-sm mb-2 line-clamp-3">
-                    {post.description}
+                    {stripBoldMarkers(post.description)}
                   </p>
                   {post.category_uuid && (
                     <button
@@ -1436,7 +1443,7 @@ const Index = () => {
                               </Link>
                             </div>
                             <p className="flex-1 min-w-0 text-gray-600 text-sm line-clamp-2">
-                              {post.description}
+                              {stripBoldMarkers(post.description)}
                             </p>
                             {/* Action */}
                             <div className="flex items-center flex-shrink-0">
