@@ -880,6 +880,29 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         }
       }
 
+      // サービス投稿も、詳細住所(番地)が入力されていれば自動で座標を取得する。
+      // location_uuid(都市単位)だけだと、同じ都市の店舗が地図上ですべて
+      // 同じ地点に重なって表示されてしまい、実際の店舗所在地と異なるため。
+      if (
+        formData.category_uuid === 'cat-services' &&
+        formData.show_detailed_address &&
+        formData.street &&
+        formData.city
+      ) {
+        try {
+          const geocodeResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.street + ', ' + formData.city + ', Sweden')}&limit=1`
+          );
+          const geocodeData = await geocodeResponse.json();
+          if (geocodeData && geocodeData.length > 0) {
+            postData.latitude = parseFloat(geocodeData[0].lat);
+            postData.longitude = parseFloat(geocodeData[0].lon);
+          }
+        } catch (geocodeError) {
+          console.error('Error geocoding service address:', geocodeError);
+        }
+      }
+
       if (editingPost) {
         console.log('Updating post:', editingPost._row_id, postData);
         await db.update('posts', { _row_id: `eq.${editingPost._row_id}` }, postData);
