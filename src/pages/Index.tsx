@@ -1,6 +1,7 @@
 // Sweden.JP - Stockholm Japanese Community - Main index page
 import { useState, useEffect, useRef } from 'react';
 import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, Mail } from 'lucide-react';
+import WorldClock from '@/components/WorldClock';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -879,7 +880,8 @@ const Index = () => {
         {/* Search and Filter Section */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
+            <WorldClock />
+            <div className="w-full md:w-64 md:flex-initial">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
