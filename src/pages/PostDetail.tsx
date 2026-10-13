@@ -1912,11 +1912,11 @@ useEffect(() => {
                         </span>
                       </div>
                     )}
-                    {post.postal_code && (
+                    {(post.postal_code || post.zip_code) && (
                       <div className="flex items-start text-gray-600">
                         <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="text-xs sm:text-sm">
-                          <span className="text-gray-500">郵便番号:</span> {post.postal_code}
+                          <span className="text-gray-500">郵便番号:</span> {post.postal_code || post.zip_code}
                         </span>
                       </div>
                     )}
