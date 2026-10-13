@@ -1256,17 +1256,20 @@ useEffect(() => {
 
       <div className="container mx-auto px-4 pt-8">
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4 mb-6">
-          <WorldClock />
-          <div className="w-full md:w-64 md:flex-initial">
-            <div className="relative">
+          <div className="flex-1 flex gap-2">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="投稿を検索..."
+                placeholder="キーワードで投稿を検索..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 flex-shrink-0">
+              <Search className="w-4 h-4 mr-2" />
+              検索
+            </Button>
           </div>
           <Button type="button" className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/')}>
             <Plus className="w-4 h-4 mr-2" />
