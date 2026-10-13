@@ -1265,10 +1265,10 @@ const Index = () => {
                       {getLocationName(post.location_uuid)}
                     </div>
                   )}
-                  {post.postal_code && (
+                  {(post.postal_code || post.zip_code) && (
                     <div className="flex items-center mb-2 text-xs text-gray-500">
                       <MapPin className="w-3 h-3 mr-1" />
-                      {post.postal_code}
+                      {post.postal_code || post.zip_code}
                     </div>
                   )}
                   {post.brand && (
@@ -1576,10 +1576,10 @@ const Index = () => {
                                 {getLocationName(post.location_uuid)}
                               </span>
                             )}
-                            {post.postal_code && (
+                            {(post.postal_code || post.zip_code) && (
                               <span className="flex items-center">
                                 <MapPin className="w-3 h-3 mr-1" />
-                                {post.postal_code}
+                                {post.postal_code || post.zip_code}
                               </span>
                             )}
                             {post.brand && (
