@@ -143,7 +143,7 @@ const Index = () => {
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [userCounty, setUserCounty] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const postsPerPage = 20; // Posts per page
+  const postsPerPage = 10; // Posts per page
 
   useEffect(() => {
     loadData();
