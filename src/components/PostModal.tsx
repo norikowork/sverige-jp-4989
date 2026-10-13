@@ -1217,17 +1217,21 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     <Label htmlFor="is_free" className="cursor-pointer">無料</Label>
                   </div>
                   {formData.price !== '無料' && formData.price !== '0' && (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="price"
-                        type="number"
-                        value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
-                        placeholder="500"
-                        className="text-base flex-1"
-                        min="0"
-                      />
-                      <span className="text-gray-600 font-medium">SEK</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="price"
+                          type="number"
+                          inputMode="numeric"
+                          value={formData.price}
+                          onChange={(e) => handleInputChange('price', e.target.value.replace(/[^0-9]/g, ''))}
+                          placeholder="500"
+                          className="text-base flex-1"
+                          min="0"
+                        />
+                        <span className="text-gray-600 font-medium">SEK</span>
+                      </div>
+                      <p className="text-xs text-gray-500">半角数字で入力してください</p>
                     </div>
                   )}
                 </div>
