@@ -43,6 +43,7 @@ const Admin = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [postFilter, setPostFilter] = useState('all');
+  const [postCategoryFilter, setPostCategoryFilter] = useState('all');
   const [userFilter, setUserFilter] = useState('all');
   const [editingPost, setEditingPost] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -1164,6 +1165,10 @@ const Admin = () => {
     if (postFilter !== 'all') {
       filtered = filtered.filter(post => post.status === postFilter);
     }
+
+    if (postCategoryFilter !== 'all') {
+      filtered = filtered.filter(post => (post.category_uuid || post.category) === postCategoryFilter);
+    }
     
     return filtered;
   };
@@ -1535,6 +1540,19 @@ const Admin = () => {
                         <SelectItem value="sold">完了</SelectItem>
                         <SelectItem value="expired">期限切れ</SelectItem>
                         <SelectItem value="flagged">報告済み</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={postCategoryFilter} onValueChange={setPostCategoryFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">すべてのカテゴリー</SelectItem>
+                        <SelectItem value="cat-for-sale">売ります</SelectItem>
+                        <SelectItem value="cat-job-seeking">仕事探し</SelectItem>
+                        <SelectItem value="cat-housing">住居</SelectItem>
+                        <SelectItem value="cat-events">イベントお知らせ</SelectItem>
+                        <SelectItem value="cat-services">サービス</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
