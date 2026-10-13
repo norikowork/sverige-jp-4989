@@ -734,7 +734,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
 
     if (withinAbuseLimit.length === 0) return;
 
-    const remainingSlots = 3 - imageUrls.length;
+    const remainingSlots = 5 - imageUrls.length;
     const filesToProcess = withinAbuseLimit.slice(0, remainingSlots);
     if (filesToProcess.length === 0) return;
 
@@ -1747,7 +1747,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <ImageIcon className="w-5 h-5" />
-                画像（最大3枚）
+                画像（最大5枚）
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -1778,7 +1778,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                 )}
                 
                 {/* アップロード */}
-                {imageUrls.length < 3 && (
+                {imageUrls.length < 5 && (
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                     <Input
                       id="images"
@@ -1794,7 +1794,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     >
                       <ImageIcon className="w-8 h-8 text-gray-400" />
                       <span className="text-sm font-medium">クリックして画像を選択</span>
-                      <span className="text-xs text-gray-500">最大3枚、各1MBまで</span>
+                      <span className="text-xs text-gray-500">最大5枚(大きい写真は自動で最適化されます)</span>
                     </Label>
                   </div>
                 )}
