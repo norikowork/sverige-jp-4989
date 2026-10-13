@@ -1761,7 +1761,7 @@ useEffect(() => {
                             <span className="font-medium">住所:</span>
                             <p className="text-orange-900 mt-0.5">
                               {post.street}
-                              {post.postal_code ? `, ${post.postal_code}` : ''}
+                              {(post.postal_code || post.zip_code) ? `, ${post.postal_code || post.zip_code}` : ''}
                               {post.location_uuid ? ` ${getLocationName(post.location_uuid)}` : ''}
                             </p>
                           </div>
