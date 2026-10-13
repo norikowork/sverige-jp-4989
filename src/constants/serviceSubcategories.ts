@@ -51,7 +51,7 @@ export const SERVICE_SUBCATEGORY_EMOJI: Record<string, string> = {
   '学校・習い事': '🎓',
   '会社・企業': '🏢',
   'サークル・団体': '🤝',
-  '日本料理': '🍣',
+  '日本料理': '🍱',
   '中華料理': '🥟',
   '韓国料理': '🍲',
   'アメリカ料理': '🍔',
