@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, ChevronDown, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, Mail } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import WorldClock from '@/components/WorldClock';
+import BottomNav from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -814,7 +815,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -833,7 +834,7 @@ const Index = () => {
               </div>
             </Link>
             <div className="flex items-center gap-3 flex-wrap justify-end">
-              <WorldClock />
+              <WorldClock className="hidden md:flex flex-shrink-0" />
               {user ? (
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
                   <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3 relative" onClick={() => navigate('/messages')}>
@@ -879,6 +880,11 @@ const Index = () => {
           </div>
         </div>
       </header>
+
+      {/* World Clock - mobile only, full width bar below header */}
+      <div className="md:hidden bg-gray-100 border-b px-4 py-2">
+        <WorldClock className="flex justify-center gap-3 text-xs" />
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -1717,6 +1723,7 @@ const Index = () => {
       </main>
 
       <Footer />
+      <BottomNav onNewPost={handleNewPost} />
     </div>
   );
 };
