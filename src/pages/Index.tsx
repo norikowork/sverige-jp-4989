@@ -1423,39 +1423,12 @@ const Index = () => {
                 {currentPosts.map((post) => (
                   <Card key={post._row_id} className="hover:shadow-lg transition-shadow min-w-0">
                     <CardContent className="p-3">
-                        {/* Title */}
-                        <div className="w-full mb-1">
-                          <Link to={`/post/${post._row_id}`} className="block w-full overflow-hidden">
-                            <h3 className="text-base font-semibold line-clamp-2 break-words hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
-                          </Link>
-                        </div>
-                        {/* Date and Price row */}
-                        <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
-                          {post.post_type === 'event' && post.event_date_readable && (
-                            <span className="font-semibold text-purple-600">
-                              📅 {post.event_date_readable}
-                            </span>
-                          )}
-                          {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
-                            <span>{formatDate(post._created_at)}</span>
-                          )}
-                          {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
-                            <span className="font-semibold text-blue-600">
-                              {employmentTypeLabels[post.employment_type] || post.employment_type}
-                            </span>
-                          )}
-                          {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
-                            <span className="font-semibold text-green-600">
-                              {formatPrice(post.price)}
-                            </span>
-                          )}
-                        </div>
-                        {/* Image + Description + Action row */}
-                        <div className="flex gap-3 items-start mb-2">
+                        {/* Image + Content + Action row */}
+                        <div className="flex gap-3 items-start">
                             {/* Thumbnail */}
                             <div className="flex-shrink-0">
                               <Link to={`/post/${post._row_id}`}>
-                                <div className="w-16 h-16 rounded overflow-hidden bg-gray-100">
+                                <div className="w-20 h-20 rounded overflow-hidden bg-gray-100">
                                   <img
                                     src={
                                       post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
@@ -1474,9 +1447,40 @@ const Index = () => {
                                 </div>
                               </Link>
                             </div>
-                            <p className="flex-1 min-w-0 text-gray-600 text-sm line-clamp-2">
-                              {stripBoldMarkers(post.description)}
-                            </p>
+                            {/* Area / Title / Date & Price / Description */}
+                            <div className="flex-1 min-w-0">
+                              {post.location_uuid && (
+                                <p className="text-xs text-gray-500 truncate mb-0.5">
+                                  {getLocationName(post.location_uuid)}
+                                </p>
+                              )}
+                              <Link to={`/post/${post._row_id}`} className="block w-full overflow-hidden">
+                                <h3 className="text-base font-semibold line-clamp-2 break-words hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
+                              </Link>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                {post.post_type === 'event' && post.event_date_readable && (
+                                  <span className="font-semibold text-purple-600">
+                                    📅 {post.event_date_readable}
+                                  </span>
+                                )}
+                                {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
+                                  <span>{formatDate(post._created_at)}</span>
+                                )}
+                                {post.category_uuid === 'cat-job-seeking' && post.employment_type && (
+                                  <span className="font-semibold text-blue-600">
+                                    {employmentTypeLabels[post.employment_type] || post.employment_type}
+                                  </span>
+                                )}
+                                {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
+                                  <span className="font-semibold text-green-600">
+                                    {formatPrice(post.price)}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-gray-600 text-sm line-clamp-2 mt-1">
+                                {post.description}
+                              </p>
+                            </div>
                             {/* Action */}
                             <div className="flex items-center flex-shrink-0">
                               <Link to={`/post/${post._row_id}`}>
@@ -1486,8 +1490,8 @@ const Index = () => {
                               </Link>
                             </div>
                         </div>
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
+                        {/* Tags */}
+                        <div className="mt-2 pt-2 border-t">
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
                             {post.category_uuid && (
                               <button
