@@ -299,6 +299,14 @@ const PostDetail = () => {
         emailVerified: currentUser?.emailVerified
       });
       setUser(currentUser);
+      if (currentUser) {
+        const profiles = await db.query('user_profiles', {
+          user_uuid: `eq.${currentUser.userUuid}`
+        });
+        if (profiles.length > 0) {
+          setCurrentUserProfile(profiles[0]);
+        }
+      }
     } catch (error) {
       console.error('❌ Error checking auth status:', error);
       setUser(null);
