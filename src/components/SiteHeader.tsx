@@ -156,7 +156,15 @@ const SiteHeader = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-center gap-1 h-8 px-2 rounded-md hover:bg-gray-100 transition-colors">
-                        <User className="w-6 h-6 text-gray-400 bg-gray-100 rounded-full p-1 flex-shrink-0" />
+                        {userProfile?.profile_photo_url ? (
+                          <img
+                            src={userProfile.profile_photo_url}
+                            alt="プロフィール画像"
+                            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <User className="w-6 h-6 text-gray-400 bg-gray-100 rounded-full p-1 flex-shrink-0" />
+                        )}
                         <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-[150px]">
                           {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
                         </span>
