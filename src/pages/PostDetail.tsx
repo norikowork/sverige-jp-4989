@@ -1759,11 +1759,18 @@ useEffect(() => {
                           <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                           <div>
                             <span className="font-medium">住所:</span>
-                            <p className="text-orange-900 mt-0.5">
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                `${post.street}${(post.postal_code || post.zip_code) ? ', ' + (post.postal_code || post.zip_code) : ''}${post.location_uuid ? ' ' + getLocationName(post.location_uuid) : ''}, Sweden`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block text-orange-900 mt-0.5 underline hover:text-orange-700"
+                            >
                               {post.street}
                               {(post.postal_code || post.zip_code) ? `, ${post.postal_code || post.zip_code}` : ''}
                               {post.location_uuid ? ` ${getLocationName(post.location_uuid)}` : ''}
-                            </p>
+                            </a>
                           </div>
                         </div>
                       )}
