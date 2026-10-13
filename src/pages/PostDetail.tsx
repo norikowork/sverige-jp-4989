@@ -1874,6 +1874,14 @@ useEffect(() => {
                         </span>
                       </div>
                     )}
+                    {post.street && (
+                      <div className="flex items-start text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">
+                          <span className="text-gray-500">住所:</span> {post.street}
+                        </span>
+                      </div>
+                    )}
                     {post.postal_code && (
                       <div className="flex items-start text-gray-600">
                         <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
