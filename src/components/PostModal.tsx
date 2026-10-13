@@ -1582,8 +1582,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                         htmlFor="dm" 
                         className="flex items-center justify-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-all peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-50 hover:border-gray-300"
                       >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>まずはSverige.jpのメールから</span>
+                        <MessageSquare className="w-5 h-5" />
+                        <span>Sverige.jpから</span>
                       </Label>
                     </div>
                     <div>
