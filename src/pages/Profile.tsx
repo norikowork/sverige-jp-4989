@@ -1280,7 +1280,8 @@ const Profile = () => {
                     <h4 className="font-medium mb-1">連絡方法</h4>
                     <p>
                       {selectedPost.contact_method === 'email' ? 'メール' : 
-                       selectedPost.contact_method === 'phone' ? '電話' : '両方'}
+                       selectedPost.contact_method === 'phone' ? '電話' : 
+                       selectedPost.contact_method === 'dm' ? 'Sverige.jpのメール' : '両方'}
                     </p>
                   </div>
                   <div>
