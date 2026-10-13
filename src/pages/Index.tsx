@@ -955,7 +955,22 @@ const Index = () => {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            {selectedCategory === 'cat-for-sale' ? (
+              <Select value={sortOrder} onValueChange={setSortOrder}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">最新投稿</SelectItem>
+                  <SelectItem value="oldest">古い投稿</SelectItem>
+                  <SelectItem value="price_low">最安値</SelectItem>
+                  <SelectItem value="price_high">最高値</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div />
+            )}
             <div className="inline-flex rounded-md border overflow-hidden">
               <button
                 onClick={() => setViewMode('list')}
