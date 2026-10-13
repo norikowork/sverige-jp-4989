@@ -220,10 +220,20 @@ const Index = () => {
   }, [selectedCategory, selectedArea, selectedMonth, locations]);
 
   // Update posts when allPosts changes (for pagination)
+  // 売りますカテゴリーでは、並び替え(最新/古い/最安値/最高値)を反映する
   useEffect(() => {
-    setPosts(allPosts);
+    let sorted = allPosts;
+    if (selectedCategory === 'cat-for-sale') {
+      sorted = [...allPosts].sort((a, b) => {
+        if (sortOrder === 'oldest') return a._created_at - b._created_at;
+        if (sortOrder === 'price_low') return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
+        if (sortOrder === 'price_high') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
+        return b._created_at - a._created_at; // newest (default)
+      });
+    }
+    setPosts(sorted);
     setCurrentPage(1);
-  }, [allPosts]);
+  }, [allPosts, sortOrder, selectedCategory]);
 
   // 検索語の入力が落ち着いてから(300ms)実際の検索を実行する
   // (1文字ごとに検索を実行すると、複数のリクエストが前後して結果が
