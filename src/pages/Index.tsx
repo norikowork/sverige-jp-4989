@@ -1300,12 +1300,31 @@ const Index = () => {
                   .map((category) => {
                     // Special handling for bulletin board category - use forum_topics instead of posts
                     const isBulletinBoard = category.uuid === 'cat-bulletin';
-                    const categoryItems = isBulletinBoard
-                      ? forumTopics.slice(0, 8)
-                      : allPosts
-                          .filter(post => post.category_uuid === category.uuid && post.status === 'active')
-                          .sort((a, b) => b._created_at - a._created_at)
-                          .slice(0, 8);
+                    const isEventsBoard = category.uuid === 'cat-events';
+                    let categoryItems;
+                    if (isBulletinBoard) {
+                      categoryItems = forumTopics.slice(0, 8);
+                    } else if (isEventsBoard) {
+                      // イベントお知らせは投稿日ではなく、今月のイベント開催日順(近い順)で表示する
+                      const now = new Date();
+                      const startOfMonth = Math.floor(new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000);
+                      const endOfMonth = Math.floor(new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime() / 1000);
+                      categoryItems = allPosts
+                        .filter(post =>
+                          post.category_uuid === category.uuid &&
+                          post.status === 'active' &&
+                          post.event_date &&
+                          post.event_date >= startOfMonth &&
+                          post.event_date <= endOfMonth
+                        )
+                        .sort((a, b) => a.event_date - b.event_date)
+                        .slice(0, 8);
+                    } else {
+                      categoryItems = allPosts
+                        .filter(post => post.category_uuid === category.uuid && post.status === 'active')
+                        .sort((a, b) => b._created_at - a._created_at)
+                        .slice(0, 8);
+                    }
                     
                     const CategoryIcon = categoryIcons[category.uuid] || List;
                     
@@ -1349,7 +1368,7 @@ const Index = () => {
                                 >
                                   <div className="flex items-center gap-2 py-1.5 px-1 min-w-0">
                                     <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
-                                      {formatDateShort(item._created_at)}
+                                      {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
                                     </span>
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
                                       {item.title}
