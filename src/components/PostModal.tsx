@@ -1575,18 +1575,28 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                   value={formData.contact_method} 
                   onValueChange={(value) => handleInputChange('contact_method', value)}
                 >
-                  <div className="flex gap-3">
-                    <div className="flex-1">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <RadioGroupItem value="dm" id="dm" className="peer sr-only" />
+                      <Label 
+                        htmlFor="dm" 
+                        className="flex items-center justify-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-all peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-50 hover:border-gray-300"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>まずはSverige.jpのメールから</span>
+                      </Label>
+                    </div>
+                    <div>
                       <RadioGroupItem value="email" id="email" className="peer sr-only" />
                       <Label 
                         htmlFor="email" 
                         className="flex items-center justify-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-all peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-50 hover:border-gray-300"
                       >
                         <Mail className="w-4 h-4" />
-                        <span>メール</span>
+                        <span>登録したメール</span>
                       </Label>
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <RadioGroupItem value="phone" id="phone-method" className="peer sr-only" />
                       <Label 
                         htmlFor="phone-method" 
@@ -1596,7 +1606,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                         <span>電話</span>
                       </Label>
                     </div>
-                    <div className="flex-1">
+                    <div>
                       <RadioGroupItem value="both" id="both" className="peer sr-only" />
                       <Label 
                         htmlFor="both" 
