@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus, Truck, ExternalLink } from 'lucide-react';
+import WorldClock from '@/components/WorldClock';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1250,7 +1251,8 @@ useEffect(() => {
 
       <div className="container mx-auto px-4 pt-8">
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
+          <WorldClock />
+          <div className="w-full md:w-64 md:flex-initial">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
