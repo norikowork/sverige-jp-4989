@@ -110,7 +110,7 @@ const formatPrice = (price: string) => {
   return /sek/i.test(price) ? price : `${price} SEK`;
 };
 
- = 'grid' | 'list' | 'images' | 'map';
+type ViewMode = 'grid' | 'list' | 'images' | 'map';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -948,22 +948,7 @@ const Index = () => {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            {selectedCategory === 'cat-for-sale' ? (
-              <Select value={sortOrder} onValueChange={setSortOrder}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">最新投稿</SelectItem>
-                  <SelectItem value="oldest">古い投稿</SelectItem>
-                  <SelectItem value="price_low">最安値</SelectItem>
-                  <SelectItem value="price_high">最高値</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <div />
-            )}
+          <div className="flex items-center justify-end gap-2 mb-4">
             <div className="inline-flex rounded-md border overflow-hidden">
               <button
                 onClick={() => setViewMode('list')}
@@ -1016,32 +1001,47 @@ const Index = () => {
         {/* Area Filter - Only show for categories where area matters */}
         {AREA_FILTER_CATEGORIES.includes(selectedCategory) && (
           <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">エリア別：</label>
-              <Select value={selectedArea} onValueChange={(value) => setSelectedArea(value === 'all' ? '' : value)}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="すべてのエリア" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">すべてのエリア</SelectItem>
-                  {Array.from(new Set(locations.map((loc: any) => loc.county)))
-                    .filter(Boolean)
-                    .sort((a: any, b: any) => {
-                      if (a === 'Other') return 1;
-                      if (b === 'Other') return -1;
-                      if (a === 'Stockholm') return -1;
-                      if (b === 'Stockholm') return 1;
-                      if (a === 'Västra Götaland') return -1;
-                      if (b === 'Västra Götaland') return 1;
-                      return a.localeCompare(b);
-                    })
-                    .map((county: any) => (
-                      <SelectItem key={county} value={county}>
-                        {getCountyNameWithKatakana(county)}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-gray-700">エリア別：</label>
+                <Select value={selectedArea} onValueChange={(value) => setSelectedArea(value === 'all' ? '' : value)}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder="すべてのエリア" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">すべてのエリア</SelectItem>
+                    {Array.from(new Set(locations.map((loc: any) => loc.county)))
+                      .filter(Boolean)
+                      .sort((a: any, b: any) => {
+                        if (a === 'Other') return 1;
+                        if (b === 'Other') return -1;
+                        if (a === 'Stockholm') return -1;
+                        if (b === 'Stockholm') return 1;
+                        if (a === 'Västra Götaland') return -1;
+                        if (b === 'Västra Götaland') return 1;
+                        return a.localeCompare(b);
+                      })
+                      .map((county: any) => (
+                        <SelectItem key={county} value={county}>
+                          {getCountyNameWithKatakana(county)}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedCategory === 'cat-for-sale' && (
+                <Select value={sortOrder} onValueChange={setSortOrder}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">最新投稿</SelectItem>
+                    <SelectItem value="oldest">古い投稿</SelectItem>
+                    <SelectItem value="price_low">最安値</SelectItem>
+                    <SelectItem value="price_high">最高値</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
         )}
@@ -1227,7 +1227,7 @@ const Index = () => {
                         </div>
                       </div>
                   <p className="text-gray-600 text-sm mb-2 line-clamp-3">
-                    {stripBoldMarkers(post.description)}
+                    {post.description}
                   </p>
                   {post.category_uuid && (
                     <button
