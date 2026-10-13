@@ -1833,31 +1833,45 @@ useEffect(() => {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm pt-4 border-t">
-                    <div className="flex items-center text-gray-600">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span className="text-xs sm:text-sm">投稿日: {formatDate(post._created_at)}</span>
+                    <div className="flex items-start text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm">
+                        <span className="text-gray-500">投稿日:</span> {formatDate(post._created_at)}
+                      </span>
                     </div>
                     {post.category_uuid && (
-                      <div className="flex items-center text-gray-600">
-                        <Shield className="w-4 h-4 mr-2" />
-                        <span className="text-xs sm:text-sm">カテゴリ: {getCategoryName(post.category_uuid)}</span>
-                        {post.subcategory_uuid && (
-                          <span className="ml-2 text-gray-900 font-medium">
-                            {' > '}{getSubcategoryName(post.subcategory_uuid)}
-                          </span>
-                        )}
+                      <div className="flex items-start text-gray-600">
+                        <Shield className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">
+                          <span className="text-gray-500">カテゴリ:</span>{' '}
+                          <Link
+                            to={`/?category=${post.category_uuid}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {getCategoryName(post.category_uuid)}
+                          </Link>
+                          {post.subcategory_uuid && (
+                            <span className="text-gray-900 font-medium">
+                              {' > '}{getSubcategoryName(post.subcategory_uuid)}
+                            </span>
+                          )}
+                        </span>
                       </div>
                     )}
                     {post.location_uuid && (
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span className="text-xs sm:text-sm">場所: {getLocationName(post.location_uuid)}</span>
+                      <div className="flex items-start text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">
+                          <span className="text-gray-500">場所:</span> {getLocationName(post.location_uuid)}
+                        </span>
                       </div>
                     )}
                     {post.postal_code && (
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span className="text-xs sm:text-sm">郵便番号: {post.postal_code}</span>
+                      <div className="flex items-start text-gray-600">
+                        <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">
+                          <span className="text-gray-500">郵便番号:</span> {post.postal_code}
+                        </span>
                       </div>
                     )}
                   </div>
