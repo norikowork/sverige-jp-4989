@@ -1335,6 +1335,7 @@ const Index = () => {
                     // Special handling for bulletin board category - use forum_topics instead of posts
                     const isBulletinBoard = category.uuid === 'cat-bulletin';
                     const isEventsBoard = category.uuid === 'cat-events';
+                    const isServicesBoard = category.uuid === 'cat-services';
                     let categoryItems;
                     if (isBulletinBoard) {
                       categoryItems = forumTopics.slice(0, 8);
@@ -1415,9 +1416,11 @@ const Index = () => {
                                   }`}
                                 >
                                   <div className="flex items-center gap-2 py-1.5 px-1 min-w-0">
-                                    <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
-                                      {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
-                                    </span>
+                                    {!isServicesBoard && (
+                                      <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
+                                        {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
+                                      </span>
+                                    )}
                                     {isEventsBoard && item.subcategory_uuid && (
                                       <span
                                         onClick={(e) => {
@@ -1432,6 +1435,22 @@ const Index = () => {
                                         title={getSubcategoryName(item.subcategory_uuid)}
                                       >
                                         {EVENT_SUBCATEGORY_EMOJI[getSubcategoryName(item.subcategory_uuid)] || '🔸'}
+                                      </span>
+                                    )}
+                                    {isServicesBoard && item.subcategory_uuid && (
+                                      <span
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setSelectedCategory('cat-services');
+                                          setSelectedSubcategory(item.subcategory_uuid);
+                                          setSelectedArea('');
+                                          setSearchParams({ category: 'cat-services', subcategory: item.subcategory_uuid });
+                                        }}
+                                        className="text-base flex-shrink-0 hover:scale-110 transition-transform cursor-pointer"
+                                        title={getSubcategoryName(item.subcategory_uuid)}
+                                      >
+                                        {SERVICE_SUBCATEGORY_EMOJI[getSubcategoryName(item.subcategory_uuid)] || '🔸'}
                                       </span>
                                     )}
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
