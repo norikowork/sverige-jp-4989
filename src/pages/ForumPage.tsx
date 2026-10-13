@@ -197,7 +197,7 @@ export default function ForumPage() {
       <div className="min-h-screen flex flex-col">
         <SiteHeader />
         <div className="flex-1 bg-gray-50 py-8">
-          <div className="container mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <p className="text-gray-500">読み込み中...</p>
             </div>
@@ -214,7 +214,7 @@ export default function ForumPage() {
 
       {/* Main Content */}
       <div className="flex-1 bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-2 mb-6">
           <Button
             variant="outline"
