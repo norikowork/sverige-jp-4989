@@ -1305,17 +1305,15 @@ const Index = () => {
                     if (isBulletinBoard) {
                       categoryItems = forumTopics.slice(0, 8);
                     } else if (isEventsBoard) {
-                      // イベントお知らせは投稿日ではなく、今月のイベント開催日順(近い順)で表示する
+                      // イベントお知らせは投稿日ではなく、今日以降のイベント開催日順(近い順)で表示する
                       const now = new Date();
-                      const startOfMonth = Math.floor(new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000);
-                      const endOfMonth = Math.floor(new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime() / 1000);
+                      const startOfToday = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000);
                       categoryItems = allPosts
                         .filter(post =>
                           post.category_uuid === category.uuid &&
                           post.status === 'active' &&
                           post.event_date &&
-                          post.event_date >= startOfMonth &&
-                          post.event_date <= endOfMonth
+                          post.event_date >= startOfToday
                         )
                         .sort((a, b) => a.event_date - b.event_date)
                         .slice(0, 8);
