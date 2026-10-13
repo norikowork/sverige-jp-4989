@@ -1754,6 +1754,19 @@ useEffect(() => {
                       サービス詳細情報
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      {post.street && (
+                        <div className="flex items-start text-orange-700 sm:col-span-2">
+                          <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">住所:</span>
+                            <p className="text-orange-900 mt-0.5">
+                              {post.street}
+                              {post.postal_code ? `, ${post.postal_code}` : ''}
+                              {post.location_uuid ? ` ${getLocationName(post.location_uuid)}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                       {post.service_fee && (
                         <div className="flex items-start text-orange-700">
                           <DollarSign className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
