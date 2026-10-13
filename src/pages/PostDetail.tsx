@@ -68,6 +68,7 @@ const PostDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [locations, setLocations] = useState([]);
   const [categories, setCategories] = useState([]);
