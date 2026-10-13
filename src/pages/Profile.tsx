@@ -667,7 +667,7 @@ const Profile = () => {
   const getCategoryName = (categoryUuid) => {
     // This would normally come from categories data
     const categories = {
-      'cat-for-sale': '売ります',
+      'cat-for-sale': '売ります/あげます',
       'cat-wanted': '探しています',
       'cat-job-offering': '仕事募集',
       'cat-job-seeking': '仕事探し',

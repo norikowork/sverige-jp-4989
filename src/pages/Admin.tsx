@@ -1548,7 +1548,7 @@ const Admin = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">すべてのカテゴリー</SelectItem>
-                        <SelectItem value="cat-for-sale">売ります</SelectItem>
+                        <SelectItem value="cat-for-sale">売ります/あげます</SelectItem>
                         <SelectItem value="cat-job-seeking">仕事探し</SelectItem>
                         <SelectItem value="cat-housing">住居</SelectItem>
                         <SelectItem value="cat-events">イベントお知らせ</SelectItem>

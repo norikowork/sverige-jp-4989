@@ -62,7 +62,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <a href="/?category=cat-for-sale" className="text-gray-300 hover:text-white transition-colors">
-                    売ります
+                    売ります/あげます
                   </a>
                 </li>
                 <li>
