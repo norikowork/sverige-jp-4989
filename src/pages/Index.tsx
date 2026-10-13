@@ -110,14 +110,7 @@ const formatPrice = (price: string) => {
   return /sek/i.test(price) ? price : `${price} SEK`;
 };
 
-// 説明文の一覧プレビューでは太字表示をせず、**マーカーだけ取り除いて表示する
-// (投稿詳細ページ側では renderDescriptionWithBold で実際に太字表示する)
-const stripBoldMarkers = (text: string) => {
-  if (!text) return text;
-  return text.replace(/\*\*([^*]+)\*\*/g, '$1');
-};
-
-type ViewMode = 'grid' | 'list' | 'images' | 'map';
+ = 'grid' | 'list' | 'images' | 'map';
 
 const Index = () => {
   const navigate = useNavigate();
