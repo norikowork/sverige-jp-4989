@@ -1418,6 +1418,22 @@ const Index = () => {
                                     <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
                                       {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
                                     </span>
+                                    {isEventsBoard && item.subcategory_uuid && (
+                                      <span
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setSelectedCategory('cat-events');
+                                          setSelectedSubcategory(item.subcategory_uuid);
+                                          setSelectedArea('');
+                                          setSearchParams({ category: 'cat-events', subcategory: item.subcategory_uuid });
+                                        }}
+                                        className="text-base flex-shrink-0 hover:scale-110 transition-transform cursor-pointer"
+                                        title={getSubcategoryName(item.subcategory_uuid)}
+                                      >
+                                        {EVENT_SUBCATEGORY_EMOJI[getSubcategoryName(item.subcategory_uuid)] || '🔸'}
+                                      </span>
+                                    )}
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
                                       {item.title}
                                     </span>
