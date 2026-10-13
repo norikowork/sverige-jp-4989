@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Shield } from 'lucide-react';
+import { User, Mail, Shield, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import AuthModal from '@/components/AuthModal';
+import WorldClock from '@/components/WorldClock';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
 import { checkIsAdmin } from '@/lib/isAdmin';
@@ -139,17 +141,10 @@ const SiteHeader = () => {
                 <p className="text-xs text-gray-600 hidden md:block">スウェーデン日本コミュニティ</p>
               </div>
             </Link>
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              <WorldClock />
               {user ? (
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
-                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-[150px]">
-                    {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
-                  </span>
-                  <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3" onClick={() => navigate('/profile')}>
-                    <span className="hidden sm:inline">プロフィール</span>
-                    <span className="sm:hidden">プロフ</span>
-                  </Button>
                   <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3 relative" onClick={() => navigate('/messages')}>
                     <Mail className="w-4 h-4" />
                     {unreadCount > 0 && (
@@ -158,14 +153,25 @@ const SiteHeader = () => {
                       </Badge>
                     )}
                   </Button>
-                  {isAdmin && (
-                    <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => navigate('/admin')}>
-                      <Shield className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1 h-8 px-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <User className="w-6 h-6 text-gray-400 bg-gray-100 rounded-full p-1 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-[150px]">
+                          {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate('/profile')}>プロフィール</DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem onClick={() => navigate('/admin')}>管理画面</DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button variant="outline" size="sm" className="h-8 text-xs px-2" onClick={handleSignOut}>
-                    <span className="hidden sm:inline">ログアウト</span>
-                    <span className="sm:hidden">ログアウト</span>
+                    ログアウト
                   </Button>
                 </div>
               ) : (
