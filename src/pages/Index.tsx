@@ -1366,9 +1366,17 @@ const Index = () => {
                         <div className="border-b p-3">
                           {isBulletinBoard ? (
                             <Link to="/forum" className="block">
-                              <div className="flex items-center gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
-                                <CategoryIcon className="w-4 h-4" style={{ color: category.color }} />
-                                <h2 className="text-base font-semibold hover:text-blue-600 transition-colors">{category.name_ja}</h2>
+                              <div className="flex items-center justify-between gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <CategoryIcon className="w-4 h-4 flex-shrink-0" style={{ color: category.color }} />
+                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">{category.name_ja}</h2>
+                                </div>
+                                {categoryItems.length > 0 && (
+                                  <span className="text-blue-600 text-xs flex items-center gap-1 flex-shrink-0">
+                                    もっと見る
+                                    <ArrowRight className="w-3 h-3" />
+                                  </span>
+                                )}
                               </div>
                             </Link>
                           ) : (
@@ -1376,9 +1384,17 @@ const Index = () => {
                               onClick={() => handleCategoryChange(category.uuid)}
                               className="w-full text-left"
                             >
-                              <div className="flex items-center gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
-                                <CategoryIcon className="w-4 h-4" style={{ color: category.color }} />
-                                <h2 className="text-base font-semibold hover:text-blue-600 transition-colors">{category.name_ja}</h2>
+                              <div className="flex items-center justify-between gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <CategoryIcon className="w-4 h-4 flex-shrink-0" style={{ color: category.color }} />
+                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">{category.name_ja}</h2>
+                                </div>
+                                {categoryItems.length > 0 && (
+                                  <span className="text-blue-600 text-xs flex items-center gap-1 flex-shrink-0">
+                                    もっと見る
+                                    <ArrowRight className="w-3 h-3" />
+                                  </span>
+                                )}
                               </div>
                             </button>
                           )}
@@ -1409,27 +1425,6 @@ const Index = () => {
                                 </Link>
                               ))}
                             </div>
-                          )}
-                          
-                          {/* More Link */}
-                          {categoryItems.length > 0 && (
-                            isBulletinBoard ? (
-                              <Link
-                                to="/forum"
-                                className="text-blue-600 hover:underline text-xs mt-2 flex items-center gap-1"
-                              >
-                                もっと見る
-                                <ArrowRight className="w-3 h-3" />
-                              </Link>
-                            ) : (
-                              <button
-                                onClick={() => handleCategoryChange(category.uuid)}
-                                className="text-blue-600 hover:underline text-xs mt-2 flex items-center gap-1"
-                              >
-                                もっと見る
-                                <ArrowRight className="w-3 h-3" />
-                              </button>
-                            )
                           )}
                         </div>
                       </div>
