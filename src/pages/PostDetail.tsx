@@ -1328,8 +1328,8 @@ useEffect(() => {
 
         {/* Breadcrumb */}
         {post && (
-          <div className="flex items-center flex-wrap gap-1 text-sm text-gray-500 mb-4">
-            <Link to="/" className="hover:text-blue-600 hover:underline">
+          <div className="flex items-center flex-wrap gap-1 text-sm text-gray-500 mb-4 min-w-0 overflow-hidden">
+            <Link to="/" className="hover:text-blue-600 hover:underline flex-shrink-0">
               ホーム
             </Link>
             {post.category_uuid && (
@@ -1337,7 +1337,7 @@ useEffect(() => {
                 <ChevronRight className="w-4 h-4 flex-shrink-0" />
                 <Link
                   to={`/?category=${post.category_uuid}`}
-                  className={post.subcategory_uuid ? 'hover:text-blue-600 hover:underline' : 'text-gray-900 font-medium'}
+                  className={`flex-shrink-0 ${post.subcategory_uuid ? 'hover:text-blue-600 hover:underline' : 'text-gray-900 font-medium'}`}
                 >
                   {getCategoryName(post.category_uuid)}
                 </Link>
@@ -1348,14 +1348,14 @@ useEffect(() => {
                 <ChevronRight className="w-4 h-4 flex-shrink-0" />
                 <Link
                   to={`/?category=${post.category_uuid}&subcategory=${post.subcategory_uuid}`}
-                  className="hover:text-blue-600 hover:underline"
+                  className="hover:text-blue-600 hover:underline flex-shrink-0"
                 >
                   {getSubcategoryName(post.subcategory_uuid)}
                 </Link>
               </>
             )}
             <ChevronRight className="w-4 h-4 flex-shrink-0" />
-            <span className="text-gray-900 font-medium truncate">{post.title}</span>
+            <span className="text-gray-900 font-medium truncate min-w-0">{post.title}</span>
           </div>
         )}
       </div>
