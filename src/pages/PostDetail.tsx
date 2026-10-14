@@ -1696,6 +1696,33 @@ useEffect(() => {
                           </div>
                         </div>
                       )}
+                      {post.company_url && (
+                        <div className="flex items-start text-blue-700">
+                          <ExternalLink className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">会社の公式サイト:</span>
+                            <p className="mt-0.5">
+                              <a
+                                href={post.company_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-900 underline hover:text-blue-700"
+                              >
+                                {post.company_url}
+                              </a>
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {post.company_contact && (
+                        <div className="flex items-start text-blue-700">
+                          <Phone className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">会社の連絡先:</span>
+                            <p className="text-blue-900 mt-0.5">{post.company_contact}</p>
+                          </div>
+                        </div>
+                      )}
                       {post.salary && (
                         <div className="flex items-start text-blue-700">
                           <DollarSign className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
