@@ -1575,6 +1575,21 @@ useEffect(() => {
                         </div>
                       )}
 
+                      {post.ticket_url && (
+                        <div className="flex items-center text-purple-700">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          <span className="font-medium">チケット購入:</span>
+                          <a
+                            href={post.ticket_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 text-purple-700 underline hover:text-purple-900"
+                          >
+                            チケットを見る
+                          </a>
+                        </div>
+                      )}
+
                       {post.phone && (
                         <div className="flex items-center text-purple-700">
                           <Phone className="w-4 h-4 mr-2" />
