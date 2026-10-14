@@ -1523,12 +1523,14 @@ const Index = () => {
                               <Link to={`/post/${post._row_id}`} className="block w-full overflow-hidden">
                                 <h3 className="text-base font-semibold line-clamp-2 break-words hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
                               </Link>
-                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                                {post.post_type === 'event' && post.event_date_readable && (
-                                  <span className="font-semibold text-purple-600">
+                              {post.post_type === 'event' && post.event_date_readable && (
+                                <div className="mt-1 text-xs min-w-0">
+                                  <span className="font-semibold text-purple-600 truncate block">
                                     📅 {post.event_date_readable}
                                   </span>
-                                )}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                                 {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
                                   <span>{formatDate(post._created_at)}</span>
                                 )}
