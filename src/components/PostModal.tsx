@@ -442,7 +442,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     size_dimensions: '',
     condition: '',
     // Job Seeking fields
+    poster_type: 'company',
     company_name: '',
+    company_url: '',
+    company_contact: '',
     salary: '',
     employment_type: '',
     experience_level: '',
@@ -510,7 +513,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         size_dimensions: editingPost.size_dimensions || '',
         condition: editingPost.condition || '',
         // Job Seeking fields
+        poster_type: editingPost.poster_type || 'company',
         company_name: editingPost.company_name || '',
+        company_url: editingPost.company_url || '',
+        company_contact: editingPost.company_contact || '',
         salary: editingPost.salary || '',
         employment_type: editingPost.employment_type || '',
         experience_level: editingPost.experience_level || '',
@@ -578,7 +584,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       size_dimensions: '',
       condition: '',
       // Job Seeking fields
+      poster_type: 'company',
       company_name: '',
+      company_url: '',
+      company_contact: '',
       salary: '',
       employment_type: '',
       experience_level: '',
@@ -838,7 +847,8 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     if (formData.category_uuid === 'cat-for-sale') {
       categorySpecificFields = !!(formData.price && formData.condition);
     } else if (formData.category_uuid === 'cat-job-seeking') {
-      categorySpecificFields = !!(formData.company_name && formData.salary && formData.employment_type && formData.experience_level);
+      const companyFieldsValid = formData.poster_type !== 'company' || !!(formData.company_name && formData.company_url && formData.company_contact);
+      categorySpecificFields = !!(companyFieldsValid && formData.salary && formData.employment_type && formData.experience_level);
     } else if (formData.category_uuid === 'cat-housing') {
       categorySpecificFields = !!formData.rent;
     } else if (formData.category_uuid === 'cat-services') {
@@ -1313,15 +1323,61 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_name">会社名 *</Label>
-                  <Input
-                    id="company_name"
-                    value={formData.company_name}
-                    onChange={(e) => handleInputChange('company_name', e.target.value)}
-                    placeholder="例：スウェーデン株式会社、ABC社"
-                    required
-                  />
+                  <Label>投稿の種類 *</Label>
+                  <RadioGroup
+                    value={formData.poster_type}
+                    onValueChange={(value) => handleInputChange('poster_type', value)}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="company" id="poster_type_company" />
+                      <Label htmlFor="poster_type_company" className="font-normal">企業の求人</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="individual" id="poster_type_individual" />
+                      <Label htmlFor="poster_type_individual" className="font-normal">個人の依頼（ベビーシッター、家庭教師など）</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
+
+                {formData.poster_type === 'company' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">会社名 *</Label>
+                      <Input
+                        id="company_name"
+                        value={formData.company_name}
+                        onChange={(e) => handleInputChange('company_name', e.target.value)}
+                        placeholder="例：スウェーデン株式会社、ABC社"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company_url">会社の公式サイトURL *</Label>
+                      <Input
+                        id="company_url"
+                        type="url"
+                        value={formData.company_url}
+                        onChange={(e) => handleInputChange('company_url', e.target.value)}
+                        placeholder="例：https://www.example.se"
+                        required
+                      />
+                      <p className="text-xs text-gray-500">怪しい求人を防ぐため、会社の実在が確認できる情報の掲載をお願いしています</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company_contact">会社の電話番号またはメールアドレス *</Label>
+                      <Input
+                        id="company_contact"
+                        value={formData.company_contact}
+                        onChange={(e) => handleInputChange('company_contact', e.target.value)}
+                        placeholder="例：08-123 45 67 または info@example.se"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="salary">給与 *</Label>
