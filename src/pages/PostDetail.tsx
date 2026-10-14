@@ -1680,7 +1680,7 @@ useEffect(() => {
                 )}
 
                 {/* Job Information - Only show for job postings */}
-                {(post.company_name || post.salary || post.employment_type || post.experience_level || post.work_location) && (
+                {(post.company_name || post.company_url || post.company_contact || post.salary || post.employment_type || post.experience_level || post.work_location) && (
                   <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center text-blue-800">
                       <Briefcase className="w-5 h-5 mr-2" />
