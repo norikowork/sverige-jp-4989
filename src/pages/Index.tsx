@@ -192,7 +192,9 @@ const Index = () => {
           const endOfMonth = Math.floor(new Date(year, month, 0, 23, 59, 59).getTime() / 1000);
           categoryPosts = categoryPosts.filter((post: any) => {
             if (post.post_type === 'event' && post.event_date) {
-              return post.event_date >= startOfMonth && post.event_date <= endOfMonth;
+              // 終了日(event_end_date)がある長期開催イベントは、開催期間がその月と重なっていれば表示する
+              const effectiveEnd = post.event_end_date || post.event_date;
+              return post.event_date <= endOfMonth && effectiveEnd >= startOfMonth;
             }
             return false;
           });
@@ -571,7 +573,9 @@ const Index = () => {
         
         postsData = postsData.filter(post => {
           if (post.post_type === 'event' && post.event_date) {
-            return post.event_date >= startOfMonth && post.event_date <= endOfMonth;
+            // 終了日(event_end_date)がある長期開催イベントは、開催期間がその月と重なっていれば表示する
+            const effectiveEnd = post.event_end_date || post.event_date;
+            return post.event_date <= endOfMonth && effectiveEnd >= startOfMonth;
           }
           // 月選択がある場合はイベント以外の投稿は表示しない
           return false;
@@ -583,7 +587,9 @@ const Index = () => {
       const oneMonthAgo = Math.floor(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000);
       postsData = postsData.filter(post => {
         if (post.post_type === 'event' && post.event_date) {
-          return post.event_date >= oneMonthAgo;
+          // 終了日があれば、終了日が1ヶ月以上前でない限り表示を続ける
+          const effectiveEnd = post.event_end_date || post.event_date;
+          return effectiveEnd >= oneMonthAgo;
         }
         return true; // イベント以外は常に表示
       });
@@ -748,7 +754,9 @@ const Index = () => {
       const oneMonthAgo = Math.floor(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000);
       const postsFiltered = postsWithImages.filter(post => {
         if (post.post_type === 'event' && post.event_date) {
-          return post.event_date >= oneMonthAgo;
+          // 終了日があれば、終了日が1ヶ月以上前でない限り表示を続ける
+          const effectiveEnd = post.event_end_date || post.event_date;
+          return effectiveEnd >= oneMonthAgo;
         }
         return true; // イベント以外は常に表示
       });
@@ -1389,7 +1397,8 @@ const Index = () => {
                           post.category_uuid === category.uuid &&
                           post.status === 'active' &&
                           post.event_date &&
-                          post.event_date >= startOfToday
+                          // 終了日があるイベント(展示会など)は、まだ終わっていなければ表示する
+                          (post.event_end_date || post.event_date) >= startOfToday
                         )
                         .sort((a, b) => a.event_date - b.event_date)
                         .slice(0, 8);
