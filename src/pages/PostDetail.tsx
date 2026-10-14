@@ -493,9 +493,6 @@ useEffect(() => {
       return null;
     }
 
-    // Create end date (2 hours after start)
-    const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
-
     // Format dates for ICS
     const formatICSDate = (date) => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -505,11 +502,33 @@ useEffect(() => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0];
     };
 
+    const formatICSAllDayDate = (date) => {
+      return date.toISOString().split('T')[0].replace(/-/g, '');
+    };
+
     // Escape text for ICS
     const escapeText = (text) => {
       if (!text) return '';
       return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
     };
+
+    // 展示会など終了日(event_end_date)がある長期開催イベントは、終日・複数日の予定として登録する
+    // (ICSのDTENDは排他的な扱いのため、終了日の翌日を指定する)
+    let dtStartLine;
+    let dtEndLine;
+    if (post.event_end_date) {
+      const rawEndDate = typeof post.event_end_date === 'number'
+        ? new Date(post.event_end_date * 1000)
+        : new Date(post.event_end_date);
+      const endDatePlusOne = new Date(rawEndDate.getTime() + 24 * 60 * 60 * 1000);
+      dtStartLine = `DTSTART;VALUE=DATE:${formatICSAllDayDate(eventDate)}`;
+      dtEndLine = `DTEND;VALUE=DATE:${formatICSAllDayDate(endDatePlusOne)}`;
+    } else {
+      // Create end date (2 hours after start)
+      const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+      dtStartLine = `DTSTART:${formatDate(eventDate)}`;
+      dtEndLine = `DTEND:${formatDate(endDate)}`;
+    }
 
     const icsContent = [
       'BEGIN:VCALENDAR',
@@ -519,8 +538,8 @@ useEffect(() => {
       'METHOD:PUBLISH',
       'BEGIN:VEVENT',
       `UID:${post._row_id}@sverige.jp`,
-      `DTSTART:${formatDate(eventDate)}`,
-      `DTEND:${formatDate(endDate)}`,
+      dtStartLine,
+      dtEndLine,
       `SUMMARY:${escapeText(post.title)}`,
       `DESCRIPTION:${escapeText(post.description)}`,
       post.event_location ? `LOCATION:${escapeText(post.event_location)}` : '',
@@ -571,16 +590,32 @@ useEffect(() => {
 
     if (!eventDate || isNaN(eventDate.getTime())) return null;
 
-    const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
-
     const formatGoogleDate = (date) => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
+    const formatGoogleAllDayDate = (date) => {
+      return date.toISOString().split('T')[0].replace(/-/g, '');
+    };
+
+    // 展示会など終了日(event_end_date)がある長期開催イベントは、終日・複数日の予定として登録する
+    // (Googleカレンダーの終了日は排他的な扱いのため、終了日の翌日を指定する)
+    let datesParam;
+    if (post.event_end_date) {
+      const rawEndDate = typeof post.event_end_date === 'number'
+        ? new Date(post.event_end_date * 1000)
+        : new Date(post.event_end_date);
+      const endDatePlusOne = new Date(rawEndDate.getTime() + 24 * 60 * 60 * 1000);
+      datesParam = `${formatGoogleAllDayDate(eventDate)}/${formatGoogleAllDayDate(endDatePlusOne)}`;
+    } else {
+      const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+      datesParam = `${formatGoogleDate(eventDate)}/${formatGoogleDate(endDate)}`;
+    }
+
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: post.title || '',
-      dates: `${formatGoogleDate(eventDate)}/${formatGoogleDate(endDate)}`,
+      dates: datesParam,
       details: post.description || '',
       location: post.event_location || ''
     });
