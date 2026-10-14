@@ -1325,6 +1325,39 @@ useEffect(() => {
             );
           })}
         </div>
+
+        {/* Breadcrumb */}
+        {post && (
+          <div className="flex items-center flex-wrap gap-1 text-sm text-gray-500 mb-4">
+            <Link to="/" className="hover:text-blue-600 hover:underline">
+              ホーム
+            </Link>
+            {post.category_uuid && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <Link
+                  to={`/?category=${post.category_uuid}`}
+                  className={post.subcategory_uuid ? 'hover:text-blue-600 hover:underline' : 'text-gray-900 font-medium'}
+                >
+                  {getCategoryName(post.category_uuid)}
+                </Link>
+              </>
+            )}
+            {post.subcategory_uuid && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <Link
+                  to={`/?category=${post.category_uuid}&subcategory=${post.subcategory_uuid}`}
+                  className="hover:text-blue-600 hover:underline"
+                >
+                  {getSubcategoryName(post.subcategory_uuid)}
+                </Link>
+              </>
+            )}
+            <ChevronRight className="w-4 h-4 flex-shrink-0" />
+            <span className="text-gray-900 font-medium truncate">{post.title}</span>
+          </div>
+        )}
       </div>
 
       <div className="container mx-auto px-4 pb-8">
