@@ -1194,12 +1194,14 @@ const Index = () => {
                         </Link>
                       </CardTitle>
                       {/* Date and Price row */}
-                      <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                        {post.post_type === 'event' && post.event_date_readable && (
-                          <span className="font-semibold text-purple-600">
+                      {post.post_type === 'event' && post.event_date_readable && (
+                        <div className="mt-2 text-xs min-w-0">
+                          <span className="font-semibold text-purple-600 truncate block">
                             📅 {post.event_date_readable}
                           </span>
-                        )}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                         {post.post_type !== 'service' && post.category_uuid !== 'cat-services' && (
                           <span>{formatDate(post._created_at)}</span>
                         )}
