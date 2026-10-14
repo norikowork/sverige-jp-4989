@@ -964,6 +964,30 @@ const Index = () => {
             })}
           </div>
 
+          {/* Breadcrumb */}
+          <div className="flex items-center flex-wrap gap-1 text-sm text-gray-500 mb-4">
+            <button onClick={() => handleCategoryChange('')} className="hover:text-blue-600 hover:underline">
+              ホーム
+            </button>
+            {selectedCategory && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <button
+                  onClick={() => handleCategoryChange(selectedCategory)}
+                  className={selectedSubcategory ? 'hover:text-blue-600 hover:underline' : 'text-gray-900 font-medium'}
+                >
+                  {getCategoryName(selectedCategory)}
+                </button>
+              </>
+            )}
+            {selectedSubcategory && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <span className="text-gray-900 font-medium">{getSubcategoryName(selectedSubcategory)}</span>
+              </>
+            )}
+          </div>
+
           {/* View Mode Toggle */}
           <div className="flex items-center justify-end gap-2 mb-4">
             <div className="inline-flex rounded-md border overflow-hidden">
