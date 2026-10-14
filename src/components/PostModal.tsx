@@ -1761,6 +1761,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                             .sort((a, b) => {
                               if (a === 'Other') return 1;
                               if (b === 'Other') return -1;
+                              if (a === 'Stockholm') return -1;
+                              if (b === 'Stockholm') return 1;
+                              if (a === 'Västra Götaland') return -1;
+                              if (b === 'Västra Götaland') return 1;
                               return a.localeCompare(b);
                             })
                             .map((county) => (
