@@ -422,6 +422,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
   const [selectedCounty, setSelectedCounty] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const initializedPostIdRef = useRef<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -491,7 +492,19 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
   }, [user]);
 
   useEffect(() => {
-    if (isOpen && editingPost && categories.length > 0 && locations.length > 0) {
+    if (!isOpen) {
+      // モーダルを閉じたら初期化済みフラグをリセットし、次回開いたときに最新のDBの状態を読み込み直す
+      initializedPostIdRef.current = null;
+      return;
+    }
+    if (editingPost && categories.length > 0 && locations.length > 0) {
+      // categories/locationsの再取得(fetchDataの再実行)で参照が変わるたびにこの処理が再実行され、
+      // アップロード中の画像がeditingPost.imagesで上書きされてしまうバグがあったため、
+      // 同じ投稿に対しては一度だけ初期化する
+      if (initializedPostIdRef.current === editingPost._row_id) {
+        return;
+      }
+      initializedPostIdRef.current = editingPost._row_id;
       const newFormData = {
         title: editingPost.title || '',
         description: editingPost.description || '',
