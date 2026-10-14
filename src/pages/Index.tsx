@@ -533,6 +533,15 @@ const Index = () => {
   const totalPages = Math.ceil(posts.length / postsPerPage);
   const currentPosts = getCurrentPagePosts();
 
+  // ページ番号ボタンは3つまでの範囲をスライドして表示する
+  const pageWindowSize = 3;
+  const pageWindowEnd = Math.min(totalPages, Math.max(currentPage + 1, pageWindowSize));
+  const pageWindowStart = Math.max(1, pageWindowEnd - pageWindowSize + 1);
+  const visiblePageNumbers = Array.from(
+    { length: pageWindowEnd - pageWindowStart + 1 },
+    (_, i) => pageWindowStart + i
+  );
+
   // loadPosts/loadFilteredPostsは他ページからの遷移直後などに続けて呼ばれることがあり、
   // 後から呼ばれたリクエストより先に古いリクエストの結果が返ってくると、
   // 正しい絞り込み結果が古い結果で上書きされてしまう。リクエストごとに番号を振り、
@@ -1742,7 +1751,7 @@ const Index = () => {
             </Button>
             
             <div className="flex space-x-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              {visiblePageNumbers.map((page) => (
                 <Button
                   key={page}
                   variant={currentPage === page ? "default" : "outline"}
