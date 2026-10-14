@@ -1216,7 +1216,7 @@ useEffect(() => {
               </div>
             </Link>
             <div className="flex items-center gap-3 flex-wrap justify-end">
-              <WorldClock />
+              <WorldClock className="hidden md:flex flex-shrink-0" />
               {user ? (
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
                   <Button variant="ghost" size="sm" className="h-8 px-2 relative" onClick={() => navigate('/messages')}>
@@ -1270,6 +1270,11 @@ useEffect(() => {
           </div>
         </div>
       </header>
+
+      {/* World Clock - mobile only, full width bar below header */}
+      <div className="md:hidden bg-gray-100 border-b px-4 py-2">
+        <WorldClock className="flex justify-center gap-3 text-xs" />
+      </div>
 
       <div className="container mx-auto px-4 pt-8">
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4 mb-6">
