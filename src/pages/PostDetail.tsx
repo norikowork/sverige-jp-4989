@@ -473,6 +473,22 @@ useEffect(() => {
   };
 
   // Calendar functions
+  // 展示会など終了日(event_end_date)があるイベントは、カレンダーに登録する日を以下のルールで決める:
+  // - まだ始まっていない(開始日が未来) → 開始日をそのまま登録
+  // - 開催中(開始日は過去だがevent_end_dateはまだ先) → 今日の日付を登録(「これから行く」用のリマインダー)
+  // - 終了日がない単発イベント → 開始日をそのまま登録(従来通り)
+  const getEffectiveCalendarDate = (eventDate) => {
+    if (!post.event_end_date) return eventDate;
+    const rawEndDate = typeof post.event_end_date === 'number'
+      ? new Date(post.event_end_date * 1000)
+      : new Date(post.event_end_date);
+    const now = new Date();
+    if (eventDate < now && rawEndDate > now) {
+      return now;
+    }
+    return eventDate;
+  };
+
   const generateICS = () => {
     if (!post.event_date && !post.event_date_readable) return null;
 
@@ -502,33 +518,16 @@ useEffect(() => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0];
     };
 
-    const formatICSAllDayDate = (date) => {
-      return date.toISOString().split('T')[0].replace(/-/g, '');
-    };
-
     // Escape text for ICS
     const escapeText = (text) => {
       if (!text) return '';
       return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
     };
 
-    // 展示会など終了日(event_end_date)がある長期開催イベントは、終日・複数日の予定として登録する
-    // (ICSのDTENDは排他的な扱いのため、終了日の翌日を指定する)
-    let dtStartLine;
-    let dtEndLine;
-    if (post.event_end_date) {
-      const rawEndDate = typeof post.event_end_date === 'number'
-        ? new Date(post.event_end_date * 1000)
-        : new Date(post.event_end_date);
-      const endDatePlusOne = new Date(rawEndDate.getTime() + 24 * 60 * 60 * 1000);
-      dtStartLine = `DTSTART;VALUE=DATE:${formatICSAllDayDate(eventDate)}`;
-      dtEndLine = `DTEND;VALUE=DATE:${formatICSAllDayDate(endDatePlusOne)}`;
-    } else {
-      // Create end date (2 hours after start)
-      const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
-      dtStartLine = `DTSTART:${formatDate(eventDate)}`;
-      dtEndLine = `DTEND:${formatDate(endDate)}`;
-    }
+    // 展示会など終了日(event_end_date)があるイベントは、カレンダーには「これから行く日」を登録する:
+    // まだ始まっていなければ開始日、すでに開催中(始まっているがまだ終わっていない)なら今日の日付にする
+    const calendarDate = getEffectiveCalendarDate(eventDate);
+    const endDate = new Date(calendarDate.getTime() + 2 * 60 * 60 * 1000);
 
     const icsContent = [
       'BEGIN:VCALENDAR',
@@ -538,8 +537,8 @@ useEffect(() => {
       'METHOD:PUBLISH',
       'BEGIN:VEVENT',
       `UID:${post._row_id}@sverige.jp`,
-      dtStartLine,
-      dtEndLine,
+      `DTSTART:${formatDate(calendarDate)}`,
+      `DTEND:${formatDate(endDate)}`,
       `SUMMARY:${escapeText(post.title)}`,
       `DESCRIPTION:${escapeText(post.description)}`,
       post.event_location ? `LOCATION:${escapeText(post.event_location)}` : '',
@@ -594,23 +593,11 @@ useEffect(() => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
-    const formatGoogleAllDayDate = (date) => {
-      return date.toISOString().split('T')[0].replace(/-/g, '');
-    };
-
-    // 展示会など終了日(event_end_date)がある長期開催イベントは、終日・複数日の予定として登録する
-    // (Googleカレンダーの終了日は排他的な扱いのため、終了日の翌日を指定する)
-    let datesParam;
-    if (post.event_end_date) {
-      const rawEndDate = typeof post.event_end_date === 'number'
-        ? new Date(post.event_end_date * 1000)
-        : new Date(post.event_end_date);
-      const endDatePlusOne = new Date(rawEndDate.getTime() + 24 * 60 * 60 * 1000);
-      datesParam = `${formatGoogleAllDayDate(eventDate)}/${formatGoogleAllDayDate(endDatePlusOne)}`;
-    } else {
-      const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
-      datesParam = `${formatGoogleDate(eventDate)}/${formatGoogleDate(endDate)}`;
-    }
+    // 展示会など終了日(event_end_date)があるイベントも、カレンダーには「これから行く日」を登録する:
+    // まだ始まっていなければ開始日、すでに開催中(始まっているがまだ終わっていない)なら今日の日付にする
+    const calendarDate = getEffectiveCalendarDate(eventDate);
+    const endDate = new Date(calendarDate.getTime() + 2 * 60 * 60 * 1000);
+    const datesParam = `${formatGoogleDate(calendarDate)}/${formatGoogleDate(endDate)}`;
 
     const params = new URLSearchParams({
       action: 'TEMPLATE',
