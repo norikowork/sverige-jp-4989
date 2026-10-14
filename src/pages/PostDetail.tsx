@@ -1311,7 +1311,7 @@ useEffect(() => {
         <WorldClock className="flex justify-center gap-3 text-xs" />
       </div>
 
-      <div className="container mx-auto px-4 pt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-1 flex gap-2">
             <div className="relative flex-1">
@@ -1395,7 +1395,7 @@ useEffect(() => {
         )}
       </div>
 
-      <div className="container mx-auto px-4 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <Button
           variant="ghost"
           onClick={handleGoBack}
