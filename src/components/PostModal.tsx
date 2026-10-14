@@ -462,6 +462,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     availability: '',
     // Event fields
     event_date: '',
+    event_end_date: '',
     event_location: '',
     event_fee: '',
     event_url: '',
@@ -550,6 +551,11 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
             ? new Date(editingPost.event_date * 1000).toISOString().slice(0, 16)
             : editingPost.event_date)
           : '',
+        event_end_date: editingPost.event_end_date
+          ? (typeof editingPost.event_end_date === 'number'
+            ? new Date(editingPost.event_end_date * 1000).toISOString().slice(0, 10)
+            : editingPost.event_end_date)
+          : '',
         event_location: editingPost.event_location || '',
         event_fee: editingPost.event_fee || '',
         event_url: editingPost.event_url || '',
@@ -618,6 +624,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       availability: '',
       // Event fields
       event_date: '',
+      event_end_date: '',
       event_location: '',
       event_fee: '',
       event_url: '',
@@ -953,7 +960,15 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       if (formData.category_uuid === 'cat-events' && formData.event_date) {
         const eventDate = new Date(formData.event_date);
         postData.event_date = Math.floor(eventDate.getTime() / 1000);
-        postData.event_date_readable = format(eventDate, 'yyyy年MM月dd日 (EEEE)');
+        if (formData.event_end_date) {
+          // 長期開催(展示会など)は終了日も保存し、表示用テキストは期間表記にする
+          const eventEndDate = new Date(formData.event_end_date);
+          postData.event_end_date = Math.floor(eventEndDate.getTime() / 1000);
+          postData.event_date_readable = `${format(eventDate, 'yyyy年MM月dd日')}〜${format(eventEndDate, 'yyyy年MM月dd日')}`;
+        } else {
+          postData.event_end_date = null;
+          postData.event_date_readable = format(eventDate, 'yyyy年MM月dd日 (EEEE)');
+        }
       }
 
       // イベント場所の文字列から自動で座標を取得し、地図に会場のピンポイントで
@@ -1600,6 +1615,17 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     onChange={(e) => handleInputChange('event_date', e.target.value)}
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="event_end_date">終了日(展示会など長期開催の場合のみ)</Label>
+                  <Input
+                    id="event_end_date"
+                    type="date"
+                    value={formData.event_end_date}
+                    onChange={(e) => handleInputChange('event_end_date', e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">入力すると、月別フィルターで開催期間中のどの月でも表示されるようになります</p>
                 </div>
 
                 <div className="space-y-2">
