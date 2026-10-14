@@ -465,6 +465,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     event_location: '',
     event_fee: '',
     event_url: '',
+    ticket_url: '',
     // Contact fields
     contact_method: 'email',
     phone: '',
@@ -552,6 +553,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         event_location: editingPost.event_location || '',
         event_fee: editingPost.event_fee || '',
         event_url: editingPost.event_url || '',
+        ticket_url: editingPost.ticket_url || '',
         // Contact fields
         contact_method: editingPost.contact_method || 'email',
         phone: editingPost.phone || '',
@@ -619,6 +621,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       event_location: '',
       event_fee: '',
       event_url: '',
+      ticket_url: '',
       // Contact fields
       contact_method: 'email',
       phone: '',
@@ -1629,6 +1632,19 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     placeholder="例：https://example.com/event"
                   />
                 </div>
+
+                {isAdmin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="ticket_url">チケット購入リンク(管理者のみ・公式サイトと異なる場合)</Label>
+                    <Input
+                      id="ticket_url"
+                      type="url"
+                      value={formData.ticket_url}
+                      onChange={(e) => handleInputChange('ticket_url', e.target.value)}
+                      placeholder="例：https://www.getyourguide.com/..."
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
