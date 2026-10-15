@@ -1596,6 +1596,32 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     placeholder="例：08-123 45 67"
                   />
                 </div>
+
+                {isAdmin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="service_ticket_url">チケット購入リンク(管理者のみ)</Label>
+                    <Input
+                      id="service_ticket_url"
+                      type="url"
+                      value={formData.ticket_url}
+                      onChange={(e) => handleInputChange('ticket_url', e.target.value)}
+                      placeholder="例：https://www.getyourguide.com/..."
+                    />
+                  </div>
+                )}
+
+                {isAdmin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="tour_url">ガイド付きツアーリンク(管理者のみ)</Label>
+                    <Input
+                      id="tour_url"
+                      type="url"
+                      value={formData.tour_url}
+                      onChange={(e) => handleInputChange('tour_url', e.target.value)}
+                      placeholder="例：https://www.getyourguide.com/..."
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
