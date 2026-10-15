@@ -1921,6 +1921,11 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                           alt={`画像 ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
                         />
+                        {index === 0 && (
+                          <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                            メイン画像
+                          </span>
+                        )}
                         <Button
                           type="button"
                           variant="destructive"
@@ -1930,6 +1935,28 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                         >
                           <X className="w-4 h-4" />
                         </Button>
+                        <div className="absolute bottom-2 left-2 right-2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="shadow-lg"
+                            disabled={index === 0}
+                            onClick={() => handleMoveImage(index, 'left')}
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="shadow-lg"
+                            disabled={index === imageUrls.length - 1}
+                            onClick={() => handleMoveImage(index, 'right')}
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
