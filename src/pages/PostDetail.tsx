@@ -1503,9 +1503,9 @@ useEffect(() => {
                 </div>
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
-                {/* Main Image - 50% size */}
+                {/* Main Image - 50% size on mobile, larger on PC */}
                 <div className="mb-6">
-                  <div className="relative mx-auto w-1/2">
+                  <div className="relative mx-auto w-1/2 md:w-3/4">
                     <img 
                       src={
                         post.images && post.images.length > 0
