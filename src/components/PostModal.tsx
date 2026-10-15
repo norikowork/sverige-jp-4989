@@ -849,6 +849,16 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleMoveImage = (index: number, direction: 'left' | 'right') => {
+    setImageUrls(prev => {
+      const targetIndex = direction === 'left' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const updated = [...prev];
+      [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
+      return updated;
+    });
+  };
+
   const isFormValid = () => {
     if (isAdmin && editingPost) return formData.title.trim() && formData.description.trim();
     
