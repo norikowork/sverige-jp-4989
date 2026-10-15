@@ -546,6 +546,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         service_fee: editingPost.service_fee || '',
         service_area: editingPost.service_area || '',
         availability: editingPost.availability || '',
+        tour_url: editingPost.tour_url || '',
         // Event fields - convert unix timestamp to datetime-local format
         event_date: editingPost.event_date
           ? (typeof editingPost.event_date === 'number'
