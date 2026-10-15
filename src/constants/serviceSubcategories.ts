@@ -18,6 +18,17 @@ export const SERVICE_SUBCATEGORY_GROUPS: { label: string; items: string[] }[] = 
     ],
   },
   {
+    label: '遊ぶ',
+    items: [
+      '美術館・博物館',
+      'ホテル',
+      'エンターテインメント',
+      'アクティビティ',
+      '観光地おすすめ',
+      '穴場スポット',
+    ],
+  },
+  {
     label: '暮らす',
     items: [
       '医療',
@@ -33,17 +44,6 @@ export const SERVICE_SUBCATEGORY_GROUPS: { label: string; items: string[] }[] = 
       '学校・習い事',
       '会社・企業',
       'サークル・団体',
-    ],
-  },
-  {
-    label: '遊ぶ',
-    items: [
-      '美術館・博物館',
-      'ホテル',
-      'エンターテインメント',
-      'アクティビティ',
-      '観光地おすすめ',
-      '穴場スポット',
     ],
   },
 ];
