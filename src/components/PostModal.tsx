@@ -14,7 +14,7 @@ import { toAsciiFile } from '@/lib/asciiFilename';
 import auth from '@/lib/shared/kliv-auth';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingBag, Search, Briefcase, User, Trash2, Package, MapPin, Mail, Phone, Image as ImageIcon, X, Wallet, MessageSquare } from 'lucide-react';
+import { ShoppingBag, Search, Briefcase, User, Trash2, Package, MapPin, Mail, Phone, Image as ImageIcon, X, Wallet, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { SERVICE_SUBCATEGORY_GROUPS } from '@/constants/serviceSubcategories';
 
