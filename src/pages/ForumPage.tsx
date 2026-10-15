@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Search, Clock, User, Reply, Home, Briefcase, GraduationCap, Car, Heart, Stethoscope, Baby, ShoppingBag, Plane, Calendar, Users, Wrench, DollarSign, FileText, Coffee, Star } from 'lucide-react';
+import { MessageSquare, Search, Clock, User, Reply, Home, Briefcase, GraduationCap, Car, Heart, Stethoscope, Baby, ShoppingBag, Plane, Calendar, Users, Wrench, DollarSign, FileText, Coffee, Star, PawPrint } from 'lucide-react';
 import ForumTopicForm from '@/components/ForumTopicForm';
 import { FORUM_CATEGORIES } from '@/constants/forumCategories';
 import db from '@/lib/shared/kliv-database.js';
@@ -38,6 +38,7 @@ const categoryInfo: Record<string, { icon: any; color: string }> = {
   '食・買い物': { icon: ShoppingBag, color: 'bg-amber-500' },
   '旅行・宿泊': { icon: Plane, color: 'bg-cyan-500' },
   'イベント・サークル': { icon: Calendar, color: 'bg-lime-500' },
+  'ペット': { icon: PawPrint, color: 'bg-emerald-500' },
   'その他': { icon: Coffee, color: 'bg-gray-500' },
 };
 

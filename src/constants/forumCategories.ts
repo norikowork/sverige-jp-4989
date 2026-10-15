@@ -12,6 +12,7 @@ export const FORUM_CATEGORIES = [
   '食・買い物',
   '旅行・宿泊',
   'イベント・サークル',
+  'ペット',
   'その他',
 ] as const;
 

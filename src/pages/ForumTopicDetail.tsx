@@ -14,6 +14,7 @@ import db from '@/lib/shared/kliv-database.js';
 import auth from '@/lib/shared/kliv-auth.js';
 import functions from '@/lib/shared/kliv-functions.js';
 import { checkIsAdmin } from '@/lib/isAdmin';
+import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 import { toast } from 'sonner';
 
 interface ForumTopic {
@@ -149,7 +150,8 @@ export default function ForumTopicDetail() {
     try {
       const data = await db.get('forum_topics', parseInt(id));
       if (data) {
-        setTopic(data);
+        const authorName = await resolveAuthorName(data._created_by);
+        setTopic({ ...data, user_name: authorName });
       } else {
         toast.error('トピックが見つかりません');
         navigate('/forum');
@@ -171,7 +173,14 @@ export default function ForumTopicDetail() {
         order: '_created_at.asc',
       });
       console.log('Loaded replies for topic', topicId, ':', data);
-      setReplies(data);
+      const profiles = await db.query('user_profiles', { _deleted: 'eq.0' });
+      const repliesWithNames = await Promise.all(
+        (data || []).map(async (reply: ForumReply) => ({
+          ...reply,
+          user_name: await resolveAuthorName(reply._created_by, profiles),
+        }))
+      );
+      setReplies(repliesWithNames);
     } catch (error) {
       console.error('Failed to load replies:', error);
     }
@@ -289,7 +298,7 @@ export default function ForumTopicDetail() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 bg-gray-50 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-2 mb-6">
           <Button
             variant="outline"
@@ -334,11 +343,17 @@ export default function ForumTopicDetail() {
                   <Badge>{topic.category}</Badge>
                 </div>
                 <CardTitle className="text-2xl mb-2">{topic.title}</CardTitle>
-                <CardDescription className="flex items-center text-sm">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {formatDistanceToNow(new Date(topic._created_at * 1000), { 
-                    addSuffix: true
-                  })}
+                <CardDescription className="flex items-center gap-3 text-sm flex-wrap">
+                  <span className="flex items-center font-medium text-gray-700">
+                    <User className="w-4 h-4 mr-1" />
+                    {topic.user_name || '不明'}
+                  </span>
+                  <span className="flex items-center">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {formatDistanceToNow(new Date(topic._created_at * 1000), { 
+                      addSuffix: true
+                    })}
+                  </span>
                 </CardDescription>
               </div>
               {user && topic._created_by === user.userUuid && (
@@ -437,11 +452,17 @@ export default function ForumTopicDetail() {
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 text-sm text-gray-500">
-                        <Clock className="w-4 h-4" />
-                        {formatDistanceToNow(new Date(reply._created_at * 1000), { 
-                          addSuffix: true
-                        })}
+                      <div className="flex items-center gap-3 mb-2 text-sm text-gray-500 flex-wrap">
+                        <span className="flex items-center font-medium text-gray-700">
+                          <User className="w-4 h-4 mr-1" />
+                          {reply.user_name || '不明'}
+                        </span>
+                        <span className="flex items-center">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {formatDistanceToNow(new Date(reply._created_at * 1000), { 
+                            addSuffix: true
+                          })}
+                        </span>
                       </div>
                       <div className="prose max-w-none whitespace-pre-wrap">
                         {reply.body}
