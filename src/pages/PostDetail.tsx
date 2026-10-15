@@ -1928,6 +1928,22 @@ useEffect(() => {
                           </div>
                         </div>
                       )}
+                      {post.ticket_url && (
+                        <div className="flex items-start text-orange-700 sm:col-span-2">
+                          <ExternalLink className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <span className="font-medium">チケット購入:</span>
+                            <a
+                              href={post.ticket_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-2 text-orange-700 underline hover:text-orange-900"
+                            >
+                              チケットを見る
+                            </a>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
