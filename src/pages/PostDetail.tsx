@@ -1558,7 +1558,7 @@ useEffect(() => {
                 {/* Image Lightbox - クリックで拡大表示、複数枚なら前後矢印で切り替え */}
                 {isImageLightboxOpen && post.images && post.images.length > 0 && (
                   <div
-                    className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-4"
                     onClick={() => setIsImageLightboxOpen(false)}
                   >
                     <button
