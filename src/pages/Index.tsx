@@ -564,7 +564,21 @@ const Index = () => {
       }
       
       let postsData = await db.query('posts', filters);
-      
+
+      // サービスでグループ(食べる/遊ぶ/暮らす)を選んでいて、個別サブカテゴリーは
+      // まだ選択していない場合、そのグループに属するサブカテゴリーの投稿だけに絞り込む
+      if (selectedCategory === 'cat-services' && !selectedSubcategory && selectedServiceGroup) {
+        const group = SERVICE_SUBCATEGORY_GROUPS.find((g) => g.label === selectedServiceGroup);
+        if (group) {
+          const groupSubcategoryUuids = new Set(
+            subcategories
+              .filter((s: any) => s.category_uuid === 'cat-services' && group.items.includes(s.name_ja))
+              .map((s: any) => s.uuid)
+          );
+          postsData = postsData.filter((post: any) => groupSubcategoryUuids.has(post.subcategory_uuid));
+        }
+      }
+
       // 月別フィルターの適用
       if (selectedMonth) {
         const [year, month] = selectedMonth.split('-').map(Number);
