@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, ChevronDown, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus, Truck, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, ChevronDown, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus, Truck, ExternalLink, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import WorldClock from '@/components/WorldClock';
 import { Button } from '@/components/ui/button';
