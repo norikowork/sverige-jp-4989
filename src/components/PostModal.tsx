@@ -460,6 +460,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     service_fee: '',
     service_area: '',
     availability: '',
+    tour_url: '',
     // Event fields
     event_date: '',
     event_end_date: '',
