@@ -252,12 +252,12 @@ const Index = () => {
       loadPosts();
     }
     isFirstFilterRunRef.current = false;
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup]);
 
   // Refresh posts when PostModal closes
   // (初回マウント時もisPostModalOpen=falseで発火してしまい、mount用の
