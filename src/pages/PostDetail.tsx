@@ -1507,14 +1507,15 @@ useEffect(() => {
                 {/* Main Image - 50% size on mobile, larger on PC */}
                 <div className="mb-6">
                   <div className="relative mx-auto w-1/2 md:w-3/4">
-                    <img 
+                    <img
                       src={
                         post.images && post.images.length > 0
                           ? post.images[selectedImageIndex] || post.images[0]
                           : '/content/templates/sverige_blank.png'
-                      } 
+                      }
                       alt={post.title}
-                      className="w-full h-auto object-cover rounded-lg"
+                      className="w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => post.images && post.images.length > 0 && setIsImageLightboxOpen(true)}
                     />
                     {post.images && post.images.length > 1 && (
                       <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs sm:text-sm">
@@ -1533,21 +1534,85 @@ useEffect(() => {
                     </h3>
                     <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
                       {post.images.map((image, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           className={`relative aspect-square bg-gray-100 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 ${
                             selectedImageIndex === index ? 'border-blue-500' : ''
-                          }`} 
-                          onClick={() => setSelectedImageIndex(index)}
+                          }`}
+                          onClick={() => {
+                            setSelectedImageIndex(index);
+                            setIsImageLightboxOpen(true);
+                          }}
                         >
-                          <img 
-                            src={image} 
+                          <img
+                            src={image}
                             alt={`画像 ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Image Lightbox - クリックで拡大表示、複数枚なら前後矢印で切り替え */}
+                {isImageLightboxOpen && post.images && post.images.length > 0 && (
+                  <div
+                    className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+                    onClick={() => setIsImageLightboxOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      aria-label="閉じる"
+                      className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsImageLightboxOpen(false);
+                      }}
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+
+                    {post.images.length > 1 && (
+                      <button
+                        type="button"
+                        aria-label="前の画像"
+                        className="absolute left-2 sm:left-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
+                        }}
+                      >
+                        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+                      </button>
+                    )}
+
+                    <img
+                      src={post.images[selectedImageIndex] || post.images[0]}
+                      alt={post.title}
+                      className="max-w-full max-h-full object-contain"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+
+                    {post.images.length > 1 && (
+                      <button
+                        type="button"
+                        aria-label="次の画像"
+                        className="absolute right-2 sm:right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImageIndex((prev) => (prev + 1) % post.images.length);
+                        }}
+                      >
+                        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                      </button>
+                    )}
+
+                    {post.images.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded text-sm">
+                        {selectedImageIndex + 1} / {post.images.length}
+                      </div>
+                    )}
                   </div>
                 )}
 
