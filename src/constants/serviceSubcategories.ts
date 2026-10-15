@@ -35,6 +35,17 @@ export const SERVICE_SUBCATEGORY_GROUPS: { label: string; items: string[] }[] = 
       'サークル・団体',
     ],
   },
+  {
+    label: '遊ぶ',
+    items: [
+      '美術館・博物館',
+      'ホテル',
+      'エンターテインメント',
+      'アクティビティ',
+      '観光地おすすめ',
+      '穴場スポット',
+    ],
+  },
 ];
 
 export const SERVICE_SUBCATEGORY_EMOJI: Record<string, string> = {
