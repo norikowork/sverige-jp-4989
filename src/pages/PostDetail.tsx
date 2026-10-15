@@ -1539,10 +1539,7 @@ useEffect(() => {
                           className={`relative aspect-square bg-gray-100 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 ${
                             selectedImageIndex === index ? 'border-blue-500' : ''
                           }`}
-                          onClick={() => {
-                            setSelectedImageIndex(index);
-                            setIsImageLightboxOpen(true);
-                          }}
+                          onClick={() => setSelectedImageIndex(index)}
                         >
                           <img
                             src={image}
