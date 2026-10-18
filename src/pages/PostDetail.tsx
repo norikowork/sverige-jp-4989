@@ -2170,7 +2170,7 @@ useEffect(() => {
               <CardContent>
                 <div className="space-y-4">
                   <p className="text-gray-600 text-sm">
-                    この投稿に興味がありますか？下のボタンから問い合わせてください。
+                    この投稿に興味がありますか？下のボタンから<span className="font-bold text-blue-600">{post.userName || 'SverigeJP スタッフ'}</span>さんに問い合わせてください。
                   </p>
                   {/* 自分の投稿の場合は連絡ボタンを非表示 */}
                   {user && user.userUuid === post._created_by ? (
