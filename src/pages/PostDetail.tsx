@@ -2085,7 +2085,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm pt-4 border-t">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-x-8 sm:gap-y-3 text-sm pt-4 border-t">
                     <div className="flex items-start text-gray-600">
                       <Calendar className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                       <span className="text-xs sm:text-sm">
