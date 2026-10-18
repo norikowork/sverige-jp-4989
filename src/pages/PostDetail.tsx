@@ -109,6 +109,12 @@ const PostDetail = () => {
     'junk': 'bg-red-100 text-red-800'
   };
 
+  const shippingMethodLabels = {
+    'included': '送料込み',
+    'buyer_pays': '送料買い手持ち',
+    'meetup': '会って受け渡し'
+  };
+
   const employmentTypeLabels = {
     'full-time': 'フルタイム',
     'part-time': 'パートタイム',
@@ -1410,6 +1416,11 @@ useEffect(() => {
                           className={conditionColors[post.condition] || 'bg-gray-100 text-gray-800'}
                         >
                           {conditionLabels[post.condition] || post.condition}
+                        </Badge>
+                      )}
+                      {post.shipping_method && (
+                        <Badge variant="outline" className="border-blue-400 text-blue-700">
+                          {shippingMethodLabels[post.shipping_method] || post.shipping_method}
                         </Badge>
                       )}
                       {post.category_uuid && (

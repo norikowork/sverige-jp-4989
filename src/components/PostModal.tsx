@@ -516,6 +516,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         subcategory_uuid: editingPost.subcategory_uuid || '',
         post_type: editingPost.post_type || 'free',
         price: editingPost.price || '',
+        shipping_method: editingPost.shipping_method || '',
         location_uuid: editingPost.location_uuid || editingPost.location || '',
         // Detailed address fields
         show_detailed_address: editingPost.show_detailed_address || false,
@@ -594,6 +595,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       subcategory_uuid: '',
       post_type: 'free',
       price: '',
+      shipping_method: '',
       location_uuid: '',
       // Detailed address fields
       show_detailed_address: false,
@@ -1291,6 +1293,32 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                         <span className="text-gray-600 font-medium">SEK</span>
                       </div>
                       <p className="text-xs text-gray-500">半角数字で入力してください</p>
+                    </div>
+                  )}
+                  {formData.category_uuid === 'cat-for-sale' && (
+                    <div className="space-y-2">
+                      <Label>配送方法</Label>
+                      <RadioGroup
+                        value={formData.shipping_method}
+                        onValueChange={(value) => handleInputChange('shipping_method', value)}
+                        className="flex flex-col gap-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="included" id="shipping_included" />
+                          <Label htmlFor="shipping_included" className="font-normal">送料込み</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="buyer_pays" id="shipping_buyer_pays" />
+                          <Label htmlFor="shipping_buyer_pays" className="font-normal">送料買い手持ち</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="meetup" id="shipping_meetup" />
+                          <Label htmlFor="shipping_meetup" className="font-normal">会って受け渡し</Label>
+                        </div>
+                      </RadioGroup>
+                      {formData.shipping_method === 'buyer_pays' && (
+                        <p className="text-xs text-gray-500">送料の金額は購入者とご相談ください</p>
+                      )}
                     </div>
                   )}
                 </div>
