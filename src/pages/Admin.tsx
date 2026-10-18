@@ -1526,7 +1526,7 @@ const Admin = () => {
                   <CardTitle>投稿管理</CardTitle>
                   <div className="flex items-center space-x-2">
                     <Input
-                      placeholder="検索..."
+                      placeholder="検索...(投稿IDでも検索可)"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-64"
