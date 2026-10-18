@@ -207,6 +207,23 @@ const Index = () => {
             counts[post.subcategory_uuid] = (counts[post.subcategory_uuid] || 0) + 1;
           }
         });
+
+        // 「無料であげます」の件数には、元のサブカテゴリーに関わらず
+        // 価格が無料の投稿もすべて加算する(リスト表示側のロジックと揃える)
+        if (selectedCategory === 'cat-for-sale') {
+          const freeSub = subcategories.find(
+            (s: any) => s.category_uuid === 'cat-for-sale' && s.name_ja === '無料であげます'
+          );
+          if (freeSub) {
+            const extraFreeCount = categoryPosts.filter(
+              (post: any) => post.subcategory_uuid !== freeSub.uuid && (post.price === '無料' || post.price === '0')
+            ).length;
+            if (extraFreeCount > 0) {
+              counts[freeSub.uuid] = (counts[freeSub.uuid] || 0) + extraFreeCount;
+            }
+          }
+        }
+
         setSubcategoryCounts(counts);
       } catch (error) {
         console.error('Error loading subcategory counts:', error);
