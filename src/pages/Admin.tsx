@@ -1156,9 +1156,10 @@ const Admin = () => {
     let filtered = [...allPosts];
     
     if (searchTerm) {
-      filtered = filtered.filter(post => 
+      filtered = filtered.filter(post =>
         post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        post.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post._row_id?.toString().includes(searchTerm.trim())
       );
     }
     
