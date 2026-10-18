@@ -430,6 +430,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     subcategory_uuid: '',
     post_type: '',
     price: '',
+    shipping_method: '',
     location_uuid: '',
     // Detailed address fields
     show_detailed_address: false,
