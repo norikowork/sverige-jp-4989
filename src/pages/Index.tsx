@@ -577,11 +577,25 @@ const Index = () => {
       if (selectedCategory) {
         filters.category_uuid = `eq.${selectedCategory}`;
       }
-      if (selectedSubcategory) {
+      // 「無料であげます」は、元のサブカテゴリーに関わらず価格が無料の投稿も
+      // 含めて表示したいため、通常のサブカテゴリー完全一致フィルターは使わない
+      const freeForSaleSub = selectedCategory === 'cat-for-sale'
+        ? subcategories.find((s: any) => s.category_uuid === 'cat-for-sale' && s.name_ja === '無料であげます')
+        : null;
+      const isFreeForSaleTileSelected = !!freeForSaleSub && selectedSubcategory === freeForSaleSub.uuid;
+      if (selectedSubcategory && !isFreeForSaleTileSelected) {
         filters.subcategory_uuid = `eq.${selectedSubcategory}`;
       }
-      
+
       let postsData = await db.query('posts', filters);
+
+      // 「無料であげます」選択時: サブカテゴリーが「無料であげます」の投稿に加えて、
+      // 価格が無料(price === '無料' または '0')の投稿を、元のサブカテゴリーに関わらず含める
+      if (isFreeForSaleTileSelected) {
+        postsData = postsData.filter((post: any) =>
+          post.subcategory_uuid === freeForSaleSub.uuid || post.price === '無料' || post.price === '0'
+        );
+      }
 
       // サービスでグループ(食べる/遊ぶ/暮らす)を選んでいて、個別サブカテゴリーは
       // まだ選択していない場合、そのグループに属するサブカテゴリーの投稿だけに絞り込む
