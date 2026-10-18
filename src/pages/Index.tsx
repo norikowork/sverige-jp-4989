@@ -1191,6 +1191,19 @@ const Index = () => {
         {selectedCategory === 'cat-for-sale' && (
           <div className="mb-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+              <button
+                onClick={() => handleSubcategoryChange('')}
+                className={`p-2.5 rounded-lg border-2 transition-all ${
+                  !selectedSubcategory
+                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                    : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
+                }`}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-2xl mb-1">📦</span>
+                  <span className="font-medium text-gray-700 text-xs">すべて</span>
+                </div>
+              </button>
               {FOR_SALE_SUBCATEGORIES.map((itemName) => {
                 const sub = subcategories.find(
                   (s: any) => s.category_uuid === 'cat-for-sale' && s.name_ja === itemName
