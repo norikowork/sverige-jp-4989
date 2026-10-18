@@ -250,6 +250,10 @@ export default function ForumPage() {
           </p>
         </div>
 
+        <div className="mb-6 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
+          お互い便利な情報を共有し、気持ちよく楽しい掲示板にしましょう。
+        </div>
+
         {/* Show Form Button */}
         {!showForm && (
           <div className="mb-6">
