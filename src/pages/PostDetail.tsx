@@ -2275,7 +2275,14 @@ useEffect(() => {
 
             {/* メッセージ入力欄 */}
             <div>
-              <Label htmlFor="message">メッセージ</Label>
+              <div className="flex items-center justify-between flex-wrap gap-1">
+                <Label htmlFor="message">メッセージ</Label>
+                {post.category_uuid === 'cat-for-sale' && (
+                  <span className="text-xs text-blue-600">
+                    お互い、気持ちよく会話をして楽しいクラシファイドにしましょう。商談成立後は忘れず投稿を削除してください。
+                  </span>
+                )}
+              </div>
               <Textarea
                 id="message"
                 value={contactMessage}
