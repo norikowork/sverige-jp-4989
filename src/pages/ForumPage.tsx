@@ -282,8 +282,8 @@ export default function ForumPage() {
           </div>
         )}
 
-        {/* Categories Grid */}
-        <div className="mb-8">
+        {/* Categories Grid - モバイルは下の絞り込みカードのPulldownを使うため非表示 */}
+        <div className="mb-8 hidden md:block">
           <h2 className="text-xl font-bold mb-4">カテゴリから探す</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
             {FORUM_CATEGORIES.map((category) => {
