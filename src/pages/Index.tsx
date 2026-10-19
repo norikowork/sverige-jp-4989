@@ -343,12 +343,11 @@ const Index = () => {
   const loadData = async () => {
     const requestId = ++loadRequestIdRef.current;
     try {
-      const [categoriesData, locationsData, subcategoriesData, postsData, usersData, profilesData] = await Promise.all([
+      const [categoriesData, locationsData, subcategoriesData, postsData, profilesData] = await Promise.all([
         db.query('categories', { _deleted: 'eq.0' }),
         db.query('locations', { _deleted: 'eq.0' }),
         db.query('subcategories', { _deleted: 'eq.0' }),
         db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' }),
-        db.query('users', { _deleted: 'eq.0' }),
         db.query('user_profiles', { _deleted: 'eq.0' })
       ]);
       
@@ -364,12 +363,6 @@ const Index = () => {
       setCategories(categoriesData);
       setLocations(locationsData);
       setSubcategories(subcategoriesData);
-      
-      // Create a Map for quick user lookup (performance optimization)
-      const userMap = new Map();
-      usersData.forEach(user => {
-        userMap.set(user.user_uuid, user);
-      });
       
       // Create a Map for quick profile lookup
       const profileMap = new Map();
@@ -400,15 +393,8 @@ const Index = () => {
         let userName = 'SverigeJP スタッフ';
         if (post._created_by) {
           const profile = profileMap.get(post._created_by);
-          const user = userMap.get(post._created_by);
-          
-          // プロフィールの表示名を優先、なければユーザーの名前、なければメール
           if (profile && profile.display_name) {
             userName = profile.display_name;
-          } else if (user) {
-            userName = user.first_name && user.last_name 
-              ? `${user.first_name} ${user.last_name}`
-              : user.email || 'SverigeJP スタッフ';
           }
         }
         
@@ -688,14 +674,9 @@ const Index = () => {
 
       // ユーザー情報を一括取得してMapで引けるようにする
       // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
-      const [profilesData, usersData] = await Promise.all([
-        db.query('user_profiles', { _deleted: 'eq.0' }),
-        db.query('users', { _deleted: 'eq.0' })
-      ]);
+      const profilesData = await db.query('user_profiles', { _deleted: 'eq.0' });
       const profileMap = new Map();
       profilesData.forEach((profile: any) => profileMap.set(profile.user_uuid, profile));
-      const userMap = new Map();
-      usersData.forEach((user: any) => userMap.set(user.user_uuid, user));
 
       // Parse images JSON for each post
       const postsWithImages = postsData.map(post => {
@@ -722,14 +703,8 @@ const Index = () => {
         let userName = 'SverigeJP スタッフ';
         if (post._created_by) {
           const profile = profileMap.get(post._created_by);
-          const user = userMap.get(post._created_by);
-
           if (profile && profile.display_name) {
             userName = profile.display_name;
-          } else if (user) {
-            userName = user.first_name && user.last_name
-              ? `${user.first_name} ${user.last_name}`
-              : user.email || 'SverigeJP スタッフ';
           }
         }
 
@@ -772,14 +747,9 @@ const Index = () => {
 
       // ユーザー情報を一括取得してMapで引けるようにする
       // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
-      const [profilesData, usersData] = await Promise.all([
-        db.query('user_profiles', { _deleted: 'eq.0' }),
-        db.query('users', { _deleted: 'eq.0' })
-      ]);
+      const profilesData = await db.query('user_profiles', { _deleted: 'eq.0' });
       const profileMap = new Map();
       profilesData.forEach((profile: any) => profileMap.set(profile.user_uuid, profile));
-      const userMap = new Map();
-      usersData.forEach((user: any) => userMap.set(user.user_uuid, user));
 
       // Parse images JSON for each post
       const postsWithImages = postsData.map(post => {
@@ -805,14 +775,8 @@ const Index = () => {
         let userName = 'SverigeJP スタッフ';
         if (post._created_by) {
           const profile = profileMap.get(post._created_by);
-          const user = userMap.get(post._created_by);
-
           if (profile && profile.display_name) {
             userName = profile.display_name;
-          } else if (user) {
-            userName = user.first_name && user.last_name
-              ? `${user.first_name} ${user.last_name}`
-              : user.email || 'SverigeJP スタッフ';
           }
         }
 

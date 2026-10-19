@@ -2,7 +2,7 @@ import db from '@/lib/shared/kliv-database';
 
 /**
  * 投稿者名を解決するヘルパー関数
- * 優先順位: display_name → email → デフォルト
+ * 優先順位: display_name → デフォルト(メールアドレスは公開しない)
  */
 export const resolveAuthorName = async (userUuid: string, userProfiles?: any[]): Promise<string> => {
   if (!userUuid) {
@@ -25,7 +25,7 @@ export const resolveAuthorName = async (userUuid: string, userProfiles?: any[]):
 
   const profile = profiles?.find(p => p.user_uuid === userUuid);
   if (profile) {
-    return profile.display_name || profile.email || '不明';
+    return profile.display_name || '不明';
   }
 
   return '不明';
@@ -64,7 +64,7 @@ export const addAuthorNamesToPosts = async (posts: any[], userProfiles?: any[]):
 
   return posts.map(post => {
     const creatorProfile = profileMap.get(post._created_by);
-    const displayName = creatorProfile?.display_name || creatorProfile?.email || '不明';
+    const displayName = creatorProfile?.display_name || '不明';
     const creatorId = post._created_by ? post._created_by.substring(0, 8) : '(IDなし)';
 
     return {

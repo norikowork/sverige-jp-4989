@@ -23,6 +23,9 @@ const translateAuthError = (message: string | undefined, fallback: string): stri
   if (msg.includes('bad_credentials') || msg.includes('not recognized')) {
     return 'メールアドレスまたはパスワードが正しくありません。';
   }
+  if (msg.includes('user_inactive') || msg.includes('organization_disabled')) {
+    return 'このアカウントは利用停止中です。運営にお問い合わせください。';
+  }
   if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user_already_exists')) {
     return 'このメールアドレスは既に登録されています。ログインするか、パスワードをお忘れの場合は再設定をご利用ください。';
   }
@@ -78,50 +81,30 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       console.log('👤 既存プロフィール数:', existingProfile.length);
       
       if (existingProfile.length === 0) {
-        // 新規作成：user_uuid, email, display_name, role: 'user', is_blocked: 0, phone: ''
-        const userEmail = user.email || '';
+        // user_profiles は誰でも読めるため、メールアドレスは入れない(表示名にも使わない)
         // KlivUser に name は無く firstName / lastName に入るため、結合して表示名にする
-        const userDisplayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email || '';
+        const userDisplayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
         
-        console.log('➕ 新規プロフィール作成:', {
-          user_uuid: user.userUuid,
-          email: userEmail,
-          display_name: userDisplayName
-        });
+        console.log('➕ 新規プロフィール作成:', user.userUuid);
         
         await db.insert('user_profiles', {
           user_uuid: user.userUuid,
-          email: userEmail,
-          display_name: userDisplayName,
-          is_blocked: 0,
-          phone: ''
+          display_name: userDisplayName
         });
         
         console.log('✅ 新規プロフィール作成完了:', user.userUuid);
       } else {
-        // 既存のプロフィールがある場合
-        const profile = existingProfile[0];
-        console.log('✅ 既存プロフィール発見:', profile._row_id);
-        
-        // emailが空または未設定の場合のみ、emailを更新（他の項目は変更しない）
-        if (!profile.email || profile.email === '') {
-          const userEmail = user.email || '';
-          console.log('📧 email更新:', profile._row_id, userEmail);
-          
-          await db.update('user_profiles', { 
-            _row_id: `eq.${profile._row_id}` 
-          }, { 
-            email: userEmail 
-          });
-          
-          console.log('✅ email更新完了:', profile._row_id);
+        console.log('✅ 既存プロフィール発見:', existingProfile[0]._row_id);
+      }
+
+      // メールアドレスは本人と管理者だけが読める member_contacts に保存する(1会員1行)
+      if (user.email) {
+        const contacts = await db.query('member_contacts', { _created_by: `eq.${user.userUuid}` });
+        if (contacts.length === 0) {
+          await db.insert('member_contacts', { email: user.email });
+        } else if (contacts[0].email !== user.email) {
+          await db.update('member_contacts', { _row_id: `eq.${contacts[0]._row_id}` }, { email: user.email });
         }
-        
-        // roleやis_blockedは既存値を維持（上書きしない）
-        console.log('ℹ️ 既存プロフィール維持:', {
-          role: profile.role,
-          is_blocked: profile.is_blocked
-        });
       }
       
       console.log('🎉 プロフィール処理完了:', user.userUuid);
@@ -293,57 +276,9 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         // プロフィール作成が失敗してもログインは続行（ベストエフォート）
       }
       
-      // ステップ4: ブロック・無効化チェック（プロフィール作成後なので必ず存在するはず）
-      let isBlocked = false;
-      let isInactive = false;
-      try {
-        const profiles = await db.query('user_profiles', {
-          user_uuid: `eq.${user.userUuid}`,
-          _deleted: 'eq.0'
-        });
-        
-        const profile = profiles[0];
-        if (profile && profile.is_blocked === 1) {
-          console.log('🚫 アカウントブロック済み[isBlocked]:', user.userUuid);
-          isBlocked = true;
-        }
-        
-        if (profile && profile.is_active === 0) {
-          console.log('🚫 アカウント無効化済み[isInactive]:', user.userUuid);
-          isInactive = true;
-        }
-      } catch (blockCheckErr: any) {
-        console.error('⚠️ ステータスチェックエラー[statusCheck]:', blockCheckErr);
-        // ステータスチェックが失敗してもログインは続行
-      }
+      // ブロック・無効化されたアカウントは Kliv がサインイン自体を拒否する(管理画面の操作で enabled=false になる)
       
-      // ステップ5: 無効化されている場合はサインアウト
-      if (isInactive) {
-        try {
-          await auth.signOut();
-          console.log('🚪 無効化によりサインアウト[signOut]:', user.userUuid);
-        } catch (signOutErr: any) {
-          console.error('⚠️ サインアウトエラー[signOut]:', signOutErr);
-        }
-        setError('このアカウントは無効化されています。運営にお問い合わせください。');
-        setIsLoading(false);
-        return;
-      }
-      
-      // ステップ6: ブロックされている場合はサインアウト
-      if (isBlocked) {
-        try {
-          await auth.signOut();
-          console.log('🚪 ブロックによりサインアウト[signOut]:', user.userUuid);
-        } catch (signOutErr: any) {
-          console.error('⚠️ サインアウトエラー[signOut]:', signOutErr);
-        }
-        setError('このアカウントは利用停止中です。運営にお問い合わせください。');
-        setIsLoading(false);
-        return;
-      }
-      
-      // ステップ7: onAuthSuccessを呼ぶ（エラーになってもログインは成立）
+      // ステップ4: onAuthSuccessを呼ぶ（エラーになってもログインは成立）
       try {
         console.log('🎉 onAuthSuccess呼び出し[onAuthSuccess]:', user.userUuid);
         onAuthSuccess(user);
@@ -353,7 +288,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         // onAuthSuccessがエラーでもログインは成立（UI更新が失敗しただけ）
       }
       
-      // ステップ8: ダイアログを閉じる
+      // ステップ5: ダイアログを閉じる
       try {
         onClose();
         console.log('🚪 ダイアログクローズ[onClose]');
@@ -361,7 +296,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
         console.error('⚠️ ダイアログクローズエラー[onClose]:', closeErr);
       }
       
-      // ステップ9: トースト表示（エラーになっても無視）
+      // ステップ6: トースト表示（エラーになっても無視）
       try {
         toast({
           title: "ログイン成功",
@@ -385,24 +320,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
     try {
       console.log('📝 新規登録開始:', registerEmail);
 
-      // ステップ0: ブロック済みのメールアドレスでないか確認
-      // (ブロックされたユーザーが同じメールアドレスで再登録しようとした場合、
-      // Klivの一般的な「既に登録済み」エラーではなく、専用のメッセージで弾く)
-      try {
-        const blockedProfiles = await db.query('user_profiles', {
-          email: `eq.${registerEmail}`,
-          is_blocked: 'eq.1',
-          _deleted: 'eq.0'
-        });
-        if (blockedProfiles && blockedProfiles.length > 0) {
-          setError('このメールアドレスはご利用いただけません。心当たりがない場合は support@sverige.jp までお問い合わせください。');
-          setIsLoading(false);
-          return;
-        }
-      } catch (blockCheckErr: any) {
-        console.error('⚠️ ブロック確認エラー[user_profiles]:', blockCheckErr);
-        // ブロック確認自体が失敗しても登録処理は続行する(誤って正規ユーザーをブロックしないため)
-      }
+      // ブロックされたアカウントは Kliv 側に残っているため、同じメールアドレスでは再登録できない
 
       // ステップ1: アカウント作成（自動サインインされる）
       const user = await auth.signUp(registerEmail, registerPassword, registerName);

@@ -920,24 +920,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         throw new Error('ログインしていません。右上の「ログイン」ボタンからログインしてください。');
       }
 
-      // ブロックチェック：ユーザーの user_uuid で user_profiles を取得し is_blocked を確認
-      const profiles = await db.query('user_profiles', {
-        user_uuid: `eq.${currentUser.userUuid}`,
-        _deleted: 'eq.0'
-      });
-
-      const profile = profiles[0];
-
-      // ブロックされている場合は投稿を中止してエラーを表示
-      if (profile && profile.is_blocked === 1) {
-        toast({
-          title: 'エラー',
-          description: 'アカウントが利用停止中のため投稿できません。',
-          variant: 'destructive'
-        });
-        setIsSubmitting(false);
-        return;
-      }
+      // ブロックされたアカウントは Kliv がサインイン自体を拒否するため、ここでの確認は不要
 
       // メール確認チェック：未承認ユーザーは投稿できない
       if (!currentUser.emailVerified || currentUser.emailVerified === false) {
@@ -963,9 +946,10 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         cross_street: formData.cross_street || '',
         city: formData.city || '',
         zip_code: formData.zip_code || '',
-        creator_email: currentUser.email || '',
         _updated_at: Math.floor(Date.now() / 1000)
       };
+      // 投稿は誰でも読めるため、投稿者のメールアドレスは保存しない(問い合わせはサーバーが投稿者のアカウントに送る)
+      delete postData.email;
 
       // 下書き保存の場合はstatusを'draft'にする。
       // 下書きだった投稿を通常の「投稿する/更新する」で保存した場合は、
