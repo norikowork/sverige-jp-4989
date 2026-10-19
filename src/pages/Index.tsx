@@ -1529,7 +1529,7 @@ const Index = () => {
                       {post.post_type === 'event' && post.event_date_readable && (
                         <div className="mt-2 text-xs min-w-0">
                           <span className="font-semibold text-purple-600 truncate block">
-                            📅 {post.event_date_readable}
+                            📅 {post.event_date_readable}{isContinuingEvent(post) && '（前月継続）'}
                           </span>
                         </div>
                       )}
