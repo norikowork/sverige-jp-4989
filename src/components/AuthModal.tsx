@@ -385,7 +385,26 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
 
     try {
       console.log('📝 新規登録開始:', registerEmail);
-      
+
+      // ステップ0: ブロック済みのメールアドレスでないか確認
+      // (ブロックされたユーザーが同じメールアドレスで再登録しようとした場合、
+      // Klivの一般的な「既に登録済み」エラーではなく、専用のメッセージで弾く)
+      try {
+        const blockedProfiles = await db.query('user_profiles', {
+          email: `eq.${registerEmail}`,
+          is_blocked: 'eq.1',
+          _deleted: 'eq.0'
+        });
+        if (blockedProfiles && blockedProfiles.length > 0) {
+          setError('このメールアドレスはご利用いただけません。心当たりがない場合は support@sverige.jp までお問い合わせください。');
+          setIsLoading(false);
+          return;
+        }
+      } catch (blockCheckErr: any) {
+        console.error('⚠️ ブロック確認エラー[user_profiles]:', blockCheckErr);
+        // ブロック確認自体が失敗しても登録処理は続行する(誤って正規ユーザーをブロックしないため)
+      }
+
       // ステップ1: アカウント作成（自動サインインされる）
       const user = await auth.signUp(registerEmail, registerPassword, registerName);
       console.log('✅ アカウント作成成功[signUp]:', user.userUuid, 'emailVerified:', user.emailVerified);
