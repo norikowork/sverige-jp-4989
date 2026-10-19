@@ -183,7 +183,7 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
     if (diffHours < 24) return `${diffHours}時間前`;
     if (diffDays < 7) return `${diffDays}日前`;
     
-    return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', timeZone: 'Europe/Stockholm' });
   }, []);
 
   // Create icons once (memoized)
