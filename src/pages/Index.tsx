@@ -1082,10 +1082,10 @@ const Index = () => {
             <div className="flex flex-wrap items-center gap-4">
               {AREA_FILTER_CATEGORIES.includes(selectedCategory) && (
                 <>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 w-full md:w-auto">
                     <label className="text-sm font-medium text-gray-700">エリア別：</label>
                     <Select value={selectedArea} onValueChange={(value) => setSelectedArea(value === 'all' ? '' : value)}>
-                      <SelectTrigger className="w-64">
+                      <SelectTrigger className="flex-1 md:w-64">
                         <SelectValue placeholder="すべてのエリア" />
                       </SelectTrigger>
                       <SelectContent>
