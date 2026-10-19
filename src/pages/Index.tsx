@@ -859,18 +859,33 @@ const Index = () => {
     return `${month}/${day}`;
   };
 
-  // 月別フィルターで、開始月より後の月を見ている場合は「継続中のイベント」として扱う
+  // 開始月より後の月を見ている場合は「前月から継続中のイベント」として扱う。
+  // 月別フィルター選択中はその月を基準に、未選択(ホーム画面)の場合は今月を基準にする。
   const isContinuingEvent = (post) => {
-    if (!selectedMonth || !post.event_date) return false;
-    const [year, month] = selectedMonth.split('-').map(Number);
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Europe/Stockholm',
-      year: 'numeric',
-      month: '2-digit'
-    }).formatToParts(new Date(post.event_date * 1000));
-    const eventYear = Number(parts.find(p => p.type === 'year')?.value);
-    const eventMonth = Number(parts.find(p => p.type === 'month')?.value);
-    return eventYear < year || (eventYear === year && eventMonth < month);
+    if (!post.event_date) return false;
+    const getYearMonth = (date: Date) => {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Europe/Stockholm',
+        year: 'numeric',
+        month: '2-digit'
+      }).formatToParts(date);
+      return {
+        year: Number(parts.find(p => p.type === 'year')?.value),
+        month: Number(parts.find(p => p.type === 'month')?.value)
+      };
+    };
+    const reference = selectedMonth
+      ? { year: Number(selectedMonth.split('-')[0]), month: Number(selectedMonth.split('-')[1]) }
+      : getYearMonth(new Date());
+    const eventStart = getYearMonth(new Date(post.event_date * 1000));
+    const startedBeforeReference = eventStart.year < reference.year || (eventStart.year === reference.year && eventStart.month < reference.month);
+    if (!startedBeforeReference) return false;
+    if (!selectedMonth) {
+      // ホーム画面では月フィルターが無いため、まだ終わっていないイベントのみ「継続」とする
+      const effectiveEnd = post.event_end_date || post.event_date;
+      return effectiveEnd >= Math.floor(Date.now() / 1000);
+    }
+    return true;
   };
 
   const getMonthOptions = () => {
