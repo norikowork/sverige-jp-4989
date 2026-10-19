@@ -22,6 +22,7 @@ export const SERVICE_SUBCATEGORY_GROUPS: { label: string; items: string[] }[] = 
     items: [
       '美術館・博物館',
       '遊園地',
+      '動物園・水族館',
       'ホテル',
       'エンターテインメント',
       'アクティビティ',
@@ -81,6 +82,7 @@ export const SERVICE_SUBCATEGORY_EMOJI: Record<string, string> = {
   'ワイン・ビール': '🍷',
   '美術館・博物館': '🖼️',
   '遊園地': '🎢',
+  '動物園・水族館': '🦁',
   'ホテル': '🏨',
   'エンターテインメント': '🎭',
   'アクティビティ': '🎳',
