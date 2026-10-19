@@ -1537,6 +1537,7 @@ const Index = () => {
                     <div className="flex-1 min-w-0 overflow-hidden">
                       <CardTitle className="text-lg line-clamp-2 break-words">
                         <Link to={`/post/${post._row_id}`} className="hover:text-blue-600 transition-colors">
+                          {post.post_type === 'event' && isContinuingEvent(post) && '（前月継続）'}
                           {post.title}
                         </Link>
                       </CardTitle>
@@ -1785,8 +1786,9 @@ const Index = () => {
                                 >
                                   <div className="flex items-center gap-2 py-1.5 px-1 min-w-0">
                                     {!isServicesBoard && (
-                                      <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0 w-12">
+                                      <span className={`text-xs text-gray-500 whitespace-nowrap flex-shrink-0 ${isEventsBoard ? '' : 'w-12'}`}>
                                         {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
+                                        {isEventsBoard && isContinuingEvent(item) && '（前月継続）'}
                                       </span>
                                     )}
                                     {isEventsBoard && item.subcategory_uuid && (
@@ -1888,7 +1890,7 @@ const Index = () => {
                                 </p>
                               )}
                               <Link to={`/post/${post._row_id}`} className="block w-full overflow-hidden">
-                                <h3 className="text-base font-semibold line-clamp-2 break-words hover:text-blue-600 transition-colors cursor-pointer">{post.title}</h3>
+                                <h3 className="text-base font-semibold line-clamp-2 break-words hover:text-blue-600 transition-colors cursor-pointer">{post.post_type === 'event' && isContinuingEvent(post) && '（前月継続）'}{post.title}</h3>
                               </Link>
                               {post.post_type === 'event' && post.event_date_readable && (
                                 <div className="mt-1 text-xs min-w-0">
