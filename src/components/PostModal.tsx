@@ -967,6 +967,15 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         _updated_at: Math.floor(Date.now() / 1000)
       };
 
+      // 下書き保存の場合はstatusを'draft'にする。
+      // 下書きだった投稿を通常の「投稿する/更新する」で保存した場合は、
+      // 公開状態に戻す('active')。それ以外(通常の編集)はstatusに触れない。
+      if (saveAsDraft) {
+        postData.status = 'draft';
+      } else if (editingPost && editingPost.status === 'draft') {
+        postData.status = 'active';
+      }
+
       // postsテーブルにはcountyカラムが存在しないため、値の有無にかかわらず送信しない
       // (countyを含めると「no such column: county」で400エラーになる。県選択は市区選択の絞り込み用)
       delete postData.county;
