@@ -910,9 +910,23 @@ const Profile = () => {
                       <div>
                         <label className="text-sm font-medium text-gray-600 flex items-center">
                           <MapPin className="w-4 h-4 mr-1" />
+                          国
+                        </label>
+                        <p>{userProfile?.country || '未設定'}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 flex items-center">
+                          <MapPin className="w-4 h-4 mr-1" />
                           県
                         </label>
                         <p>{userProfile?.county || '未設定'}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 flex items-center">
+                          <MapPin className="w-4 h-4 mr-1" />
+                          市
+                        </label>
+                        <p>{userProfile?.city || '未設定'}</p>
                       </div>
                     </div>
                     <div>
