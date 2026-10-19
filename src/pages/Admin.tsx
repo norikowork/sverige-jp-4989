@@ -1171,10 +1171,22 @@ const Admin = () => {
       };
 
       // 表示名はアプリのプロフィール、メールとブロックは Kliv アカウントに保存する
+      // プロフィールがまだ無いユーザーでも、管理者が表示名を設定できるようにする
       const profileFields: Record<string, string> = {};
-      if (editingUser.hasProfile) {
-        const displayName = userForm.display_name.trim();
-        if (displayName && displayName !== (editingUser.display_name || '')) profileFields.display_name = displayName;
+      const displayName = userForm.display_name.trim();
+      if (displayName && displayName !== (editingUser.display_name || '')) {
+        const isDuplicateName = allUsers.some(
+          (u: any) => u.user_uuid !== editingUser.user_uuid && (u.display_name || '').trim() === displayName
+        );
+        if (isDuplicateName) {
+          toast({
+            title: "エラー",
+            description: "この表示名（ニックネーム）は既に他のユーザーが使用しています",
+            variant: "destructive"
+          });
+          return;
+        }
+        profileFields.display_name = displayName;
       }
       if (Object.keys(profileFields).length > 0) {
         await callAction({ action: 'update', fields: profileFields });
