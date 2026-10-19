@@ -1412,9 +1412,6 @@ const Index = () => {
         {/* Subcategory Grid for For-Sale - Only show when for-sale category is selected */}
         {selectedCategory === 'cat-for-sale' && (
           <div className="mb-6">
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
-              お互い、気持ちよく会話をして楽しいクラシファイドにしましょう。商談成立後は忘れず投稿を削除してください。
-            </div>
             {/* モバイルはPulldown、PCはアイコングリッド */}
             <div className="md:hidden mb-2">
               <Select
