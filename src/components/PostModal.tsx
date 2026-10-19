@@ -1229,7 +1229,14 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">詳細説明 *</Label>
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <Label htmlFor="description">詳細説明 *</Label>
+                  {formData.category_uuid === 'cat-for-sale' && (
+                    <span className="text-xs text-blue-600">
+                      お互い、気持ちよく会話をして楽しいクラシファイドにしましょう。商談成立後は忘れず投稿を削除してください。
+                    </span>
+                  )}
+                </div>
                 <Textarea
                   id="description"
                   value={formData.description}
