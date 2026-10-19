@@ -57,6 +57,7 @@ export const SERVICE_SUBCATEGORY_EMOJI: Record<string, string> = {
   'ショッピング': '🛒',
   'トイレの場所': '🚻',
   '美容・健康': '💆',
+
   '弁護士・税理士': '⚖️',
   'ペット': '🐾',
   'サービス': '🔧',
