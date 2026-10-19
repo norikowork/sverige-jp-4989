@@ -6,6 +6,7 @@
 export const statusLabels = {
   'active': '公開中',
   'sold': '完了',
+  'draft': '下書き',
   'expired': '期限切れ',
   'flagged': '報告済み',
   'removed': '削除'
