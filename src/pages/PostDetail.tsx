@@ -18,10 +18,13 @@ import SingleLocationMap from '@/components/SingleLocationMap';
 import db from '@/lib/shared/kliv-database';
 import auth from '@/lib/shared/kliv-auth';
 import functions from '@/lib/shared/kliv-functions';
+import content from '@/lib/shared/kliv-content';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
 import { getMessageLimit } from '@/constants/plans';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
+import { toAsciiFile } from '@/lib/asciiFilename';
+import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
@@ -71,6 +74,8 @@ const PostDetail = () => {
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isImageLightboxOpen, setIsImageLightboxOpen] = useState(false);
+  const [postPhotos, setPostPhotos] = useState<any[]>([]);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [locations, setLocations] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
