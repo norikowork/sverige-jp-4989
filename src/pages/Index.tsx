@@ -794,14 +794,14 @@ const Index = () => {
         };
       });
       
-      // 古いイベントを表示から除外（本日より前のイベントは非表示）
+      // 古いイベントを表示から除外（1ヶ月前より古いイベントは非表示）
       const now = new Date();
-      const startOfToday = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000);
+      const oneMonthAgo = Math.floor(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000);
       const postsFiltered = postsWithImages.filter(post => {
         if (post.post_type === 'event' && post.event_date) {
-          // 終了日があれば、終了日が本日より前でない限り表示を続ける
+          // 終了日があれば、終了日が1ヶ月以上前でない限り表示を続ける
           const effectiveEnd = post.event_end_date || post.event_date;
-          return effectiveEnd >= startOfToday;
+          return effectiveEnd >= oneMonthAgo;
         }
         return true; // イベント以外は常に表示
       });
