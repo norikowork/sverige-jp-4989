@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Shield, Settings, Truck } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Shield, Settings, Truck, ClipboardCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Footer from '@/components/Footer';
