@@ -87,6 +87,16 @@ const getCountyNameWithKatakana = (county: string) => {
 // エリア別フィルターを表示するカテゴリー
 const AREA_FILTER_CATEGORIES = ['cat-for-sale', 'cat-job-seeking', 'cat-housing', 'cat-events', 'cat-services'];
 
+// 売ります/あげますのコンディションフィルターの選択肢
+const CONDITION_FILTER_OPTIONS = [
+  { value: 'new', label: '新品' },
+  { value: 'like_new', label: 'ほぼ新品' },
+  { value: 'excellent', label: '非常に良い' },
+  { value: 'good', label: '良い' },
+  { value: 'fair', label: '可' },
+  { value: 'junk', label: 'ジャンク' },
+];
+
 const employmentTypeLabels = {
   'full-time': 'フルタイム',
   'part-time': 'パートタイム',
