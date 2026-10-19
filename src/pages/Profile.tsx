@@ -1192,12 +1192,12 @@ const Profile = () => {
                               ) : (
                                 <>
                                   <CircleX className="w-4 h-4 mr-1" />
-                                  投稿を終了
+                                  {(post.category_uuid || post.category) === 'cat-for-sale' ? '商談終了' : '投稿を終了'}
                                 </>
                               )}
                             </Button>
                           )}
-                          {post.status === 'active' && (
+                          {(post.status === 'active' || post.status === 'draft') && (
                             <>
                               <Button
                                 variant="default"
@@ -1210,7 +1210,7 @@ const Profile = () => {
                               </Button>
                             </>
                           )}
-                          {post.status === 'active' && (
+                          {(post.status === 'active' || post.status === 'draft') && (
                             <Button
                               variant="destructive"
                               size="sm"
