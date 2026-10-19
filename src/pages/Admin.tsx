@@ -900,6 +900,31 @@ const Admin = () => {
     }
   };
 
+  const handleToggleSold = async (post) => {
+    const newStatus = post.status === 'sold' ? 'active' : 'sold';
+
+    try {
+      await db.update('posts',
+        { _row_id: `eq.${post._row_id}` },
+        { status: newStatus }
+      );
+
+      toast({
+        title: newStatus === 'sold' ? "商談終了にしました" : "投稿を再開しました",
+        description: newStatus === 'sold' ? "一覧には表示されなくなります" : "一覧に再度表示されます",
+      });
+
+      loadAdminData();
+    } catch (error) {
+      console.error('Error toggling post status:', error);
+      toast({
+        title: "エラー",
+        description: "ステータスの変更に失敗しました",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDeletePost = async (postId) => {
     if (!window.confirm('本当にこの投稿を削除しますか？')) {
       return;
