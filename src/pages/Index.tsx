@@ -1766,6 +1766,22 @@ const Index = () => {
                                         {SERVICE_SUBCATEGORY_EMOJI[getSubcategoryName(item.subcategory_uuid)] || '🔸'}
                                       </span>
                                     )}
+                                    {isForSaleBoard && item.subcategory_uuid && (
+                                      <span
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setSelectedCategory('cat-for-sale');
+                                          setSelectedSubcategory(item.subcategory_uuid);
+                                          setSelectedArea('');
+                                          setSearchParams({ category: 'cat-for-sale', subcategory: item.subcategory_uuid });
+                                        }}
+                                        className="text-base flex-shrink-0 hover:scale-110 transition-transform cursor-pointer"
+                                        title={getSubcategoryName(item.subcategory_uuid)}
+                                      >
+                                        {FOR_SALE_SUBCATEGORY_EMOJI[getSubcategoryName(item.subcategory_uuid)] || '🔸'}
+                                      </span>
+                                    )}
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
                                       {item.title}
                                     </span>
