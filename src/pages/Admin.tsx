@@ -1626,6 +1626,25 @@ const Admin = () => {
                           >
                             編集
                           </Button>
+                          {(post.status === 'active' || post.status === 'sold') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleToggleSold(post)}
+                            >
+                              {post.status === 'sold' ? (
+                                <>
+                                  <RotateCcw className="h-4 w-4 mr-1" />
+                                  再開する
+                                </>
+                              ) : (
+                                <>
+                                  <CircleX className="h-4 w-4 mr-1" />
+                                  {(post.category_uuid || post.category) === 'cat-for-sale' ? '商談終了' : '投稿を終了'}
+                                </>
+                              )}
+                            </Button>
+                          )}
                           <Button
                             variant="destructive"
                             size="sm"
