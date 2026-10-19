@@ -1665,8 +1665,14 @@ const Admin = () => {
                             <p className="text-xs text-gray-500">
                               登録日: {formatDate(userItem._created_at)}
                             </p>
-                            <div className="mt-2 text-sm text-gray-600">
-                              投稿数: {allPosts.filter(p => p._created_by === userItem.user_uuid).length}
+                            <div className="mt-2 text-sm">
+                              <button
+                                type="button"
+                                className="text-blue-600 hover:underline"
+                                onClick={() => setViewingUserPosts(userItem)}
+                              >
+                                投稿数: {allPosts.filter(p => p._created_by === userItem.user_uuid).length}
+                              </button>
                             </div>
                           </div>
                           <div className="flex space-x-2">
