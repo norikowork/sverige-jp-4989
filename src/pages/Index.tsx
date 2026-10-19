@@ -1181,135 +1181,133 @@ const Index = () => {
                   )}
                   <div className="flex gap-2">
                   {selectedCategory === 'cat-for-sale' && (
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsPriceFilterOpen((prev) => !prev);
-                          setIsConditionFilterOpen(false);
-                        }}
-                        className={`px-3 py-2 rounded-md border text-sm font-medium ${
-                          priceFilterFree || priceFilterMin || priceFilterMax
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        価格
-                      </button>
-                      {isPriceFilterOpen && (
-                        <div className="absolute z-20 mt-2 w-64 bg-white rounded-lg border shadow-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-semibold text-sm">価格で絞り込み</span>
-                            <button type="button" onClick={() => setIsPriceFilterOpen(false)}>
-                              <X className="w-4 h-4 text-gray-500" />
-                            </button>
-                          </div>
-                          <label className="flex items-center gap-2 mb-3 text-sm cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={priceFilterFree}
-                              onChange={(e) => setPriceFilterFree(e.target.checked)}
-                              className="w-4 h-4"
-                            />
-                            無料のみ
-                          </label>
-                          <div className={`flex items-center gap-2 mb-4 ${priceFilterFree ? 'opacity-50' : ''}`}>
-                            <div className="flex items-center gap-1 flex-1">
-                              <span className="text-gray-500 text-sm">SEK</span>
-                              <Input
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="min"
-                                value={priceFilterMin}
-                                disabled={priceFilterFree}
-                                onChange={(e) => setPriceFilterMin(e.target.value)}
-                                className="h-8 text-sm"
-                              />
-                            </div>
-                            <span className="text-gray-400">〜</span>
-                            <div className="flex items-center gap-1 flex-1">
-                              <span className="text-gray-500 text-sm">SEK</span>
-                              <Input
-                                type="number"
-                                inputMode="numeric"
-                                placeholder="max"
-                                value={priceFilterMax}
-                                disabled={priceFilterFree}
-                                onChange={(e) => setPriceFilterMax(e.target.value)}
-                                className="h-8 text-sm"
-                              />
-                            </div>
-                          </div>
-                          <Button
-                            size="sm"
-                            className="w-full"
-                            onClick={() => setIsPriceFilterOpen(false)}
-                          >
-                            適用
-                          </Button>
+                    <Popover open={isPriceFilterOpen} onOpenChange={(open) => {
+                      setIsPriceFilterOpen(open);
+                      if (open) setIsConditionFilterOpen(false);
+                    }}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className={`px-3 py-2 rounded-md border text-sm font-medium ${
+                            priceFilterFree || priceFilterMin || priceFilterMax
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          価格
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64" align="start">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-semibold text-sm">価格で絞り込み</span>
+                          <button type="button" onClick={() => setIsPriceFilterOpen(false)}>
+                            <X className="w-4 h-4 text-gray-500" />
+                          </button>
                         </div>
-                      )}
-                    </div>
+                        <label className="flex items-center gap-2 mb-3 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={priceFilterFree}
+                            onChange={(e) => setPriceFilterFree(e.target.checked)}
+                            className="w-4 h-4"
+                          />
+                          無料のみ
+                        </label>
+                        <div className={`flex items-center gap-2 mb-4 ${priceFilterFree ? 'opacity-50' : ''}`}>
+                          <div className="flex items-center gap-1 flex-1">
+                            <span className="text-gray-500 text-sm">SEK</span>
+                            <Input
+                              type="number"
+                              inputMode="numeric"
+                              placeholder="min"
+                              value={priceFilterMin}
+                              disabled={priceFilterFree}
+                              onChange={(e) => setPriceFilterMin(e.target.value)}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                          <span className="text-gray-400">〜</span>
+                          <div className="flex items-center gap-1 flex-1">
+                            <span className="text-gray-500 text-sm">SEK</span>
+                            <Input
+                              type="number"
+                              inputMode="numeric"
+                              placeholder="max"
+                              value={priceFilterMax}
+                              disabled={priceFilterFree}
+                              onChange={(e) => setPriceFilterMax(e.target.value)}
+                              className="h-8 text-sm"
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setIsPriceFilterOpen(false)}
+                        >
+                          適用
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
                   )}
                   {selectedCategory === 'cat-for-sale' && (
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsConditionFilterOpen((prev) => !prev);
-                          setIsPriceFilterOpen(false);
-                        }}
-                        className={`px-3 py-2 rounded-md border text-sm font-medium ${
-                          selectedConditions.length > 0
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        コンディション
-                      </button>
-                      {isConditionFilterOpen && (
-                        <div className="absolute z-20 mt-2 w-64 bg-white rounded-lg border shadow-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-semibold text-sm">コンディションで絞り込み</span>
-                            <button type="button" onClick={() => setIsConditionFilterOpen(false)}>
-                              <X className="w-4 h-4 text-gray-500" />
-                            </button>
-                          </div>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {CONDITION_FILTER_OPTIONS.map((option) => {
-                              const isActive = selectedConditions.includes(option.value);
-                              return (
-                                <button
-                                  key={option.value}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedConditions((prev) =>
-                                      isActive
-                                        ? prev.filter((v) => v !== option.value)
-                                        : [...prev, option.value]
-                                    );
-                                  }}
-                                  className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${
-                                    isActive
-                                      ? 'border-blue-500 bg-blue-600 text-white'
-                                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                  }`}
-                                >
-                                  {option.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          <Button
-                            size="sm"
-                            className="w-full"
-                            onClick={() => setIsConditionFilterOpen(false)}
-                          >
-                            適用
-                          </Button>
+                    <Popover open={isConditionFilterOpen} onOpenChange={(open) => {
+                      setIsConditionFilterOpen(open);
+                      if (open) setIsPriceFilterOpen(false);
+                    }}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className={`px-3 py-2 rounded-md border text-sm font-medium ${
+                            selectedConditions.length > 0
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          コンディション
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64" align="start">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-semibold text-sm">コンディションで絞り込み</span>
+                          <button type="button" onClick={() => setIsConditionFilterOpen(false)}>
+                            <X className="w-4 h-4 text-gray-500" />
+                          </button>
                         </div>
-                      )}
-                    </div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {CONDITION_FILTER_OPTIONS.map((option) => {
+                            const isActive = selectedConditions.includes(option.value);
+                            return (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedConditions((prev) =>
+                                    isActive
+                                      ? prev.filter((v) => v !== option.value)
+                                      : [...prev, option.value]
+                                  );
+                                }}
+                                className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${
+                                  isActive
+                                    ? 'border-blue-500 bg-blue-600 text-white'
+                                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setIsConditionFilterOpen(false)}
+                        >
+                          適用
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
                   )}
                   </div>
                 </>
