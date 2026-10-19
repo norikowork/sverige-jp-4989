@@ -348,10 +348,10 @@ export default function ForumPage() {
                     <SelectValue placeholder="すべてのカテゴリ" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">すべてのカテゴリ</SelectItem>
+                    <SelectItem value="all">🔸 すべてのカテゴリ</SelectItem>
                     {FORUM_CATEGORIES.map((cat) => (
                       <SelectItem key={cat} value={cat}>
-                        {cat}
+                        {FORUM_CATEGORY_EMOJI[cat] || '🔸'} {cat} ({categoryCounts[cat] || 0})
                       </SelectItem>
                     ))}
                   </SelectContent>
