@@ -859,6 +859,20 @@ const Index = () => {
     return `${month}/${day}`;
   };
 
+  // 月別フィルターで、開始月より後の月を見ている場合は「継続中のイベント」として扱う
+  const isContinuingEvent = (post) => {
+    if (!selectedMonth || !post.event_date) return false;
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Stockholm',
+      year: 'numeric',
+      month: '2-digit'
+    }).formatToParts(new Date(post.event_date * 1000));
+    const eventYear = Number(parts.find(p => p.type === 'year')?.value);
+    const eventMonth = Number(parts.find(p => p.type === 'month')?.value);
+    return eventYear < year || (eventYear === year && eventMonth < month);
+  };
+
   const getMonthOptions = () => {
     const options = [];
     const now = new Date();
