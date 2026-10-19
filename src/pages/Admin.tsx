@@ -1618,7 +1618,18 @@ const Admin = () => {
                           <div className="flex-1">
                             <div className="flex items-center gap-3">
                               <h3 className="font-semibold">
-                                {userItem.display_name || '不明'}
+                                {userItem.display_name ? (
+                                  userItem.display_name
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="text-orange-600 hover:underline"
+                                    onClick={() => handleEditUser(userItem)}
+                                    title="クリックして名前を設定"
+                                  >
+                                    不明(クリックして名前を設定)
+                                  </button>
+                                )}
                               </h3>
                               {/* アカウント状態バッジ */}
                               {isInactive ? (
