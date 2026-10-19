@@ -1492,7 +1492,33 @@ const Index = () => {
             <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
               🇯🇵 のマークは、日本人または日系人、日系企業が関係しているイベントです。
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+            {/* モバイルはPulldown、PCはアイコングリッド */}
+            <div className="md:hidden mb-2">
+              <Select
+                value={selectedSubcategory || 'all'}
+                onValueChange={(value) => handleSubcategoryChange(value === 'all' ? '' : value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="サブカテゴリーを選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">📅 すべて</SelectItem>
+                  {EVENT_SUBCATEGORIES.map((itemName) => {
+                    const sub = subcategories.find(
+                      (s: any) => s.category_uuid === 'cat-events' && s.name_ja === itemName
+                    );
+                    if (!sub) return null;
+                    const count = subcategoryCounts[sub.uuid] || 0;
+                    return (
+                      <SelectItem key={sub.uuid} value={sub.uuid}>
+                        {EVENT_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-2">
               {EVENT_SUBCATEGORIES.map((itemName) => {
                 const sub = subcategories.find(
                   (s: any) => s.category_uuid === 'cat-events' && s.name_ja === itemName
