@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Users, FileText, AlertTriangle, Ban, Check, X, Eye, Search, Filter, Trash, Plus, Edit, CheckCircle, Clock, Download, Package } from 'lucide-react';
+import { Shield, Users, FileText, AlertTriangle, Ban, Check, X, Eye, Search, Filter, Trash, Plus, Edit, CheckCircle, Clock, Download, Package, CircleX, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
