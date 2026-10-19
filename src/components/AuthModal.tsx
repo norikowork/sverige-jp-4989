@@ -93,7 +93,6 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
           user_uuid: user.userUuid,
           email: userEmail,
           display_name: userDisplayName,
-          role: 'user',
           is_blocked: 0,
           phone: ''
         });

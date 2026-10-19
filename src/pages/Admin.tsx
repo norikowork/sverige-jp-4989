@@ -37,6 +37,7 @@ type PlatformUser = {
   lastName: string | null;
   enabled: boolean;
   emailVerified: boolean;
+  isSiteAdmin: boolean;
 };
 
 type PlatformUserList = {
@@ -63,6 +64,7 @@ function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) 
       is_active: profile?.is_active ?? 1,
       enabled: u.enabled,
       emailVerified: u.emailVerified,
+      isSiteAdmin: u.isSiteAdmin === true,
       hasProfile: Boolean(profile),
     };
   });
@@ -1606,7 +1608,7 @@ const Admin = () => {
                     // 無効 = Kliv アカウントが無効（ブロック以外の理由）、またはプロフィールで無効化済み
                     const isInactive = userItem.is_active === 0 || (!userItem.enabled && userItem.is_blocked !== 1);
                     const isSelf = userItem.user_uuid === user?.userUuid;
-                    const isAdminUser = userItem.role === 'admin';
+                    const isAdminUser = userItem.isSiteAdmin === true;
                     
                     return (
                       <div 
