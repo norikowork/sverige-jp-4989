@@ -2029,6 +2029,51 @@ const Admin = () => {
           </DialogContent>
         </Dialog>
 
+        <Dialog open={!!viewingUserPosts} onOpenChange={() => setViewingUserPosts(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {viewingUserPosts?.display_name || '不明'} さんの投稿一覧
+              </DialogTitle>
+            </DialogHeader>
+            {viewingUserPosts && (
+              <div className="space-y-3">
+                {allPosts.filter(p => p._created_by === viewingUserPosts.user_uuid).length === 0 ? (
+                  <p className="text-sm text-gray-500">投稿はありません。</p>
+                ) : (
+                  allPosts
+                    .filter(p => p._created_by === viewingUserPosts.user_uuid)
+                    .sort((a, b) => new Date(b._created_at).getTime() - new Date(a._created_at).getTime())
+                    .map((post) => (
+                      <div key={post._row_id} className="border rounded-lg p-3">
+                        <h4 className="font-semibold">
+                          <Link
+                            to={`/post/${post._row_id}`}
+                            className="hover:text-blue-600 hover:underline"
+                            onClick={() => setViewingUserPosts(null)}
+                          >
+                            {post.title}
+                          </Link>
+                        </h4>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <Badge variant="outline">
+                            {categoryIcons[post.category_uuid || post.category || '']} {getCategoryName(post.category_uuid || post.category)}
+                          </Badge>
+                          <Badge variant={post.status === 'active' ? 'default' : 'secondary'}>
+                            {statusLabels[post.status] || post.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          投稿日: {formatDate(post._created_at)}
+                        </p>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Edit Post Modal */}
         <PostModal
           isOpen={isEditModalOpen}
