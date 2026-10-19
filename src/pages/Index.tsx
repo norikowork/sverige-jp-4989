@@ -286,12 +286,12 @@ const Index = () => {
       loadPosts();
     }
     isFirstFilterRunRef.current = false;
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup, priceFilterFree, priceFilterMin, priceFilterMax, selectedConditions]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup, priceFilterFree, priceFilterMin, priceFilterMax, selectedConditions]);
 
   // Refresh posts when PostModal closes
   // (初回マウント時もisPostModalOpen=falseで発火してしまい、mount用の
