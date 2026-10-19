@@ -290,6 +290,11 @@ const PostDetail = () => {
         });
 
         setPost(postWithImages);
+
+        // サービス投稿の場合、他のユーザーが投稿した写真も読み込む
+        if ((postData.category_uuid || postData.category) === 'cat-services') {
+          loadPostPhotos(postData._row_id);
+        }
       } else {
         navigate('/');
       }
@@ -298,6 +303,91 @@ const PostDetail = () => {
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPostPhotos = async (postRowId: number) => {
+    try {
+      const photos = await db.query('post_photos', {
+        post_id: `eq.${postRowId}`,
+        order: '_created_at.asc'
+      });
+      setPostPhotos(photos || []);
+    } catch (error) {
+      console.error('Error loading post photos:', error);
+    }
+  };
+
+  // サービス投稿に、ログイン中のユーザーが写真を投稿できるようにする
+  // (投稿者本人の画像とあわせて最大5枚まで。それぞれ「〜さん投稿」として表示する)
+  const handlePhotoContribution = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !post || !user) return;
+
+    const totalPhotos = (post.images?.length || 0) + postPhotos.length;
+    if (totalPhotos >= 5) {
+      toast({ title: '画像は最大5枚までです', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > ABUSE_MAX_BYTES) {
+      toast({
+        title: 'ファイルサイズが大きすぎます',
+        description: `${file.name}は${(file.size / (1024 * 1024)).toFixed(1)}MBです。25MBまでのファイルをご利用ください。`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      const compressed = await compressImage(file);
+      const result = await content.uploadFile(toAsciiFile(compressed, 'post-photo'), '/content/uploads/');
+
+      let imageUrl = null;
+      if (result && result.contentUrl) {
+        imageUrl = result.contentUrl;
+      } else if (result && result.url) {
+        imageUrl = result.url;
+      } else if (result && result.fileUrl) {
+        imageUrl = result.fileUrl;
+      } else if (result && result.path) {
+        imageUrl = result.path;
+      } else if (result && typeof result === 'string') {
+        imageUrl = result;
+      } else if (result && result.data && result.data.contentUrl) {
+        imageUrl = result.data.contentUrl;
+      } else if (result && result.data && result.data.url) {
+        imageUrl = result.data.url;
+      } else if (result && result.data && result.data.path) {
+        imageUrl = result.data.path;
+      }
+
+      if (!imageUrl) {
+        throw new Error('アップロード結果からURLを取得できませんでした');
+      }
+
+      const uploaderName = await resolveAuthorName(user.userUuid);
+
+      await db.insert('post_photos', {
+        post_id: post._row_id,
+        image_url: imageUrl,
+        uploader_uuid: user.userUuid,
+        uploader_name: uploaderName
+      });
+
+      toast({ title: '写真を投稿しました' });
+      await loadPostPhotos(post._row_id);
+    } catch (error: any) {
+      console.error('Error uploading post photo:', error);
+      toast({
+        title: 'アップロードに失敗しました',
+        description: error?.message || 'もう一度お試しください',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
