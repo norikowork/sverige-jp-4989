@@ -224,16 +224,13 @@ const PostDetail = () => {
               console.log('👤 User profile found:', {
                 user_uuid: postData._created_by,
                 display_name: userProfile.display_name,
-                email: userProfile.email,
                 contact_pref: userProfile.contact_pref
               });
 
-              // Store profile data including email and contact_pref
               setUserProfiles(prev => ({
                 ...prev,
                 [postData._created_by]: {
                   ...userProfile,
-                  email: userProfile.email || null,
                   contact_pref: userProfile.contact_pref || 'email'
                 }
               }));
@@ -280,8 +277,7 @@ const PostDetail = () => {
           createdBy: postWithImages._created_by,
           createdByType: typeof postWithImages._created_by,
           userName: postWithImages.userName,
-          hasUserProfile: !!postWithImages.userProfile,
-          userEmail: postWithImages.userProfile?.email
+          hasUserProfile: !!postWithImages.userProfile
         });
 
         console.log('👤 投稿作成者情報:', {
@@ -880,7 +876,7 @@ useEffect(() => {
       });
 
       const profile = profiles[0];
-      const fromName = profile?.display_name || currentUser.displayName || currentUser.email || '自分';
+      const fromName = profile?.display_name || currentUser.firstName || 'ユーザー';
 
       // 上限チェック
       const [sentMessages, receivedMessages] = await Promise.all([
@@ -893,7 +889,9 @@ useEffect(() => {
         new Map(allMessages.map(msg => [msg._row_id, msg])).values()
       );
 
-      const limit = getMessageLimit(profile);
+      // プランは本人が書き換えられない member_status から読む(行が無ければ無料プラン)
+      const statusRows = await db.query('member_status', { user_uuid: `eq.${me}` });
+      const limit = getMessageLimit(statusRows[0]);
 
       if (uniqueMessages.length >= limit) {
         const limitText = limit === Infinity ? '無制限' : `${limit}通`;
@@ -948,36 +946,18 @@ useEffect(() => {
           variant: "destructive"
         });
         setIsSubmitting(false);
+        return;
       }
 
-      // 受信者のプロフィールを取得してメールアドレスを取得
-      const receiverProfiles = await db.query('user_profiles', {
-        user_uuid: `eq.${other}`,
-        _deleted: 'eq.0'
-      });
-
-      const receiverProfile = receiverProfiles[0];
-      const receiverEmail = receiverProfile?.email;
-
-      if (receiverEmail) {
-        console.log('📬 Sending message notification to:', receiverEmail);
-
-        try {
-          const notificationResult = await functions.post('send-message-notification', {
-            toEmail: receiverEmail,
-            toName: receiverProfile?.display_name,
-            fromName: fromName,
-            postTitle: post.title,
-            messagesUrl: `${window.location.origin}/messages`
-          });
-
-          console.log('✅ Message notification sent:', notificationResult);
-        } catch (notificationError) {
-          console.error('❌ Message notification error:', notificationError);
-          // 通知のエラーはメッセージ送信自体の成功に影響しない
-        }
-      } else {
-        console.log('⚠️ Receiver email not found, skipping notification');
+      // 受信者への通知メール。宛先のアドレスはサーバーが受信者のアカウントから決める。
+      try {
+        const notificationResult = await functions.post('send-message-notification', {
+          toUuid: other
+        });
+        console.log('✅ Message notification sent:', notificationResult);
+      } catch (notificationError) {
+        console.error('❌ Message notification error:', notificationError);
+        // 通知のエラーはメッセージ送信自体の成功に影響しない
       }
 
       toast({
@@ -1021,54 +1001,13 @@ useEffect(() => {
         return;
       }
 
-      console.log('📧 Starting contact submission process');
-      console.log('📧 Current post data:', {
-        postId: post._row_id,
-        postTitle: post.title,
-        createdBy: post._created_by,
-        hasUserProfile: !!post.userProfile,
-        userEmail: post.userProfile?.email,
-        creatorEmail: post.creator_email,
-        userProfileKeys: post.userProfile ? Object.keys(post.userProfile) : []
-      });
+      console.log('📧 Starting contact submission process:', post._row_id);
 
-      // 投稿者のメールアドレスを取得（優先度: creator_email > userProfile.email > エラー）
-      const toEmail = post.creator_email || post.userProfile?.email;
-      if (!toEmail) {
-        setIsSubmitting(false);
-        console.error('❌ Poster email not found:', {
-          hasUserProfile: !!post.userProfile,
-          userProfile: post.userProfile,
-          creatorEmail: post.creator_email,
-          createdBy: post._created_by
-        });
-        setContactError('投稿者のメールアドレスが見つかりません');
-        toast({
-          title: "エラー",
-          description: "投稿者のメールアドレスが見つかりません",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('📧 Sending contact email with data:', {
-        postId: post._row_id,
-        postTitle: post.title,
-        fromEmail: currentUser.email,
-        toEmail: toEmail,
-        message: contactMessage
-      });
-
-      // Edge Functionを呼び出してメールを送信
+      // 宛先(投稿者)と差出人(自分)のアドレスはサーバーがアカウントから決める
       try {
         const result = await functions.post('send-contact-email', {
           postId: post._row_id,
-          postTitle: post.title,
-          fromEmail: currentUser.email,
-          fromName: currentUser.displayName || currentUser.firstName || currentUser.email,
-          toEmail: toEmail,
-          message: contactMessage,
-          postUrl: window.location.href
+          message: contactMessage
         });
 
         console.log('✅ Edge function result:', result);
@@ -2203,20 +2142,12 @@ useEffect(() => {
                       {post.userProfile?.bio && (
                         <p className="text-sm text-gray-600 line-clamp-2">{post.userProfile.bio}</p>
                       )}
-                      {(post.userProfile?.location || post.userProfile?.phone) && (
+                      {post.userProfile?.location && (
                         <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-500">
-                          {post.userProfile.location && (
-                            <div className="flex items-center">
-                              <MapPin className="w-3 h-3 mr-1" />
-                              {post.userProfile.location}
-                            </div>
-                          )}
-                          {post.userProfile.phone && (
-                            <div className="flex items-center">
-                              <Phone className="w-3 h-3 mr-1" />
-                              {post.userProfile.phone}
-                            </div>
-                          )}
+                          <div className="flex items-center">
+                            <MapPin className="w-3 h-3 mr-1" />
+                            {post.userProfile.location}
+                          </div>
                         </div>
                       )}
                     </div>

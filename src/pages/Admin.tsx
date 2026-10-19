@@ -38,6 +38,8 @@ type PlatformUser = {
   enabled: boolean;
   emailVerified: boolean;
   isSiteAdmin: boolean;
+  blocked: boolean;
+  inactive: boolean;
 };
 
 type PlatformUserList = {
@@ -47,7 +49,7 @@ type PlatformUserList = {
   truncated: boolean;
 };
 
-// Kliv のアカウント（ログイン・有効/無効・メール確認の正本）に、アプリのプロフィール（表示名・ロールなど）を重ねる。
+// Kliv のアカウント（ログイン・有効/無効・ブロック・メール確認・管理者の正本）に、アプリのプロフィール（表示名など）を重ねる。
 // プロフィールがまだ無いユーザー（登録後に一度もログインしていない人など）も一覧に出す。
 function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) {
   const profileByUuid = new Map(profiles.map((p) => [p.user_uuid, p]));
@@ -59,9 +61,8 @@ function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) 
       user_uuid: u.uuid,
       email: u.email,
       display_name: profile?.display_name || platformName,
-      role: profile?.role ?? 'user',
-      is_blocked: profile?.is_blocked ?? 0,
-      is_active: profile?.is_active ?? 1,
+      is_blocked: u.blocked ? 1 : 0,
+      is_active: u.inactive ? 0 : 1,
       enabled: u.enabled,
       emailVerified: u.emailVerified,
       isSiteAdmin: u.isSiteAdmin === true,
@@ -95,7 +96,6 @@ const Admin = () => {
   const [userForm, setUserForm] = useState({
     display_name: '',
     email: '',
-    role: 'user',
     is_blocked: false
   });
   const [stats, setStats] = useState({
@@ -213,7 +213,8 @@ const Admin = () => {
 
       // 全テーブルを取得（_deletedで絞らず、削除済みも含めて全件）
       const [
-        usersData,
+        memberContactsData,
+        memberStatusData,
         userProfilesData,
         postsData,
         categoriesData,
@@ -223,11 +224,9 @@ const Admin = () => {
         forumRepliesData,
         messagesData
       ] = await Promise.all([
-        // usersは読み取りのみ（認証システムテーブル）
-        db.query('users', {}).catch(e => {
-          console.warn('Failed to fetch users:', e);
-          return [];
-        }),
+        // 本人と管理者だけが読める連絡先と、サーバー管理の会員情報
+        db.query('member_contacts', {}),
+        db.query('member_status', {}),
         db.query('user_profiles', {}),
         db.query('posts', {}),
         db.query('categories', {}),
@@ -274,7 +273,8 @@ const Admin = () => {
         exported_at: new Date().toISOString(),
         version: '1.0',
         tables: {
-          users: usersData,
+          member_contacts: memberContactsData,
+          member_status: memberStatusData,
           user_profiles: userProfilesData,
           posts: postsData,
           categories: categoriesData,
@@ -286,7 +286,8 @@ const Admin = () => {
         },
         image_files: imageFiles,
         stats: {
-          total_users: usersData.length,
+          total_member_contacts: memberContactsData.length,
+          total_member_status: memberStatusData.length,
           total_user_profiles: userProfilesData.length,
           total_posts: postsData.length,
           total_categories: categoriesData.length,
@@ -549,7 +550,6 @@ const Admin = () => {
             source: 'user_profile',
             user_uuid: profile.user_uuid,
             display_name: profile.display_name || profile.user_uuid,
-            email: profile.email || '',
             profile_updated_at: formatDateTime(profile._updated_at || profile._created_at)
           });
           
@@ -1154,7 +1154,6 @@ const Admin = () => {
     setUserForm({
       display_name: userItem.display_name || '',
       email: userItem.email || '',
-      role: userItem.role || 'user',
       is_blocked: userItem.is_blocked === 1
     });
     setIsUserModalOpen(true);
@@ -1170,12 +1169,11 @@ const Admin = () => {
         }
       };
 
-      // 表示名とロールはアプリのプロフィール、メールとブロックは Kliv アカウントに保存する
+      // 表示名はアプリのプロフィール、メールとブロックは Kliv アカウントに保存する
       const profileFields: Record<string, string> = {};
       if (editingUser.hasProfile) {
         const displayName = userForm.display_name.trim();
         if (displayName && displayName !== (editingUser.display_name || '')) profileFields.display_name = displayName;
-        if (userForm.role !== editingUser.role) profileFields.role = userForm.role;
       }
       if (Object.keys(profileFields).length > 0) {
         await callAction({ action: 'update', fields: profileFields });
@@ -2096,7 +2094,7 @@ const Admin = () => {
                   />
                   {!editingUser.hasProfile && (
                     <p className="text-xs text-gray-500 mt-1">
-                      プロフィールは本人が初めてログインしたときに作成されます。それまで表示名とロールは変更できません。
+                      プロフィールは本人が初めてログインしたときに作成されます。それまで表示名は変更できません。
                     </p>
                   )}
                 </div>
@@ -2110,20 +2108,11 @@ const Admin = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="role">ロール</Label>
-                  <Select 
-                    value={userForm.role} 
-                    disabled={!editingUser.hasProfile}
-                    onValueChange={(value) => setUserForm({...userForm, role: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">一般ユーザー</SelectItem>
-                      <SelectItem value="admin">管理者</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>ロール</Label>
+                  <p className="text-sm mt-1">{editingUser.isSiteAdmin ? '管理者' : '一般ユーザー'}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    管理者の追加・削除は Kliv の管理画面で、グループ「site-admins」のメンバーを変更して行います。
+                  </p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
