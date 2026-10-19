@@ -1178,6 +1178,7 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   )}
+                  <div className="flex gap-2">
                   {selectedCategory === 'cat-for-sale' && (
                     <div className="relative">
                       <button
