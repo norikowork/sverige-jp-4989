@@ -1564,6 +1564,7 @@ const Admin = () => {
                         <SelectItem value="all">すべて</SelectItem>
                         <SelectItem value="active">公開中</SelectItem>
                         <SelectItem value="sold">完了</SelectItem>
+                        <SelectItem value="draft">下書き</SelectItem>
                         <SelectItem value="expired">期限切れ</SelectItem>
                         <SelectItem value="flagged">報告済み</SelectItem>
                       </SelectContent>
