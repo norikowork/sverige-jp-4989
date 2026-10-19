@@ -20,6 +20,53 @@ import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
 import { statusLabels, postTypeLabels } from '@/constants/postLabels';
 
+// プロフィールの居住国の選択肢(日本人が多く住む国から)
+const COUNTRY_OPTIONS = [
+  'スウェーデン',
+  '日本',
+  'アメリカ',
+  'デンマーク',
+  'ノルウェー',
+  'フィンランド',
+  'イギリス',
+  'ドイツ',
+  'フランス',
+  'イタリア',
+  'スペイン',
+  'その他',
+];
+
+// スウェーデンを選んだ場合のみ、県・市は投稿フォームと同じ構造化データ(locations)を使う。
+// それ以外の国は県・市の仕組みが大きく異なるため自由入力にする。
+const countyNameMap: Record<string, string> = {
+  'Stockholm': 'ストックホルム',
+  'Uppsala': 'ウプサラ',
+  'Södermanland': 'セーデルマンランド',
+  'Östergötland': 'エステルイェータランド',
+  'Jönköping': 'ヨンシェーピング',
+  'Kronoberg': 'クルノベリ',
+  'Kalmar': 'カルマル',
+  'Gotland': 'ゴットランド',
+  'Blekinge': 'ブレキンゲ',
+  'Skåne': 'スコーネ',
+  'Halland': 'ハッランド',
+  'Västra Götaland': 'ヴェストラ・イェータランド',
+  'Värmland': 'ヴェルムランド',
+  'Örebro': 'エーレブルー',
+  'Västmanland': 'ヴェストマンランド',
+  'Dalarna': 'ダルナ',
+  'Gävleborg': 'イェヴレボリ',
+  'Västernorrland': 'ヴェステルノールランド',
+  'Jämtland': 'イェムトランド',
+  'Västerbotten': 'ヴェステルボッテン',
+  'Norrbotten': 'ノールボッテン',
+  'Other': 'スウェーデン以外'
+};
+
+const getCountyNameWithKatakana = (county: string) => {
+  return countyNameMap[county] ? `${county} (${countyNameMap[county]})` : county;
+};
+
 const categoryIcons = {
   'cat-for-sale': '🛍️',
   'cat-wanted': '🔍',
