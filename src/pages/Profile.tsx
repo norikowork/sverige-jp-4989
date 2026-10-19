@@ -971,40 +971,102 @@ const Profile = () => {
                         rows={4}
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone">電話番号</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="070-123-4567"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="phone">電話番号</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={editForm.phone}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                          placeholder="070-123-4567"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="county">県 *</Label>
-                        <Select 
-                          value={editForm.county} 
-                          onValueChange={(value) => setEditForm(prev => ({ ...prev, county: value }))}
+                        <Label htmlFor="country">国</Label>
+                        <Select
+                          value={editForm.country}
+                          onValueChange={(value) => setEditForm(prev => ({ ...prev, country: value, county: '', city: '' }))}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="県を選択してください" />
+                            <SelectValue placeholder="国を選択してください" />
                           </SelectTrigger>
                           <SelectContent>
-                            {Array.from(new Set(locations.map((loc: any) => loc.county)))
-                              .sort((a, b) => {
-                                if (a === 'Other') return 1;
-                                if (b === 'Other') return -1;
-                                return a.localeCompare(b);
-                              })
-                              .map((county) => (
-                                <SelectItem key={county} value={county}>
-                                  {county}
-                                </SelectItem>
-                              ))}
+                            {COUNTRY_OPTIONS.map((country) => (
+                              <SelectItem key={country} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="county">県</Label>
+                        {editForm.country === 'スウェーデン' ? (
+                          <Select
+                            value={editForm.county}
+                            onValueChange={(value) => setEditForm(prev => ({ ...prev, county: value, city: '' }))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="県を選択してください" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from(new Set(locations.map((loc: any) => loc.county)))
+                                .sort((a, b) => {
+                                  if (a === 'Other') return 1;
+                                  if (b === 'Other') return -1;
+                                  if (a === 'Stockholm') return -1;
+                                  if (b === 'Stockholm') return 1;
+                                  if (a === 'Västra Götaland') return -1;
+                                  if (b === 'Västra Götaland') return 1;
+                                  return a.localeCompare(b);
+                                })
+                                .map((county) => (
+                                  <SelectItem key={county} value={county}>
+                                    {getCountyNameWithKatakana(county)}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            id="county"
+                            value={editForm.county}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, county: e.target.value }))}
+                            placeholder="例：東京都、カリフォルニア州"
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="city">市</Label>
+                        {editForm.country === 'スウェーデン' ? (
+                          <Select
+                            value={editForm.city}
+                            onValueChange={(value) => setEditForm(prev => ({ ...prev, city: value }))}
+                            disabled={!editForm.county}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={editForm.county ? '市町村を選択してください' : '先に県を選択してください'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {locations
+                                .filter((loc: any) => loc.county === editForm.county)
+                                .sort((a: any, b: any) => (a.name_en || a.name_ja).localeCompare(b.name_en || b.name_ja))
+                                .map((loc: any) => (
+                                  <SelectItem key={loc.uuid || loc._row_id} value={loc.name_ja || loc.name_en}>
+                                    {loc.name_ja || loc.name_en}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            id="city"
+                            value={editForm.city}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, city: e.target.value }))}
+                            placeholder="例：渋谷区、ロサンゼルス"
+                          />
+                        )}
                       </div>
                     </div>
                     <div>
