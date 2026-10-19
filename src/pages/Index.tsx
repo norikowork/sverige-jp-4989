@@ -613,6 +613,24 @@ const Index = () => {
         );
       }
 
+      // 売ります/あげますの価格フィルター(無料のみ、または最小〜最大の範囲)
+      if (selectedCategory === 'cat-for-sale' && (priceFilterFree || priceFilterMin || priceFilterMax)) {
+        postsData = postsData.filter((post: any) => {
+          const priceNum = post.price === '無料' ? 0 : (parseFloat(post.price) || 0);
+          if (priceFilterFree) {
+            return priceNum === 0;
+          }
+          if (priceFilterMin && priceNum < parseFloat(priceFilterMin)) return false;
+          if (priceFilterMax && priceNum > parseFloat(priceFilterMax)) return false;
+          return true;
+        });
+      }
+
+      // 売ります/あげますのコンディションフィルター(複数選択可)
+      if (selectedCategory === 'cat-for-sale' && selectedConditions.length > 0) {
+        postsData = postsData.filter((post: any) => selectedConditions.includes(post.condition));
+      }
+
       // サービスでグループ(食べる/遊ぶ/暮らす)を選んでいて、個別サブカテゴリーは
       // まだ選択していない場合、そのグループに属するサブカテゴリーの投稿だけに絞り込む
       if (selectedCategory === 'cat-services' && !selectedSubcategory && selectedServiceGroup) {
