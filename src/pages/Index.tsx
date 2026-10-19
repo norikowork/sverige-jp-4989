@@ -1839,6 +1839,7 @@ const Index = () => {
                                       </span>
                                     )}
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
+                                      {isEventsBoard && isContinuingEvent(item) && '（前月継続）'}
                                       {item.title}
                                     </span>
                                   </div>
