@@ -1045,12 +1045,12 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         console.log('Updating post:', editingPost._row_id, postData);
         await db.update('posts', { _row_id: `eq.${editingPost._row_id}` }, postData);
         console.log('Post updated successfully');
-        toast({ title: "投稿を更新しました" });
+        toast({ title: saveAsDraft ? "下書きを保存しました" : "投稿を更新しました" });
       } else {
         console.log('Creating new post:', postData);
         await db.insert('posts', postData);
         console.log('Post created successfully');
-        toast({ title: "投稿を作成しました" });
+        toast({ title: saveAsDraft ? "下書きを保存しました" : "投稿を作成しました" });
       }
 
       // Wait a bit for the database to be updated
