@@ -1096,12 +1096,28 @@ const Profile = () => {
                                 ))}
                             </SelectContent>
                           </Select>
+                        ) : REGION_OPTIONS_BY_COUNTRY[editForm.country] ? (
+                          <Select
+                            value={editForm.county}
+                            onValueChange={(value) => setEditForm(prev => ({ ...prev, county: value }))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="県を選択してください" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {REGION_OPTIONS_BY_COUNTRY[editForm.country].map((region) => (
+                                <SelectItem key={region} value={region}>
+                                  {region}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <Input
                             id="county"
                             value={editForm.county}
                             onChange={(e) => setEditForm(prev => ({ ...prev, county: e.target.value }))}
-                            placeholder="例：東京都、カリフォルニア州"
+                            placeholder="例：地域名を入力してください"
                           />
                         )}
                       </div>

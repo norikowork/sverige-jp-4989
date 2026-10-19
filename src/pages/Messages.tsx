@@ -159,10 +159,12 @@ const Messages = () => {
       });
 
       if (profiles.length > 0) {
-        const profile = profiles[0];
-        setUserProfile(profile);
-        setLimit(getMessageLimit(profile));
+        setUserProfile(profiles[0]);
       }
+
+      // プランは本人が書き換えられない member_status から読む(行が無ければ無料プラン)
+      const statusRows = await db.query('member_status', { user_uuid: `eq.${userUuid}` });
+      setLimit(getMessageLimit(statusRows[0]));
 
       // 会話一覧を作成
       await buildConversations(uniqueMessages, userUuid);
@@ -316,7 +318,7 @@ const Messages = () => {
         post_title: selectedConversation.post_title,
         conversation_key: selectedConversation.conversation_key,
         from_uuid: user.userUuid,
-        from_name: userProfile?.display_name || user.email || '自分',
+        from_name: userProfile?.display_name || 'ユーザー',
         to_uuid: selectedConversation.other_uuid,
         body: replyText,
         is_read: 0,
@@ -327,34 +329,15 @@ const Messages = () => {
 
       console.log('✅ Reply message sent successfully');
 
-      // 受信者のプロフィールを取得してメールアドレスを取得
-      const receiverProfiles = await db.query('user_profiles', {
-        user_uuid: `eq.${selectedConversation.other_uuid}`,
-        _deleted: 'eq.0'
-      });
-
-      const receiverProfile = receiverProfiles[0];
-      const receiverEmail = receiverProfile?.email;
-
-      if (receiverEmail) {
-        console.log('📬 Sending message notification to:', receiverEmail);
-
-        try {
-          const notificationResult = await functions.post('send-message-notification', {
-            toEmail: receiverEmail,
-            toName: receiverProfile?.display_name,
-            fromName: userProfile?.display_name || user.email || '自分',
-            postTitle: selectedConversation.post_title,
-            messagesUrl: `${window.location.origin}/messages`
-          });
-
-          console.log('✅ Message notification sent:', notificationResult);
-        } catch (notificationError) {
-          console.error('❌ Message notification error:', notificationError);
-          // 通知のエラーはメッセージ送信自体の成功に影響しない
-        }
-      } else {
-        console.log('⚠️ Receiver email not found, skipping notification');
+      // 受信者への通知メール。宛先のアドレスはサーバーが受信者のアカウントから決める。
+      try {
+        const notificationResult = await functions.post('send-message-notification', {
+          toUuid: selectedConversation.other_uuid
+        });
+        console.log('✅ Message notification sent:', notificationResult);
+      } catch (notificationError) {
+        console.error('❌ Message notification error:', notificationError);
+        // 通知のエラーはメッセージ送信自体の成功に影響しない
       }
 
       toast({
@@ -402,7 +385,7 @@ const Messages = () => {
 
     setIsSending(true);
     try {
-      const email = userProfile?.email || user.email;
+      const email = user.email;
       const emailText = `📧 私のメールアドレス: ${email}（メールで連絡できます）`;
 
       const newMessage = {
@@ -410,7 +393,7 @@ const Messages = () => {
         post_title: selectedConversation.post_title,
         conversation_key: selectedConversation.conversation_key,
         from_uuid: user.userUuid,
-        from_name: userProfile?.display_name || user.email || '自分',
+        from_name: userProfile?.display_name || 'ユーザー',
         to_uuid: selectedConversation.other_uuid,
         body: emailText,
         is_read: 0,
@@ -421,34 +404,15 @@ const Messages = () => {
 
       console.log('✅ Email message sent successfully');
 
-      // 受信者のプロフィールを取得してメールアドレスを取得
-      const receiverProfiles = await db.query('user_profiles', {
-        user_uuid: `eq.${selectedConversation.other_uuid}`,
-        _deleted: 'eq.0'
-      });
-
-      const receiverProfile = receiverProfiles[0];
-      const receiverEmail = receiverProfile?.email;
-
-      if (receiverEmail) {
-        console.log('📬 Sending message notification to:', receiverEmail);
-
-        try {
-          const notificationResult = await functions.post('send-message-notification', {
-            toEmail: receiverEmail,
-            toName: receiverProfile?.display_name,
-            fromName: userProfile?.display_name || user.email || '自分',
-            postTitle: selectedConversation.post_title,
-            messagesUrl: `${window.location.origin}/messages`
-          });
-
-          console.log('✅ Message notification sent:', notificationResult);
-        } catch (notificationError) {
-          console.error('❌ Message notification error:', notificationError);
-          // 通知のエラーはメッセージ送信自体の成功に影響しない
-        }
-      } else {
-        console.log('⚠️ Receiver email not found, skipping notification');
+      // 受信者への通知メール。宛先のアドレスはサーバーが受信者のアカウントから決める。
+      try {
+        const notificationResult = await functions.post('send-message-notification', {
+          toUuid: selectedConversation.other_uuid
+        });
+        console.log('✅ Message notification sent:', notificationResult);
+      } catch (notificationError) {
+        console.error('❌ Message notification error:', notificationError);
+        // 通知のエラーはメッセージ送信自体の成功に影響しない
       }
 
       toast({
