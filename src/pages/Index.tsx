@@ -1647,6 +1647,7 @@ const Index = () => {
                     const isBulletinBoard = category.uuid === 'cat-bulletin';
                     const isEventsBoard = category.uuid === 'cat-events';
                     const isServicesBoard = category.uuid === 'cat-services';
+                    const isForSaleBoard = category.uuid === 'cat-for-sale';
                     let categoryItems;
                     if (isBulletinBoard) {
                       categoryItems = forumTopics.slice(0, 8);
