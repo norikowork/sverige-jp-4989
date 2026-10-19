@@ -112,6 +112,40 @@ const Help = () => {
           </CardContent>
         </Card>
 
+        {/* Deal Closed / Draft Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl">
+              <ClipboardCheck className="w-6 h-6 mr-2 text-indigo-600" />
+              商談が終わったら & 下書き保存
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <p className="font-medium text-gray-900 mb-2">商談終了ボタン</p>
+              <p className="text-gray-700 leading-relaxed mb-3">
+                「売ります」カテゴリの投稿が売れたら、プロフィール画面の自分の投稿一覧から「商談終了」を押してください。投稿は一覧には表示されなくなりますが、削除はされず、プロフィール画面と管理画面に履歴として残ります。間違えて押してしまった場合や、もう一度出品したい場合は「再開する」でいつでも公開に戻せます。完全に投稿を消したい場合は、今まで通り削除ボタン（ゴミ箱アイコン）をお使いください。
+              </p>
+              <img
+                src="/content/templates/deal-closed-button.png"
+                alt="商談終了ボタンの画面例"
+                className="rounded-lg border max-w-full sm:max-w-md"
+              />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 mb-2">下書き保存ボタン</p>
+              <p className="text-gray-700 leading-relaxed mb-3">
+                投稿作成の途中で続きを後で書きたい時は、「下書き保存」ボタンを押してください。タイトルとカテゴリーさえ入力していれば、他の項目が未入力でも保存できます。下書きはプロフィール画面の自分の投稿一覧に「下書き」として表示され、編集して仕上げたら通常通り「更新」を押せば公開されます。
+              </p>
+              <img
+                src="/content/templates/save-draft-button.png"
+                alt="下書き保存ボタンの画面例"
+                className="rounded-lg border max-w-full sm:max-w-md"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* FAQ Section */}
         <h2 className="text-2xl font-bold text-gray-900 mb-4">よくある質問（FAQ）</h2>
         <Card>
