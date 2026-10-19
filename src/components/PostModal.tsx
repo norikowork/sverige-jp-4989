@@ -899,9 +899,14 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     return commonFields && hasSubcategory && categorySpecificFields;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid()) {
+  const handleSubmit = async (e?: React.FormEvent, saveAsDraft: boolean = false) => {
+    e?.preventDefault();
+    if (saveAsDraft) {
+      if (!formData.title.trim() || !formData.category_uuid) {
+        setError('下書き保存には、タイトルとカテゴリーの入力が必要です');
+        return;
+      }
+    } else if (!isFormValid()) {
       setError('必須項目をすべて入力してください');
       return;
     }
