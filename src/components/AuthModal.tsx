@@ -742,7 +742,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
           <TabsContent value="register">
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="register-name">お名前</Label>
+                <Label htmlFor="register-name">表示名（ニックネーム）</Label>
                 <Input
                   id="register-name"
                   type="text"
