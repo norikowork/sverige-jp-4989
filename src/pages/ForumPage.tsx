@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MessageSquare, Search, Clock, User, Reply, Home, Briefcase, GraduationCap, Car, Heart, Stethoscope, Baby, ShoppingBag, Plane, Calendar, Users, Wrench, DollarSign, FileText, Coffee, Star, PawPrint } from 'lucide-react';
 import ForumTopicForm from '@/components/ForumTopicForm';
-import { FORUM_CATEGORIES } from '@/constants/forumCategories';
+import { FORUM_CATEGORIES, FORUM_CATEGORY_EMOJI } from '@/constants/forumCategories';
 import db from '@/lib/shared/kliv-database.js';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
