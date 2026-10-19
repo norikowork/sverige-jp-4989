@@ -1610,114 +1610,155 @@ useEffect(() => {
                 </div>
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
-                {/* Main Image - 50% size on mobile, larger on PC */}
-                <div className="mb-6">
-                  <div className="relative mx-auto w-1/2 md:w-3/4">
-                    <img
-                      src={
-                        post.images && post.images.length > 0
-                          ? post.images[selectedImageIndex] || post.images[0]
-                          : '/content/templates/sverige_blank.png'
-                      }
-                      alt={post.title}
-                      className="w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => post.images && post.images.length > 0 && setIsImageLightboxOpen(true)}
-                    />
-                    {post.images && post.images.length > 1 && (
-                      <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs sm:text-sm">
-                        {selectedImageIndex + 1} / {post.images.length}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {/* サービス投稿の場合、投稿者本人の画像 + 他ユーザーが投稿した写真をまとめて1つのギャラリーにする */}
+                {(() => {
+                  const combinedPhotos = [
+                    ...((post.images || []).map((url: string) => ({ url, uploaderName: null as string | null }))),
+                    ...(post.category_uuid === 'cat-services'
+                      ? postPhotos.map((p: any) => ({ url: p.image_url, uploaderName: p.uploader_name || null }))
+                      : [])
+                  ];
+                  const selectedPhoto = combinedPhotos[selectedImageIndex] || combinedPhotos[0];
 
-                {/* Thumbnail Gallery */}
-                {post.images && post.images.length > 1 && (
-                  <div className="mb-6">
-                    <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center">
-                      <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      画像一覧（クリックして選択）
-                    </h3>
-                    <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                      {post.images.map((image, index) => (
-                        <div
-                          key={index}
-                          className={`relative aspect-square bg-gray-100 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 ${
-                            selectedImageIndex === index ? 'border-blue-500' : ''
-                          }`}
-                          onClick={() => setSelectedImageIndex(index)}
-                        >
+                  return (
+                    <>
+                      {/* Main Image - 50% size on mobile, larger on PC */}
+                      <div className="mb-6">
+                        <div className="relative mx-auto w-1/2 md:w-3/4">
                           <img
-                            src={image}
-                            alt={`画像 ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            src={selectedPhoto ? selectedPhoto.url : '/content/templates/sverige_blank.png'}
+                            alt={post.title}
+                            className="w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => combinedPhotos.length > 0 && setIsImageLightboxOpen(true)}
                           />
+                          {combinedPhotos.length > 1 && (
+                            <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs sm:text-sm">
+                              {selectedImageIndex + 1} / {combinedPhotos.length}
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Image Lightbox - クリックで拡大表示、複数枚なら前後矢印で切り替え */}
-                {isImageLightboxOpen && post.images && post.images.length > 0 && (
-                  <div
-                    className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-4"
-                    onClick={() => setIsImageLightboxOpen(false)}
-                  >
-                    <button
-                      type="button"
-                      aria-label="閉じる"
-                      className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsImageLightboxOpen(false);
-                      }}
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-
-                    {post.images.length > 1 && (
-                      <button
-                        type="button"
-                        aria-label="前の画像"
-                        className="absolute left-2 sm:left-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
-                        }}
-                      >
-                        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
-                      </button>
-                    )}
-
-                    <img
-                      src={post.images[selectedImageIndex] || post.images[0]}
-                      alt={post.title}
-                      className="max-w-full max-h-full object-contain"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-
-                    {post.images.length > 1 && (
-                      <button
-                        type="button"
-                        aria-label="次の画像"
-                        className="absolute right-2 sm:right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedImageIndex((prev) => (prev + 1) % post.images.length);
-                        }}
-                      >
-                        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
-                      </button>
-                    )}
-
-                    {post.images.length > 1 && (
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded text-sm">
-                        {selectedImageIndex + 1} / {post.images.length}
+                        {selectedPhoto?.uploaderName && (
+                          <p className="text-center text-xs text-gray-500 mt-2">
+                            {selectedPhoto.uploaderName}さん投稿
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {/* Thumbnail Gallery */}
+                      {combinedPhotos.length > 1 && (
+                        <div className="mb-6">
+                          <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center">
+                            <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                            画像一覧（クリックして選択）
+                          </h3>
+                          <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
+                            {combinedPhotos.map((photo, index) => (
+                              <div
+                                key={index}
+                                className={`relative aspect-square bg-gray-100 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 ${
+                                  selectedImageIndex === index ? 'border-blue-500' : ''
+                                }`}
+                                onClick={() => setSelectedImageIndex(index)}
+                              >
+                                <img
+                                  src={photo.url}
+                                  alt={`画像 ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* サービス投稿への写真投稿(ログイン中のみ、最大5枚まで) */}
+                      {post.category_uuid === 'cat-services' && user && (
+                        <div className="mb-6">
+                          {combinedPhotos.length < 5 ? (
+                            <label className="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-blue-400 hover:text-blue-600 cursor-pointer transition-colors">
+                              <ImageIcon className="w-4 h-4" />
+                              {isUploadingPhoto ? 'アップロード中...' : '写真を投稿する'}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={isUploadingPhoto}
+                                onChange={handlePhotoContribution}
+                              />
+                            </label>
+                          ) : (
+                            <p className="text-xs text-gray-500">画像は最大5枚までです</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Image Lightbox - クリックで拡大表示、複数枚なら前後矢印で切り替え */}
+                      {isImageLightboxOpen && combinedPhotos.length > 0 && (
+                        <div
+                          className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-4"
+                          onClick={() => setIsImageLightboxOpen(false)}
+                        >
+                          <button
+                            type="button"
+                            aria-label="閉じる"
+                            className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsImageLightboxOpen(false);
+                            }}
+                          >
+                            <X className="w-6 h-6" />
+                          </button>
+
+                          {combinedPhotos.length > 1 && (
+                            <button
+                              type="button"
+                              aria-label="前の画像"
+                              className="absolute left-2 sm:left-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedImageIndex((prev) => (prev - 1 + combinedPhotos.length) % combinedPhotos.length);
+                              }}
+                            >
+                              <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+                            </button>
+                          )}
+
+                          <div className="flex flex-col items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <img
+                              src={selectedPhoto ? selectedPhoto.url : ''}
+                              alt={post.title}
+                              className="max-w-full max-h-[85vh] object-contain"
+                            />
+                            {selectedPhoto?.uploaderName && (
+                              <p className="text-white text-sm">{selectedPhoto.uploaderName}さん投稿</p>
+                            )}
+                          </div>
+
+                          {combinedPhotos.length > 1 && (
+                            <button
+                              type="button"
+                              aria-label="次の画像"
+                              className="absolute right-2 sm:right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors z-10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedImageIndex((prev) => (prev + 1) % combinedPhotos.length);
+                              }}
+                            >
+                              <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                            </button>
+                          )}
+
+                          {combinedPhotos.length > 1 && (
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded text-sm">
+                              {selectedImageIndex + 1} / {combinedPhotos.length}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
 
                 {/* Event Information - Only show for events */}
                 {post.post_type === 'event' && (
