@@ -1081,7 +1081,8 @@ const Admin = () => {
       month: 'numeric',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Europe/Stockholm'
     });
   };
 
@@ -1952,7 +1953,7 @@ const Admin = () => {
                           {/* 報告者リスト */}
                           <div className="space-y-3">
                             {reports.map((report, index) => {
-                                  const reportDate = report._created_at ? new Date(report._created_at * 1000).toLocaleDateString('ja-JP') : '不明';
+                                  const reportDate = report._created_at ? new Date(report._created_at * 1000).toLocaleDateString('ja-JP', { timeZone: 'Europe/Stockholm' }) : '不明';
                                   return (
                                     <div key={report._row_id || index} className="border-l-2 pl-3 text-sm">
                                       <div className="flex items-center gap-2 mb-1">

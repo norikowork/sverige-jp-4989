@@ -782,9 +782,10 @@ const Profile = () => {
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('ja-JP') + ' ' + date.toLocaleTimeString('ja-JP', { 
+    return date.toLocaleDateString('ja-JP', { timeZone: 'Europe/Stockholm' }) + ' ' + date.toLocaleTimeString('ja-JP', { 
       hour: '2-digit', 
-      minute: '2-digit' 
+      minute: '2-digit',
+      timeZone: 'Europe/Stockholm'
     });
   };
 
