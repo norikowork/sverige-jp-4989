@@ -1612,9 +1612,10 @@ useEffect(() => {
               <CardContent className="px-4 sm:px-6">
                 {/* サービス投稿の場合、投稿者本人の画像 + 他ユーザーが投稿した写真をまとめて1つのギャラリーにする */}
                 {(() => {
+                  const isServicePost = post.post_type === 'service' || post.category_uuid === 'cat-services';
                   const combinedPhotos = [
                     ...((post.images || []).map((url: string) => ({ url, uploaderName: null as string | null }))),
-                    ...(post.category_uuid === 'cat-services'
+                    ...(isServicePost
                       ? postPhotos.map((p: any) => ({ url: p.image_url, uploaderName: p.uploader_name || null }))
                       : [])
                   ];
@@ -1672,7 +1673,7 @@ useEffect(() => {
                       )}
 
                       {/* サービス投稿への写真投稿(ログイン中のみ、最大5枚まで) */}
-                      {post.category_uuid === 'cat-services' && user && (
+                      {isServicePost && user && (
                         <div className="mb-6">
                           {combinedPhotos.length < 5 ? (
                             <label className="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-blue-400 hover:text-blue-600 cursor-pointer transition-colors">
