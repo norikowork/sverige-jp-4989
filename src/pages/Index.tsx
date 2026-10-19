@@ -149,6 +149,12 @@ const Index = () => {
   const [selectedServiceGroup, setSelectedServiceGroup] = useState(SERVICE_SUBCATEGORY_GROUPS[0]?.label || '');
   const [selectedArea, setSelectedArea] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
+  const [isPriceFilterOpen, setIsPriceFilterOpen] = useState(false);
+  const [priceFilterFree, setPriceFilterFree] = useState(false);
+  const [priceFilterMin, setPriceFilterMin] = useState('');
+  const [priceFilterMax, setPriceFilterMax] = useState('');
+  const [isConditionFilterOpen, setIsConditionFilterOpen] = useState(false);
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [subcategoryCounts, setSubcategoryCounts] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
