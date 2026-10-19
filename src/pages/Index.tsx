@@ -842,14 +842,20 @@ const Index = () => {
       month: 'numeric',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Europe/Stockholm'
     });
   };
 
   const formatDateShort = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Stockholm',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+    const month = parts.find(p => p.type === 'month')?.value || '';
+    const day = parts.find(p => p.type === 'day')?.value || '';
     return `${month}/${day}`;
   };
 
