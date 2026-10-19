@@ -18,7 +18,7 @@ export const FOR_SALE_SUBCATEGORIES: string[] = [
 export const FOR_SALE_SUBCATEGORY_EMOJI: Record<string, string> = {
   '家具・インテリア': '🛋️',
   '家電・電化製品': '🔌',
-  '手作り': '🧶',
+  '手作り': '🧵',
   '衣類・アクセサリー': '👕',
   'ベビー・キッズ用品': '🍼',
   '本・DVD・おもちゃ・ゲーム': '📚',
