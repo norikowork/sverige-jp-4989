@@ -408,17 +408,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       // ステップ1: アカウント作成（自動サインインされる）
       const user = await auth.signUp(registerEmail, registerPassword, registerName);
       console.log('✅ アカウント作成成功[signUp]:', user.userUuid, 'emailVerified:', user.emailVerified);
-      
-      // ステップ2: 確認メール送信
-      try {
-        console.log('📧 確認メール送信開始[resendActivation]:', registerEmail);
-        await auth.resendActivation(registerEmail);
-        console.log('✅ 確認メール送信成功[resendActivation]:', registerEmail);
-      } catch (emailError: any) {
-        console.error('⚠️ 確認メール送信エラー[resendActivation]:', emailError);
-        // 確認メール送信が失敗しても、アカウント作成自体は成功したので続行
-        // エラーログのみ記録（ユーザーには通知しない）
-      }
+      // 確認メールは signUp が送る。ここで再送すると、届いたメールのリンクが無効になる。
       
       // ステップ3: サインアウト（未承認ユーザーをサイトに入れないようにする）
       try {

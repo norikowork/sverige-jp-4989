@@ -292,7 +292,7 @@ const PostDetail = () => {
         setPost(postWithImages);
 
         // サービス投稿の場合、他のユーザーが投稿した写真も読み込む
-        if ((postData.category_uuid || postData.category) === 'cat-services') {
+        if (postData.post_type === 'service' || (postData.category_uuid || postData.category) === 'cat-services') {
           loadPostPhotos(postData._row_id);
         }
       } else {

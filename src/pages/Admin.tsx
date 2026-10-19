@@ -30,10 +30,48 @@ const categoryIcons = {
   'cat-event': '📅'
 };
 
+type PlatformUser = {
+  uuid: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  enabled: boolean;
+  emailVerified: boolean;
+};
+
+type PlatformUserList = {
+  success: boolean;
+  users: PlatformUser[];
+  totalCount: number;
+  truncated: boolean;
+};
+
+// Kliv のアカウント（ログイン・有効/無効・メール確認の正本）に、アプリのプロフィール（表示名・ロールなど）を重ねる。
+// プロフィールがまだ無いユーザー（登録後に一度もログインしていない人など）も一覧に出す。
+function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) {
+  const profileByUuid = new Map(profiles.map((p) => [p.user_uuid, p]));
+  return platformUsers.map((u) => {
+    const profile = profileByUuid.get(u.uuid);
+    const platformName = [u.firstName, u.lastName].filter(Boolean).join(' ');
+    return {
+      ...(profile ?? {}),
+      user_uuid: u.uuid,
+      email: u.email,
+      display_name: profile?.display_name || platformName,
+      role: profile?.role ?? 'user',
+      is_blocked: profile?.is_blocked ?? 0,
+      is_active: profile?.is_active ?? 1,
+      enabled: u.enabled,
+      emailVerified: u.emailVerified,
+      hasProfile: Boolean(profile),
+    };
+  });
+}
+
 const Admin = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [allUsers, setAllUsers] = useState([]);
+  const [user, setUser] = useState<any>(null);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allPosts, setAllPosts] = useState([]);
   const [flaggedPosts, setFlaggedPosts] = useState([]);
   const [forumTopics, setForumTopics] = useState([]);
@@ -50,7 +88,7 @@ const Admin = () => {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [userForm, setUserForm] = useState({
     display_name: '',
@@ -103,8 +141,9 @@ const Admin = () => {
 
   const loadAdminData = async () => {
     try {
-      const [userProfiles, posts, flagged, categoriesData, spamReportsData, forumTopicsData, forumRepliesData] = await Promise.all([
+      const [userProfiles, platformUsers, posts, flagged, categoriesData, spamReportsData, forumTopicsData, forumRepliesData] = await Promise.all([
         db.query('user_profiles', { _deleted: 'eq.0', order: '_created_at.desc' }),
+        functions.post<PlatformUserList>('manage-user-action', { action: 'list-users' }),
         db.query('posts', { _deleted: 'eq.0', status: 'neq.removed', order: '_created_at.desc' }),
         db.query('posts', { status: 'eq.flagged', order: '_created_at.desc' }),
         db.query('categories', { _deleted: 'eq.0' }),
@@ -113,8 +152,9 @@ const Admin = () => {
         db.query('forum_replies', {})
       ]);
 
-      // ユーザーリストはuser_profilesのみを使用
-      setAllUsers(userProfiles);
+      // ユーザーリストは Kliv のアカウント（ログインできるユーザーの正本）にプロフィールを重ねたもの
+      const adminUsers = mergeUsersWithProfiles(platformUsers.users, userProfiles);
+      setAllUsers(adminUsers);
 
       // 共通ヘルパー関数で投稿者名を追加
       const postsWithCreatorNames = await addAuthorNamesToPosts(posts, userProfiles);
@@ -145,9 +185,9 @@ const Admin = () => {
       setSpamReportsByPost(groupedReports);
       
       // Calculate stats
-      const blockedCount = userProfiles.filter(u => u.is_blocked === 1).length;
+      const blockedCount = adminUsers.filter(u => u.is_blocked === 1).length;
       setStats({
-        totalUsers: userProfiles.length,
+        totalUsers: adminUsers.length,
         totalPosts: posts.length,
         flaggedPosts: flagged.length,
         blockedUsers: blockedCount
@@ -612,39 +652,35 @@ const Admin = () => {
       return;
     }
     
+    await runUserAction({ action: 'set-active', targetUuid: userUuid, value: false }, 'ユーザーを無効化しました', 'ユーザーの無効化に失敗しました');
+  };
+
+  // 管理者用 Edge Function を呼び、結果をトーストで知らせて一覧を再読み込みする
+  const runUserAction = async (payload: Record<string, unknown>, successTitle: string, failureTitle: string): Promise<boolean> => {
     try {
-      console.log(`🚫 ユーザー無効化開始: ${userUuid}`);
-      
-      // 管理者用Edge Functionを呼び出して無効化実行
-      const result = await functions.post('manage-user-action', {
-        action: 'deactivate',
-        targetUuid: userUuid
-      });
-      
-      console.log(`🎉 Edge Function結果:`, result);
-      
-      if (result.success) {
-        toast({
-          title: "ユーザーを無効化しました",
-          description: result.message || "投稿も非表示にしました",
-        });
-        console.log(`✅ ユーザー無効化完全成功: ${userUuid} - ${result.postsUpdated}件の投稿を非表示`);
-        
-        loadAdminData();
-      } else {
-        throw new Error(result.error || '無効化に失敗しました');
+      const result = await functions.post<{ success: boolean; message?: string; error?: string }>('manage-user-action', payload);
+      if (!result.success) {
+        throw new Error(result.error || result.message || failureTitle);
       }
-      
+      toast({ title: successTitle, description: result.message });
+      loadAdminData();
+      return true;
     } catch (error: any) {
-      console.error(`❌ ユーザー無効化失敗: ${error.message}`);
-      
-      // 本当のエラー内容を表示
+      console.error(`❌ ${payload.action} 失敗:`, error);
       toast({
         title: "エラー",
-        description: `ユーザーの無効化に失敗しました: ${error.message || '不明なエラー'}`,
+        description: `${failureTitle}: ${error.message || '不明なエラー'}`,
         variant: "destructive"
       });
+      return false;
     }
+  };
+
+  const handleVerifyEmail = async (userUuid: string) => {
+    if (!window.confirm('このユーザーのメールアドレスを確認済みにしますか？（確認メールのリンクを押さなくてもログインできるようになります）')) {
+      return;
+    }
+    await runUserAction({ action: 'verify-email', targetUuid: userUuid }, 'メールアドレスを確認済みにしました', 'メール確認の設定に失敗しました');
   };
   
   const handleReactivateUser = async (userUuid) => {
@@ -652,39 +688,7 @@ const Admin = () => {
       return;
     }
     
-    try {
-      console.log(`✅ ユーザー復活開始: ${userUuid}`);
-      
-      // 管理者用Edge Functionを呼び出して復活実行
-      const result = await functions.post('manage-user-action', {
-        action: 'activate',
-        targetUuid: userUuid
-      });
-      
-      console.log(`🎉 Edge Function結果:`, result);
-      
-      if (result.success) {
-        toast({
-          title: "ユーザーを復活しました",
-          description: result.message || "ログイン可能・投稿も再表示されました",
-        });
-        console.log(`✅ ユーザー復活完全成功: ${userUuid} - ${result.postsUpdated}件の投稿を再表示`);
-        
-        loadAdminData();
-      } else {
-        throw new Error(result.error || '復活に失敗しました');
-      }
-      
-    } catch (error: any) {
-      console.error(`❌ ユーザー復活失敗: ${error.message}`);
-      
-      // 本当のエラー内容を表示
-      toast({
-        title: "エラー",
-        description: `ユーザーの復活に失敗しました: ${error.message || '不明なエラー'}`,
-        variant: "destructive"
-      });
-    }
+    await runUserAction({ action: 'set-active', targetUuid: userUuid, value: true }, 'ユーザーを復活しました', 'ユーザーの復活に失敗しました');
   };
 
   const handleDeleteUser = async (userUuid) => {
@@ -778,61 +782,14 @@ const Admin = () => {
   };
 
   const handleBlockUser = async (userUuid) => {
-    try {
-      // 管理者用Edge Functionを呼び出してブロック実行（他ユーザーの行はRLSで直接更新できないため）
-      const result = await functions.post('manage-user-action', {
-        action: 'update',
-        targetUuid: userUuid,
-        fields: { is_blocked: 1 }
-      });
-
-      if (!result.success) {
-        throw new Error(result.error || 'ブロックに失敗しました');
-      }
-
-      toast({
-        title: "ユーザーブロック完了",
-        description: "ユーザーがブロックされました",
-      });
-
-      loadAdminData();
-    } catch (error: any) {
-      console.error('Error blocking user:', error);
-      toast({
-        title: "エラー",
-        description: `ユーザーのブロックに失敗しました: ${error.message || '不明なエラー'}`,
-        variant: "destructive"
-      });
+    if (!window.confirm('このユーザーをブロックしますか？（ログイン不可になり、ログイン中のセッションも終了します）')) {
+      return;
     }
+    await runUserAction({ action: 'set-blocked', targetUuid: userUuid, value: true }, 'ユーザーブロック完了', 'ユーザーのブロックに失敗しました');
   };
 
   const handleUnblockUser = async (userUuid) => {
-    try {
-      // 管理者用Edge Functionを呼び出してブロック解除実行（他ユーザーの行はRLSで直接更新できないため）
-      const result = await functions.post('manage-user-action', {
-        action: 'update',
-        targetUuid: userUuid,
-        fields: { is_blocked: 0 }
-      });
-
-      if (!result.success) {
-        throw new Error(result.error || 'ブロック解除に失敗しました');
-      }
-
-      toast({
-        title: "ユーザーブロック解除完了",
-        description: "ユーザーのブロックが解除されました",
-      });
-
-      loadAdminData();
-    } catch (error: any) {
-      console.error('Error unblocking user:', error);
-      toast({
-        title: "エラー",
-        description: `ユーザーのブロック解除に失敗しました: ${error.message || '不明なエラー'}`,
-        variant: "destructive"
-      });
-    }
+    await runUserAction({ action: 'set-blocked', targetUuid: userUuid, value: false }, 'ユーザーブロック解除完了', 'ユーザーのブロック解除に失敗しました');
   };
 
   // スパム報告用ハンドラー
@@ -1060,123 +1017,6 @@ const Admin = () => {
     }
   };
 
-  const handleVerifyAllEmails = async () => {
-    try {
-      const userProfiles = await db.query('user_profiles', { _deleted: 'eq.0' });
-      
-      // スクリプトを生成（UUIDリストを安全に埋め込む）
-      const userUuidsArray = userProfiles.map(p => p.user_uuid);
-      const userUuidsJSON = JSON.stringify(userUuidsArray);
-      
-      const script = `
-(async () => {
-  try {
-    // authオブジェクトを動的にインポート
-    const authModule = await import('/src/lib/shared/kliv-auth.js');
-    const auth = authModule.default;
-    
-    if (!auth) {
-      console.error('❌ authオブジェクトが見つかりません。ログインしているか確認してください。');
-      alert('❌ authオブジェクトが見つかりません。ログインしているか確認してください。');
-      return;
-    }
-    
-    // 既存ユーザーのUUIDリストを使用
-    const userUuids = ${userUuidsJSON};
-    
-    let updatedCount = 0;
-    let alreadyVerifiedCount = 0;
-    let errors = [];
-    
-    console.log('═══════════════════════════════════════════════════════════════');
-    console.log('🔧 既存ユーザーを全員メール確認済みに設定するバッチ処理');
-    console.log('═══════════════════════════════════════════════════════════════');
-    console.log(\`📊 処理対象ユーザー数: \${userUuids.length}人\`);
-    console.log('');
-    console.log('処理開始...');
-    
-    for (const userUuid of userUuids) {
-      try {
-        // auth.updateUserを使ってemailVerifiedをtrueに設定
-        const result = await auth.updateUser({ userUuid: userUuid, emailVerified: true });
-        
-        if (result.emailVerified === true) {
-          updatedCount++;
-          console.log(\`✅ \${userUuid} をメール確認済みに設定しました\`);
-        } else {
-          alreadyVerifiedCount++;
-          console.log(\`ℹ️ \${userUuid} は既にメール確認済みです\`);
-        }
-        
-        // 100msディレイを追加してレート制限を回避
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-      } catch (err) {
-        errors.push(\`\${userUuid}: \${err.message}\`);
-        console.error(\`❌ \${userUuid} の更新に失敗: \${err.message}\`);
-      }
-    }
-    
-    console.log('');
-    console.log('═══════════════════════════════════════════════════════════════');
-    console.log('📊 バッチ処理完了');
-    console.log('═══════════════════════════════════════════════════════════════');
-    console.log(\`✅ 更新成功: \${updatedCount}人\`);
-    console.log(\`ℹ️ 既に確認済み: \${alreadyVerifiedCount}人\`);
-    console.log(\`❌ エラー: \${errors.length}件\`);
-    
-    if (errors.length > 0) {
-      console.log('');
-      console.log('エラー詳細:');
-      errors.forEach(err => console.log(\`  - \${err}\`));
-    }
-    
-    alert(\`✅ バッチ処理完了！\\n\\n更新成功: \${updatedCount}人\\n既に確認済み: \${alreadyVerifiedCount}人\\nエラー: \${errors.length}件\\n\\n詳細はブラウザコンソールを確認してください。\`);
-    
-  } catch (error) {
-    console.error('❌ バッチ処理エラー:', error);
-    alert(\`❌ エラーが発生しました: \${error.message}\`);
-  }
-})();
-      `.trim();
-      
-      // クリップボードにコピー
-      await navigator.clipboard.writeText(script);
-      
-      toast({
-        title: "スクリプトをクリップボードにコピーしました",
-        description: `${userProfiles.length}人のユーザーを処理します。開発者ツールで実行してください。`,
-      });
-      
-      console.log('═══════════════════════════════════════════════════════════════');
-      console.log('🔧 既存ユーザーを全員メール確認済みに設定するバッチ処理');
-      console.log('═══════════════════════════════════════════════════════════════');
-      console.log('');
-      console.log(`📊 処理対象ユーザー数: ${userProfiles.length}人`);
-      console.log('');
-      console.log('✅ スクリプトをクリップボードにコピーしました！');
-      console.log('');
-      console.log('📋 実行手順:');
-      console.log('   1. スクリプトは既にクリップボードにコピーされています');
-      console.log('   2. ブラウザの開発者ツールを開いてください (F12)');
-      console.log('   3. Consoleタブを選択してください');
-      console.log('   4. スクリプトを貼り付けて (Ctrl+V / Cmd+V)');
-      console.log('   5. Enterキーを押してください');
-      console.log('   6. 処理が完了するまでお待ちください（数分かかる場合があります）');
-      console.log('');
-      console.log('💡 ヒント: 処理が完了すると、結果がアラートで表示されます');
-      console.log('═══════════════════════════════════════════════════════════════');
-      
-    } catch (error) {
-      console.error('❌ スクリプト生成エラー:', error);
-      toast({
-        title: "スクリプト生成エラー",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
   const filteredPosts = () => {
     let filtered = [...allPosts];
     
@@ -1212,20 +1052,19 @@ const Admin = () => {
     if (userFilter === 'blocked') {
       filtered = filtered.filter(user => user.is_blocked === 1);
     } else if (userFilter === 'active') {
-      filtered = filtered.filter(user => user.is_blocked !== 1);
+      filtered = filtered.filter(user => user.enabled && user.is_blocked !== 1);
     } else if (userFilter === 'unverified') {
-      // 未承認ユーザー：メールアドレスがないユーザー
-      filtered = filtered.filter(user => !user.email || user.email === '');
+      // 未確認ユーザー：確認メールのリンクをまだ押していないユーザー
+      filtered = filtered.filter(user => !user.emailVerified);
     }
     
     // ソート: 有効ユーザーが上、無効ユーザーは下にまとまる
     filtered.sort((a, b) => {
-      // is_activeの降順（1が上、0が下）
-      if (a.is_active !== b.is_active) {
-        return b.is_active - a.is_active;
+      if (a.enabled !== b.enabled) {
+        return a.enabled ? -1 : 1;
       }
-      // 同じis_activeの場合、_created_atの降順（新しい順）
-      return b._created_at - a._created_at;
+      // 同じ状態の場合、登録日の降順（新しい順、プロフィール未作成は先頭）
+      return (b._created_at ?? Number.MAX_SAFE_INTEGER) - (a._created_at ?? Number.MAX_SAFE_INTEGER);
     });
     
     return filtered;
@@ -1321,19 +1160,32 @@ const Admin = () => {
 
   const handleSaveUser = async () => {
     try {
-      const result = await functions.post('manage-user-action', {
-        action: 'update',
-        targetUuid: editingUser.user_uuid,
-        fields: {
-          display_name: userForm.display_name,
-          email: userForm.email,
-          role: userForm.role,
-          is_blocked: userForm.is_blocked ? 1 : 0
+      const targetUuid = editingUser.user_uuid;
+      const callAction = async (payload: Record<string, unknown>) => {
+        const result = await functions.post<{ success: boolean; error?: string; message?: string }>('manage-user-action', { targetUuid, ...payload });
+        if (!result.success) {
+          throw new Error(result.error || result.message || 'ユーザーの更新に失敗しました');
         }
-      });
+      };
 
-      if (!result.success) {
-        throw new Error(result.error || 'ユーザーの更新に失敗しました');
+      // 表示名とロールはアプリのプロフィール、メールとブロックは Kliv アカウントに保存する
+      const profileFields: Record<string, string> = {};
+      if (editingUser.hasProfile) {
+        const displayName = userForm.display_name.trim();
+        if (displayName && displayName !== (editingUser.display_name || '')) profileFields.display_name = displayName;
+        if (userForm.role !== editingUser.role) profileFields.role = userForm.role;
+      }
+      if (Object.keys(profileFields).length > 0) {
+        await callAction({ action: 'update', fields: profileFields });
+      }
+
+      const email = userForm.email.trim();
+      if (email && email !== editingUser.email) {
+        await callAction({ action: 'set-email', email });
+      }
+
+      if (userForm.is_blocked !== (editingUser.is_blocked === 1)) {
+        await callAction({ action: 'set-blocked', value: userForm.is_blocked });
       }
 
       toast({
@@ -1345,6 +1197,7 @@ const Admin = () => {
       setEditingUser(null);
       loadAdminData();
     } catch (error: any) {
+      loadAdminData();
       console.error('Error updating user:', error);
       toast({
         title: "エラー",
@@ -1488,39 +1341,6 @@ const Admin = () => {
                 <p>• ファイル形式: ZIP (sverige-jp-images-YYYY-MM-DD.zip)</p>
                 <p>• 対象: /content/... の画像のみ（外部URLはスキップされます）</p>
                 <p>• 取得できなかった画像は最後に報告されます</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Email Verification */}
-          <Card className="bg-green-50 border-green-200">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-green-900">既存ユーザーを全員メール確認済みにする</CardTitle>
-                  <p className="text-sm text-green-700 mt-1">
-                    ※一度きりのバッチ処理：emailVerified フラグを true に一括設定します
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    ⚠️ 新規登録者のメール確認には影響しません。既存ユーザーのロックアウト防止用です。
-                  </p>
-                </div>
-                <Button 
-                  onClick={handleVerifyAllEmails}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  スクリプトをコピー
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-green-700 space-y-1">
-                <p>• 「スクリプトをコピー」ボタンをクリックすると、スクリプトがクリップボードにコピーされます</p>
-                <p>• ブラウザの開発者ツール (F12) → Consoleタブで貼り付けて実行してください</p>
-                <p>• 処理が完了すると、結果がアラートで表示されます</p>
-                <p>• 既存ユーザー全員の emailVerified フラグを true に設定します</p>
-                <p>• 各更新の間に 100ms 待機して API レート制限を考慮します</p>
               </div>
             </CardContent>
           </Card>
@@ -1773,117 +1593,20 @@ const Admin = () => {
                         <SelectItem value="all">すべて</SelectItem>
                         <SelectItem value="active">アクティブ</SelectItem>
                         <SelectItem value="blocked">ブロック済み</SelectItem>
-                        <SelectItem value="unverified">未承認</SelectItem>
+                        <SelectItem value="unverified">メール未確認</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               </CardHeader>
-              
-              {/* 削除後のテスト登録機能 */}
-              <CardContent className="bg-yellow-50 border-b border-yellow-200">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-yellow-900">削除後のテスト登録</h4>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        完全削除したユーザーと同じメールアドレスで、新規登録ができるかテストできます
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white border border-yellow-200 rounded p-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Label htmlFor="test-email" className="text-sm">テストメール:</Label>
-                        <Input
-                          id="test-email"
-                          type="email"
-                          placeholder="削除したユーザーのメール"
-                          className="w-64 h-8"
-                        />
-                        <Input
-                          id="test-password"
-                          type="password"
-                          placeholder="パスワード (8文字以上)"
-                          className="w-48 h-8"
-                        />
-                        <Input
-                          id="test-name"
-                          type="text"
-                          placeholder="名前"
-                          className="w-32 h-8"
-                        />
-                        <Button
-                          size="sm"
-                          className="bg-yellow-600 hover:bg-yellow-700"
-                          onClick={() => {
-                            const email = (document.getElementById('test-email') as HTMLInputElement)?.value || '';
-                            const password = (document.getElementById('test-password') as HTMLInputElement)?.value || '';
-                            const name = (document.getElementById('test-name') as HTMLInputElement)?.value || '';
-                            
-                            if (!email || !password) {
-                              toast({
-                                title: "入力エラー",
-                                description: "メールとパスワードを入力してください",
-                                variant: "destructive"
-                              });
-                              return;
-                            }
-                            
-                            // ブラウザコンソールで実行するスクリプトを生成
-                            const script = `
-// テスト登録スクリプト - ${email}
-(async () => {
-  try {
-    console.log('🧪 テスト登録開始: ${email}');
-    
-    // auth.signUp()を実行
-    const result = await window.auth.signUp('${email}', '${password}', '${name}');
-    
-    console.log('✅ テスト登録成功:', result);
-    alert('✅ テスト登録成功！\\n\\nメール: ${email}\\nUUID: ' + result.userUuid);
-  } catch (error) {
-    console.error('❌ テスト登録失敗:', error);
-    alert('❌ テスト登録失敗\\n\\nエラー: ' + error.message);
-  }
-})();
-                            `.trim();
-                            
-                            // クリップボードにコピー
-                            navigator.clipboard.writeText(script).then(() => {
-                              toast({
-                                title: "スクリプトをコピーしました",
-                                description: "ブラウザの開発者ツール (F12) → Consoleタブで貼り付けて実行してください",
-                                className: "bg-green-50 border-green-200 text-green-900"
-                              });
-                            }).catch(() => {
-                              toast({
-                                title: "コピー失敗",
-                                description: "スクリプトのコピーに失敗しました",
-                                variant: "destructive"
-                              });
-                            });
-                          }}
-                        >
-                          スクリプトをコピー
-                        </Button>
-                      </div>
-                      <div className="text-xs text-yellow-700 space-y-1">
-                        <p>• テストしたいメールとパスワードを入力して、「スクリプトをコピー」ボタンをクリック</p>
-                        <p>• ブラウザの開発者ツール (F12) → Consoleタブで貼り付けて実行</p>
-                        <p>• 登録成功なら「メールは既に登録されています」エラーは出ません</p>
-                        <p>• 失敗なら、認証アカウントがまだ残っています</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              
+
               <CardContent>
                 <div className="space-y-4">
                   {filteredUsers().map((userItem) => {
-                    const isInactive = userItem.is_active === 0;
+                    // 無効 = Kliv アカウントが無効（ブロック以外の理由）、またはプロフィールで無効化済み
+                    const isInactive = userItem.is_active === 0 || (!userItem.enabled && userItem.is_blocked !== 1);
+                    const isSelf = userItem.user_uuid === user?.userUuid;
+                    const isAdminUser = userItem.role === 'admin';
                     
                     return (
                       <div 
@@ -1902,7 +1625,7 @@ const Admin = () => {
                                   <X className="h-3 w-3 mr-1" />
                                   無効
                                 </Badge>
-                              ) : userItem.email ? (
+                              ) : userItem.emailVerified ? (
                                 <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                   <CheckCircle className="h-3 w-3 mr-1" />
                                   有効
@@ -1910,7 +1633,18 @@ const Admin = () => {
                               ) : (
                                 <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
                                   <Clock className="h-3 w-3 mr-1" />
-                                  未承認
+                                  メール未確認
+                                </Badge>
+                              )}
+                              {!userItem.hasProfile && (
+                                <Badge variant="outline" className="text-gray-600">
+                                  プロフィール未作成
+                                </Badge>
+                              )}
+                              {isAdminUser && !isSelf && (
+                                <Badge variant="outline" className="bg-blue-50">
+                                  <Shield className="h-3 w-3 mr-1" />
+                                  管理者
                                 </Badge>
                               )}
                               {userItem.is_blocked === 1 && (
@@ -1919,7 +1653,7 @@ const Admin = () => {
                                   ブロック済み
                                 </Badge>
                               )}
-                              {userItem.email === user?.email && (
+                              {isSelf && (
                                 <Badge variant="outline" className="bg-blue-50">
                                   <Shield className="h-3 w-3 mr-1" />
                                   管理者（あなた）
@@ -1935,7 +1669,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            {userItem.email !== user?.email && (
+                            {!isSelf && !isAdminUser && (
                               <>
                                 <Button
                                   variant="outline"
@@ -1944,6 +1678,16 @@ const Admin = () => {
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
+                                {!userItem.emailVerified && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleVerifyEmail(userItem.user_uuid)}
+                                  >
+                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                    メール確認済みにする
+                                  </Button>
+                                )}
                                 {userItem.is_blocked === 1 ? (
                                   <Button
                                     variant="outline"
@@ -2345,8 +2089,14 @@ const Admin = () => {
                   <Input
                     id="displayName"
                     value={userForm.display_name}
+                    disabled={!editingUser.hasProfile}
                     onChange={(e) => setUserForm({...userForm, display_name: e.target.value})}
                   />
+                  {!editingUser.hasProfile && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      プロフィールは本人が初めてログインしたときに作成されます。それまで表示名とロールは変更できません。
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="email">メールアドレス</Label>
@@ -2361,6 +2111,7 @@ const Admin = () => {
                   <Label htmlFor="role">ロール</Label>
                   <Select 
                     value={userForm.role} 
+                    disabled={!editingUser.hasProfile}
                     onValueChange={(value) => setUserForm({...userForm, role: value})}
                   >
                     <SelectTrigger>
