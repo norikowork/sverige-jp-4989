@@ -322,6 +322,23 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
 
       // ブロックされたアカウントは Kliv 側に残っているため、同じメールアドレスでは再登録できない
 
+      // ステップ0.5: 表示名(ニックネーム)の重複確認
+      const trimmedRegisterName = registerName.trim();
+      try {
+        const sameNameProfiles = await db.query('user_profiles', {
+          display_name: `eq.${trimmedRegisterName}`,
+          _deleted: 'eq.0'
+        });
+        if (sameNameProfiles && sameNameProfiles.length > 0) {
+          setError('この表示名（ニックネーム）は既に使用されています。別の表示名を入力してください。');
+          setIsLoading(false);
+          return;
+        }
+      } catch (nameCheckErr: any) {
+        console.error('⚠️ 表示名重複確認エラー[user_profiles]:', nameCheckErr);
+        // 重複確認自体が失敗しても登録処理は続行する
+      }
+
       // ステップ1: アカウント作成（自動サインインされる）
       const user = await auth.signUp(registerEmail, registerPassword, registerName);
       console.log('✅ アカウント作成成功[signUp]:', user.userUuid, 'emailVerified:', user.emailVerified);
