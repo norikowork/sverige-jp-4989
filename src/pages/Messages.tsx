@@ -267,11 +267,8 @@ const Messages = () => {
       );
 
       if (unreadMessages.length > 0) {
-        await db.update(
-          'messages',
-          { conversation_key: `eq.${conv.conversation_key}`, to_uuid: `eq.${user.userUuid}`, is_read: 'eq.0' },
-          { is_read: 1 }
-        );
+        // メッセージ行はブラウザから書き換えない。既読化はサーバーが受信者本人の行だけに行う。
+        await functions.post('mark-messages-read', { conversationKey: conv.conversation_key });
 
         // ローカルのデータも更新
         setConversations(prev =>

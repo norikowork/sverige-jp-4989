@@ -10,8 +10,8 @@ export const MESSAGE_LIMITS: Record<string, number> = {
 };
 
 /**
- * プロフィールから現在のメッセージ上限を返す
- * @param profile - ユーザープロフィールオブジェクト
+ * 会員のプランから現在のメッセージ上限を返す
+ * @param profile - member_status の行(本人は書き換えられない)。行が無ければ無料プラン
  * @param nowSec - 現在のUNIX秒（省略時は現在時刻）
  * @returns メッセージ上限数
  */

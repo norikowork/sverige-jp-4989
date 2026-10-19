@@ -148,6 +148,8 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userCreatedAt, setUserCreatedAt] = useState(null);
+  // 電話番号は本人と管理者だけが読める member_contacts に保存する(user_profiles は誰でも読めるため)
+  const [contactPhone, setContactPhone] = useState('');
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -211,6 +213,11 @@ const Profile = () => {
         user_uuid: `eq.${currentUser.userUuid}` 
       });
       
+      const contacts = await db.query('member_contacts', { _created_by: `eq.${currentUser.userUuid}` });
+      const phone = typeof contacts[0]?.phone === 'string' ? contacts[0].phone : '';
+      setContactPhone(phone);
+      setEditForm(prev => ({ ...prev, phone }));
+
       if (profiles.length > 0) {
         const profile = profiles[0];
         setUserProfile(profile);
@@ -218,7 +225,7 @@ const Profile = () => {
           display_name: profile.display_name || '',
           bio: profile.bio || '',
           location: profile.location || '',
-          phone: profile.phone || '',
+          phone,
           country: profile.country || 'スウェーデン',
           county: profile.county || '',
           city: profile.city || '',
@@ -226,22 +233,8 @@ const Profile = () => {
         });
       }
       
-      // Load user registration date from users table
-      try {
-        const usersData = await db.query('users', { 
-          user_uuid: `eq.${currentUser.userUuid}` 
-        });
-        if (usersData.length > 0) {
-          setUserCreatedAt(usersData[0]._created_at);
-        } else {
-          // Fallback to profile creation date
-          setUserCreatedAt(profiles.length > 0 ? profiles[0]._created_at : null);
-        }
-      } catch (userError) {
-        console.warn('Could not load user registration date:', userError);
-        // Fallback to profile creation date
-        setUserCreatedAt(profiles.length > 0 ? profiles[0]._created_at : null);
-      }
+      // 登録日は Kliv アカウントの作成日、無ければプロフィールの作成日
+      setUserCreatedAt(currentUser.createdOn ?? (profiles.length > 0 ? profiles[0]._created_at : null));
       
       // Load user posts
       const posts = await db.query('posts', { 
@@ -314,13 +307,14 @@ const Profile = () => {
 
       console.log('Saving profile with editForm:', editForm);
       const now = Math.floor(Date.now() / 1000);
+      const { phone, ...publicFields } = editForm;
 
       if (userProfile) {
         console.log('Updating existing profile:', userProfile);
         await db.update('user_profiles',
           { user_uuid: `eq.${user.userUuid}` },
           {
-            ...editForm,
+            ...publicFields,
             last_active: now,
             _updated_at: now
           }
@@ -330,11 +324,20 @@ const Profile = () => {
         console.log('Creating new profile');
         await db.insert('user_profiles', {
           user_uuid: user.userUuid,
-          ...editForm,
+          ...publicFields,
           last_active: now
         });
         console.log('Profile created successfully');
       }
+
+      // 電話番号は本人の member_contacts 行(1会員1行)に保存する
+      const contacts = await db.query('member_contacts', { _created_by: `eq.${user.userUuid}` });
+      if (contacts.length === 0) {
+        await db.insert('member_contacts', { phone });
+      } else if ((contacts[0].phone || '') !== phone) {
+        await db.update('member_contacts', { _row_id: `eq.${contacts[0]._row_id}` }, { phone });
+      }
+      setContactPhone(phone);
 
       // データベースから最新のプロフィール情報を再取得
       console.log('Fetching updated profile from database...');
@@ -353,7 +356,7 @@ const Profile = () => {
           display_name: updatedProfile.display_name || '',
           bio: updatedProfile.bio || '',
           location: updatedProfile.location || '',
-          phone: updatedProfile.phone || '',
+          phone,
           country: updatedProfile.country || 'スウェーデン',
           county: updatedProfile.county || '',
           city: updatedProfile.city || '',
@@ -973,7 +976,7 @@ const Profile = () => {
                           <Phone className="w-4 h-4 mr-1" />
                           電話番号
                         </label>
-                        <p>{userProfile?.phone || '未設定'}</p>
+                        <p>{contactPhone || '未設定'}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-600 flex items-center">
