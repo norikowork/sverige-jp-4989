@@ -1108,6 +1108,63 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  {/* モバイル用サブカテゴリーPulldown - エリア別のすぐ次に表示 */}
+                  {(selectedCategory === 'cat-services' || selectedCategory === 'cat-for-sale' || selectedCategory === 'cat-events') && (
+                    <div className="md:hidden w-full">
+                      <Select
+                        value={selectedSubcategory || 'all'}
+                        onValueChange={(value) => handleSubcategoryChange(value === 'all' ? '' : value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="サブカテゴリーを選択" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">
+                            {selectedCategory === 'cat-for-sale' ? '📦' : selectedCategory === 'cat-events' ? '📅' : '🔸'} すべて
+                          </SelectItem>
+                          {selectedCategory === 'cat-services' &&
+                            SERVICE_SUBCATEGORY_GROUPS.find((g) => g.label === selectedServiceGroup)?.items.map((itemName) => {
+                              const sub = subcategories.find(
+                                (s: any) => s.category_uuid === 'cat-services' && s.name_ja === itemName
+                              );
+                              if (!sub) return null;
+                              const count = subcategoryCounts[sub.uuid] || 0;
+                              return (
+                                <SelectItem key={sub.uuid} value={sub.uuid}>
+                                  {SERVICE_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
+                                </SelectItem>
+                              );
+                            })}
+                          {selectedCategory === 'cat-for-sale' &&
+                            FOR_SALE_SUBCATEGORIES.map((itemName) => {
+                              const sub = subcategories.find(
+                                (s: any) => s.category_uuid === 'cat-for-sale' && s.name_ja === itemName
+                              );
+                              if (!sub) return null;
+                              const count = subcategoryCounts[sub.uuid] || 0;
+                              return (
+                                <SelectItem key={sub.uuid} value={sub.uuid}>
+                                  {FOR_SALE_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
+                                </SelectItem>
+                              );
+                            })}
+                          {selectedCategory === 'cat-events' &&
+                            EVENT_SUBCATEGORIES.map((itemName) => {
+                              const sub = subcategories.find(
+                                (s: any) => s.category_uuid === 'cat-events' && s.name_ja === itemName
+                              );
+                              if (!sub) return null;
+                              const count = subcategoryCounts[sub.uuid] || 0;
+                              return (
+                                <SelectItem key={sub.uuid} value={sub.uuid}>
+                                  {EVENT_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
+                                </SelectItem>
+                              );
+                            })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   {selectedCategory === 'cat-for-sale' && (
                     <Select value={sortOrder} onValueChange={setSortOrder}>
                       <SelectTrigger className="w-40">
