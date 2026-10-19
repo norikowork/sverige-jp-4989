@@ -2056,6 +2056,15 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
               キャンセル
             </Button>
             <Button
+              type="button"
+              variant="secondary"
+              onClick={() => handleSubmit(undefined, true)}
+              disabled={isSubmitting || !formData.title.trim() || !formData.category_uuid}
+              size="lg"
+            >
+              下書き保存
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting || !isFormValid()}
               size="lg"
