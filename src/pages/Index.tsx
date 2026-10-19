@@ -1349,7 +1349,33 @@ const Index = () => {
             </div>
             {SERVICE_SUBCATEGORY_GROUPS.filter((group) => group.label === selectedServiceGroup).map((group) => (
               <div key={group.label} className="mb-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                {/* モバイルはPulldown、PCはアイコングリッド */}
+                <div className="md:hidden mb-2">
+                  <Select
+                    value={selectedSubcategory || 'all'}
+                    onValueChange={(value) => handleSubcategoryChange(value === 'all' ? '' : value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="サブカテゴリーを選択" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">🔸 すべて</SelectItem>
+                      {group.items.map((itemName) => {
+                        const sub = subcategories.find(
+                          (s: any) => s.category_uuid === 'cat-services' && s.name_ja === itemName
+                        );
+                        if (!sub) return null;
+                        const count = subcategoryCounts[sub.uuid] || 0;
+                        return (
+                          <SelectItem key={sub.uuid} value={sub.uuid}>
+                            {SERVICE_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-2">
                   {group.items.map((itemName) => {
                     const sub = subcategories.find(
                       (s: any) => s.category_uuid === 'cat-services' && s.name_ja === itemName
