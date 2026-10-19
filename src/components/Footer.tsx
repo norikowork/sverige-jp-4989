@@ -114,6 +114,9 @@ const Footer = () => {
               © {currentYear} Sverige.JP. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link to="/about" className="text-gray-400 hover:text-white text-xs transition-colors">
+                当サイトについて
+              </Link>
               <Link to="/safety" className="text-gray-400 hover:text-white text-xs transition-colors">
                 安全にご利用いただくために
               </Link>
