@@ -1788,7 +1788,6 @@ const Index = () => {
                                     {!isServicesBoard && (
                                       <span className={`text-xs text-gray-500 whitespace-nowrap flex-shrink-0 ${isEventsBoard ? '' : 'w-12'}`}>
                                         {formatDateShort(isEventsBoard && item.event_date ? item.event_date : item._created_at)}
-                                        {isEventsBoard && isContinuingEvent(item) && '（前月継続）'}
                                       </span>
                                     )}
                                     {isEventsBoard && item.subcategory_uuid && (
