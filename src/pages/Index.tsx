@@ -1443,32 +1443,6 @@ const Index = () => {
         {/* Subcategory Grid for For-Sale - Only show when for-sale category is selected */}
         {selectedCategory === 'cat-for-sale' && (
           <div className="mb-6">
-            {/* モバイルはPulldown、PCはアイコングリッド */}
-            <div className="md:hidden mb-2">
-              <Select
-                value={selectedSubcategory || 'all'}
-                onValueChange={(value) => handleSubcategoryChange(value === 'all' ? '' : value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="サブカテゴリーを選択" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">📦 すべて</SelectItem>
-                  {FOR_SALE_SUBCATEGORIES.map((itemName) => {
-                    const sub = subcategories.find(
-                      (s: any) => s.category_uuid === 'cat-for-sale' && s.name_ja === itemName
-                    );
-                    if (!sub) return null;
-                    const count = subcategoryCounts[sub.uuid] || 0;
-                    return (
-                      <SelectItem key={sub.uuid} value={sub.uuid}>
-                        {FOR_SALE_SUBCATEGORY_EMOJI[itemName] || '🔸'} {itemName} ({count})
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
             <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-2">
               <button
                 onClick={() => handleSubcategoryChange('')}
