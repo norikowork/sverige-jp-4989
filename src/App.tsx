@@ -15,6 +15,7 @@ import ForumTopicDetail from "./pages/ForumTopicDetail";
 import ResetPassword from "./pages/ResetPassword";
 import Messages from "./pages/Messages";
 import Help from "./pages/Help";
+import About from "./pages/About";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Safety from "./pages/Safety";
