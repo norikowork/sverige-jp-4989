@@ -151,7 +151,9 @@ const Profile = () => {
           bio: profile.bio || '',
           location: profile.location || '',
           phone: profile.phone || '',
+          country: profile.country || 'スウェーデン',
           county: profile.county || '',
+          city: profile.city || '',
           contact_pref: profile.contact_pref || 'email'
         });
       }
