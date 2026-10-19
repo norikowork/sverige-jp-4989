@@ -286,7 +286,9 @@ const Profile = () => {
           bio: updatedProfile.bio || '',
           location: updatedProfile.location || '',
           phone: updatedProfile.phone || '',
+          country: updatedProfile.country || 'スウェーデン',
           county: updatedProfile.county || '',
+          city: updatedProfile.city || '',
           contact_pref: updatedProfile.contact_pref || 'email'
         });
       }
