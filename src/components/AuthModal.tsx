@@ -340,7 +340,7 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
       }
 
       // ステップ1: アカウント作成（自動サインインされる）
-      const user = await auth.signUp(registerEmail, registerPassword, registerName);
+      const user = await auth.signUp(registerEmail, registerPassword, trimmedRegisterName);
       console.log('✅ アカウント作成成功[signUp]:', user.userUuid, 'emailVerified:', user.emailVerified);
       // 確認メールは signUp が送る。ここで再送すると、届いたメールのリンクが無効になる。
       
