@@ -2164,12 +2164,11 @@ const Admin = () => {
                   <Input
                     id="displayName"
                     value={userForm.display_name}
-                    disabled={!editingUser.hasProfile}
                     onChange={(e) => setUserForm({...userForm, display_name: e.target.value})}
                   />
                   {!editingUser.hasProfile && (
                     <p className="text-xs text-gray-500 mt-1">
-                      プロフィールは本人が初めてログインしたときに作成されます。それまで表示名は変更できません。
+                      このユーザーはまだログインしておらずプロフィールが作成されていませんが、管理者が表示名を設定できます。
                     </p>
                   )}
                 </div>
