@@ -97,7 +97,9 @@ const Profile = () => {
     bio: '',
     location: '',
     phone: '',
+    country: 'スウェーデン',
     county: '',
+    city: '',
     contact_pref: 'email'
   });
   const [locations, setLocations] = useState([]);
