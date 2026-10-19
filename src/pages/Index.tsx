@@ -1111,12 +1111,13 @@ const Index = () => {
                   </div>
                   {/* モバイル用サブカテゴリーPulldown - エリア別のすぐ次に表示 */}
                   {(selectedCategory === 'cat-services' || selectedCategory === 'cat-for-sale' || selectedCategory === 'cat-events') && (
-                    <div className="md:hidden w-full">
+                    <div className="md:hidden w-full flex items-center gap-4">
+                      <label className="text-sm font-medium text-gray-700">カテゴリ：</label>
                       <Select
                         value={selectedSubcategory || 'all'}
                         onValueChange={(value) => handleSubcategoryChange(value === 'all' ? '' : value)}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="flex-1">
                           <SelectValue placeholder="サブカテゴリーを選択" />
                         </SelectTrigger>
                         <SelectContent>
