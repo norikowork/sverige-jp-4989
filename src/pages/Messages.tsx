@@ -518,7 +518,7 @@ const Messages = () => {
     } else if (diffDays < 7) {
       return `${diffDays}日前`;
     } else {
-      return date.toLocaleDateString('ja-JP');
+      return date.toLocaleDateString('ja-JP', { timeZone: 'Europe/Stockholm' });
     }
   };
 
