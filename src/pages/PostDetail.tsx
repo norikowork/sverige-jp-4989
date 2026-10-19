@@ -1678,7 +1678,7 @@ useEffect(() => {
                           {combinedPhotos.length < 5 ? (
                             <label className="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-blue-400 hover:text-blue-600 cursor-pointer transition-colors">
                               <ImageIcon className="w-4 h-4" />
-                              {isUploadingPhoto ? 'アップロード中...' : '写真を投稿する'}
+                              {isUploadingPhoto ? 'アップロード中...' : 'あなたの撮影した写真を投稿しよう！'}
                               <input
                                 type="file"
                                 accept="image/*"
