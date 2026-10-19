@@ -61,31 +61,31 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <a href="/?category=cat-for-sale" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/?category=cat-for-sale" className="text-gray-300 hover:text-white transition-colors">
                     売ります/あげます
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/?category=cat-job-seeking" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/?category=cat-job-seeking" className="text-gray-300 hover:text-white transition-colors">
                     仕事探し
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/?category=cat-housing" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/?category=cat-housing" className="text-gray-300 hover:text-white transition-colors">
                     住居
-                  </a>
+                  </Link>
                 </li>
               </ul>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <a href="/?category=cat-events" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/?category=cat-events" className="text-gray-300 hover:text-white transition-colors">
                     イベントお知らせ
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/?category=cat-services" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/?category=cat-services" className="text-gray-300 hover:text-white transition-colors">
                     サービス
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <Link to="/forum" className="text-gray-300 hover:text-white transition-colors">
