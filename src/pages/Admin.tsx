@@ -82,6 +82,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [viewingUserPosts, setViewingUserPosts] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [postFilter, setPostFilter] = useState('all');
   const [postCategoryFilter, setPostCategoryFilter] = useState('all');
