@@ -12,8 +12,14 @@ export default function ActivatePage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [debugInfo, setDebugInfo] = useState('');
+  const hasActivatedRef = useRef(false);
 
   useEffect(() => {
+    // トークンは1回しか使えないため、何らかの理由でこのeffectが
+    // 2回実行されても、activateAccount自体は1回しか走らないようにする
+    if (hasActivatedRef.current) return;
+    hasActivatedRef.current = true;
+
     const activateAccount = async () => {
       const token = searchParams.get('token');
       
