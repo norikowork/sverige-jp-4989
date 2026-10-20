@@ -227,14 +227,19 @@ export default function ForumPage() {
           </Button>
           {postCategories.map((category) => {
             const IconComponent = postCategoryIcons[category.uuid] || Home;
+            const isCurrent = category.uuid === 'cat-bulletin';
             return (
               <Button
                 key={category.uuid}
-                variant="outline"
+                variant={isCurrent ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => handlePostCategoryChange(category.uuid)}
-                className="border-2 bg-white hover:bg-gray-50"
-                style={{ borderColor: category.color, borderWidth: '2px' }}
+                className={isCurrent ? 'text-white border-2' : 'border-2 bg-white hover:bg-gray-50'}
+                style={{
+                  borderColor: category.color,
+                  borderWidth: '2px',
+                  backgroundColor: isCurrent ? category.color : undefined,
+                }}
               >
                 <IconComponent className="w-4 h-4 mr-1" />
                 {category.name_ja}
