@@ -169,8 +169,9 @@ const SiteHeader = () => {
                           {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
                         </span>
                         {(!userProfile?.display_name || userProfile?.display_name === '未設定' || !userProfile?.bio || userProfile?.bio === '未設定') && (
-                          <span title="プロフィールを設定しよう！" className="flex-shrink-0">
-                            <AlertCircle className="w-4 h-4 text-red-500" aria-label="プロフィール未設定" />
+                          <span className="flex items-center gap-1 flex-shrink-0 text-red-500">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                            <span className="hidden sm:inline text-xs whitespace-nowrap">プロフィールを設定しよう！</span>
                           </span>
                         )}
                         <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
