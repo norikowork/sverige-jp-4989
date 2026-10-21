@@ -168,6 +168,11 @@ const SiteHeader = () => {
                         <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-[150px]">
                           {userProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
                         </span>
+                        {!userProfile?.display_name && (
+                          <span title="プロフィールが未設定です。表示名を設定してください" className="flex-shrink-0">
+                            <AlertCircle className="w-4 h-4 text-red-500" aria-label="プロフィール未設定" />
+                          </span>
+                        )}
                         <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       </button>
                     </DropdownMenuTrigger>
