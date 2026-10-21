@@ -91,6 +91,12 @@ export default function ForumTopicDetail() {
   }, [id]);
 
   useEffect(() => {
+    if (topic) {
+      document.title = `Sverige.JP - ${topic.title}`;
+    }
+  }, [topic]);
+
+  useEffect(() => {
     // 非同期に管理者判定を行う
     const checkAdmin = async () => {
       if (user) {

@@ -530,7 +530,7 @@ useEffect(() => {
       });
       
       // Update document title as well
-      document.title = `${title} | Sverige.JP`;
+      document.title = `Sverige.JP - ${title}`;
     }
   }, [post]);
 
