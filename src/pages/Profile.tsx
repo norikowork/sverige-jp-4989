@@ -961,6 +961,11 @@ const Profile = () => {
 
                 {!isEditing ? (
                   <div className="space-y-4">
+                    {(!userProfile?.display_name || userProfile?.display_name === '未設定' || !userProfile?.bio || userProfile?.bio === '未設定') && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                        編集を押して、表示名と自己紹介文を入れよう！
+                      </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium text-gray-600">表示名</label>
                       <p className="text-lg">{userProfile?.display_name || '未設定'}</p>
