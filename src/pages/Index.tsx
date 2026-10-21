@@ -1,8 +1,6 @@
 // Sweden.JP - Stockholm Japanese Community - Main index page
 import { useState, useEffect, useRef } from 'react';
-import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, ChevronDown, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, Mail, X, AlertCircle } from 'lucide-react';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import WorldClock from '@/components/WorldClock';
+import { Search, Plus, User, Briefcase, ShoppingBag, Home, Phone, Wrench, Shield, Image as ImageIcon, ArrowRight, Music, Trophy, Palette, Users, GraduationCap, Star, ChevronLeft, ChevronRight, List, Grid3X3, MapPin, MessageSquare, Heart, Handshake, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,10 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import db from '@/lib/shared/kliv-database';
 import auth from '@/lib/shared/kliv-auth';
-import { checkIsAdmin } from '@/lib/isAdmin';
 import { AuthModal } from '@/components/AuthModal';
 import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
+import SiteHeader from '@/components/SiteHeader';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import MapView from '@/components/MapView';
 import { statusLabels } from '@/constants/postLabels';
