@@ -50,6 +50,14 @@ type PlatformUserList = {
   truncated: boolean;
 };
 
+// createdAt が数値(UNIX秒)または日付文字列のどちらで返ってきてもUNIX秒に揃える
+function toUnixSeconds(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number') return value;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? null : Math.floor(parsed / 1000);
+}
+
 // Kliv のアカウント（ログイン・有効/無効・ブロック・メール確認・管理者の正本）に、アプリのプロフィール（表示名など）を重ねる。
 // プロフィールがまだ無いユーザー（登録後に一度もログインしていない人など）も一覧に出す。
 function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) {
@@ -68,6 +76,8 @@ function mergeUsersWithProfiles(platformUsers: PlatformUser[], profiles: any[]) 
       emailVerified: u.emailVerified,
       isSiteAdmin: u.isSiteAdmin === true,
       hasProfile: Boolean(profile),
+      // プロフィールがまだ無い(未ログイン)ユーザーは、Klivアカウント側の登録日時を使う
+      _created_at: profile?._created_at ?? toUnixSeconds(u.createdAt),
     };
   });
 }
