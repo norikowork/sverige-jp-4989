@@ -458,19 +458,6 @@ const Index = () => {
     }
   };
 
-  const handleLogin = () => {
-    setIsAuthModalOpen(true);
-  };
-
-  const handleRegister = () => {
-    setIsAuthModalOpen(true);
-  };
-
-  const handleSignOut = async () => {
-    await auth.signOut();
-    setUser(null);
-  };
-
   const handleNewPost = () => {
     if (!user) {
       setIsAuthModalOpen(true);
