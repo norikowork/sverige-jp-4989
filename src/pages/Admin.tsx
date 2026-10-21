@@ -40,6 +40,7 @@ type PlatformUser = {
   isSiteAdmin: boolean;
   blocked: boolean;
   inactive: boolean;
+  createdAt?: number | string | null;
 };
 
 type PlatformUserList = {
