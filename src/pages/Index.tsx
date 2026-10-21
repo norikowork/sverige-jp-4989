@@ -390,7 +390,7 @@ const Index = () => {
       const currentUser = await auth.getUser();
       setUser(currentUser);
       
-      // Load user's profile to get their county and display name
+      // Load user's profile to get their county
       if (currentUser) {
         const profiles = await db.query('user_profiles', {
           user_uuid: `eq.${currentUser.userUuid}`
@@ -400,8 +400,6 @@ const Index = () => {
           if (profile.county) {
             setUserCounty(profile.county);
           }
-          // プロフィールをstateに保存してHeaderで使用
-          setUserProfile(profile);
         }
       }
     } catch (error) {
