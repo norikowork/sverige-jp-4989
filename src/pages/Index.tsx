@@ -1576,7 +1576,15 @@ const Index = () => {
                           // 終了日があるイベント(展示会など)は、まだ終わっていなければ表示する
                           (post.event_end_date || post.event_date) >= startOfToday
                         )
-                        .sort((a, b) => a.event_date - b.event_date)
+                        .sort((a, b) => {
+                          // 前月から継続中のイベントは後回しにする
+                          const aContinuing = isContinuingEvent(a);
+                          const bContinuing = isContinuingEvent(b);
+                          if (aContinuing !== bContinuing) {
+                            return aContinuing ? 1 : -1;
+                          }
+                          return a.event_date - b.event_date;
+                        })
                         .slice(0, 8);
                     } else {
                       categoryItems = allPosts
