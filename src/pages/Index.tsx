@@ -156,7 +156,6 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [userCounty, setUserCounty] = useState<string | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
   const postsPerPage = 10; // Posts per page
 
   useEffect(() => {
@@ -303,38 +302,6 @@ const Index = () => {
       loadData();
     }
   }, [isPostModalOpen]);
-
-  // Check admin status
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (user) {
-        const adminStatus = await checkIsAdmin(user);
-        setIsAdmin(adminStatus);
-      }
-    };
-    checkAdmin();
-  }, [user]);
-
-  // Load unread message count
-  useEffect(() => {
-    const loadUnreadCount = async () => {
-      if (user && user.userUuid) {
-        try {
-          const unreadMessages = await db.query('messages', {
-            to_uuid: `eq.${user.userUuid}`,
-            is_read: 'eq.0',
-            _deleted: 'eq.0'
-          });
-          setUnreadCount(unreadMessages.length);
-        } catch (error) {
-          console.error('Error loading unread count:', error);
-        }
-      } else {
-        setUnreadCount(0);
-      }
-    };
-    loadUnreadCount();
-  }, [user]);
 
   const loadData = async () => {
     const requestId = ++loadRequestIdRef.current;
@@ -935,11 +902,6 @@ const Index = () => {
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
                   <Button variant="ghost" size="sm" className="h-8 text-xs px-2 sm:px-3 relative" onClick={() => navigate('/messages')}>
                     <Mail className="w-4 h-4" />
-                    {unreadCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center px-1 bg-red-500 text-white text-xs">
-                        {unreadCount}
-                      </Badge>
-                    )}
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
