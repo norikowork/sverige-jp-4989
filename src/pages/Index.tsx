@@ -409,21 +409,6 @@ const Index = () => {
 
   const handleAuthSuccess = async (authUser: any) => {
     setUser(authUser);
-    
-    // Reload user profile to get latest display name
-    if (authUser) {
-      try {
-        const profiles = await db.query('user_profiles', {
-          user_uuid: `eq.${authUser.userUuid}`
-        });
-        if (profiles.length > 0) {
-          setUserProfile(profiles[0]);
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      }
-    }
-    
     loadData(); // Reload data to show user-specific content
   };
 
