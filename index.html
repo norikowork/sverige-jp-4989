@@ -12,9 +12,9 @@
     </script>
 
     <!-- Event snippet for Google Shopping App Page View conversion page
-    In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+    In your html page, add the snippet and call gtag_report_conversion_page_view when someone clicks on the chosen link or button. -->
     <script>
-    function gtag_report_conversion(url) {
+    function gtag_report_conversion_page_view(url) {
       var callback = function () {
         if (typeof(url) != 'undefined') {
           window.location = url;
@@ -22,6 +22,25 @@
       };
       gtag('event', 'conversion', {
           'send_to': 'AW-938891475/NeJVCKqLhKcDENOx2b8D',
+          'value': 1.0,
+          'currency': 'USD',
+          'event_callback': callback
+      });
+      return false;
+    }
+    </script>
+
+    <!-- Event snippet for Google Shopping App View Item conversion page
+    In your html page, add the snippet and call gtag_report_conversion_view_item when someone clicks on the chosen link or button. -->
+    <script>
+    function gtag_report_conversion_view_item(url) {
+      var callback = function () {
+        if (typeof(url) != 'undefined') {
+          window.location = url;
+        }
+      };
+      gtag('event', 'conversion', {
+          'send_to': 'AW-938891475/0JAdCLCLhKcDENOx2b8D',
           'value': 1.0,
           'currency': 'USD',
           'event_callback': callback
