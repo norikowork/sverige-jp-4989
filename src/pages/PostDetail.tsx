@@ -1475,6 +1475,22 @@ useEffect(() => {
                           {getCategoryName(post.category_uuid)}
                         </Badge>
                       )}
+                      {post.category_uuid === 'cat-services' && post.subcategory_uuid && getServiceGroupName(post.subcategory_uuid) && (
+                        <Badge
+                          variant="outline"
+                          className="border-green-400 text-green-600"
+                        >
+                          {getServiceGroupName(post.subcategory_uuid)}
+                        </Badge>
+                      )}
+                      {post.subcategory_uuid && (
+                        <Badge
+                          variant="outline"
+                          className="border-green-300 text-green-600"
+                        >
+                          {getSubcategoryName(post.subcategory_uuid)}
+                        </Badge>
+                      )}
                       {post.post_type === 'free' && !['cat-services', 'cat-job-seeking', 'cat-housing'].includes(post.category_uuid) && post.price && (
                         <span className="text-green-600 font-semibold text-base sm:text-lg">
                           {formatPrice(post.price)}
