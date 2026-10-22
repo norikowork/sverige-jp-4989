@@ -571,6 +571,14 @@ useEffect(() => {
     return subcategory ? subcategory.name_ja : '';
   };
 
+  // サービス投稿(食べる/遊ぶ/暮らす)のグループ名を、サブカテゴリー名から逆引きする
+  const getServiceGroupName = (subcategoryId) => {
+    const subcategoryName = getSubcategoryName(subcategoryId);
+    if (!subcategoryName) return '';
+    const group = SERVICE_SUBCATEGORY_GROUPS.find(g => g.items.includes(subcategoryName));
+    return group ? group.label : '';
+  };
+
   // Calendar functions
   // 展示会など終了日(event_end_date)があるイベントは、カレンダーに登録する日を以下のルールで決める:
   // - まだ始まっていない(開始日が未来) → 開始日をそのまま登録
