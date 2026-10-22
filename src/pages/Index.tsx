@@ -287,7 +287,7 @@ const Index = () => {
       loadPosts();
     }
     isFirstFilterRunRef.current = false;
-  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup, priceFilterFree, priceFilterMin, priceFilterMax, selectedConditions]);
+  }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup, priceFilterFree, priceFilterMin, priceFilterMax, selectedConditions, subcategories]);
 
   // Reset page when filters change
   useEffect(() => {
