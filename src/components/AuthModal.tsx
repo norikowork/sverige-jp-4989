@@ -9,7 +9,6 @@ import { ArrowLeft } from 'lucide-react';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
 import { useToast } from '@/hooks/use-toast';
-import { GOOGLE_FLAG } from '@/components/GoogleReturnHandler';
 
 interface AuthModalProps {
   isOpen: boolean;
