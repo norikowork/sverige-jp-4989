@@ -25,6 +25,7 @@ import { getMessageLimit } from '@/constants/plans';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 import { toAsciiFile } from '@/lib/asciiFilename';
 import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
+import { SERVICE_SUBCATEGORY_GROUPS } from '@/constants/serviceSubcategories';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
