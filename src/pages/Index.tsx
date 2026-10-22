@@ -70,7 +70,7 @@ const countyNameMap: Record<string, string> = {
   'Värmland': 'ヴェルムランド',
   'Örebro': 'エーレブルー',
   'Västmanland': 'ヴェストマンランド',
-  'Dalarna': 'ダルナ',
+  'Dalarna': 'ダーラナ',
   'Gävleborg': 'イェヴレボリ',
   'Västernorrland': 'ヴェステルノールランド',
   'Jämtland': 'イェムトランド',
