@@ -579,6 +579,21 @@ useEffect(() => {
     return group ? group.label : '';
   };
 
+  // トップページへのカテゴリー/サブカテゴリー絞り込みリンクを組み立てる。
+  // サービスのサブカテゴリーを指定する場合は、トップページ側で先頭のグループ
+  // (食べる)に戻ってしまわないよう、group パラメータも必ず付ける
+  const buildCategoryLink = (categoryUuid: string, subcategoryUuid?: string) => {
+    const params = new URLSearchParams({ category: categoryUuid });
+    if (subcategoryUuid) {
+      params.set('subcategory', subcategoryUuid);
+      const groupName = getServiceGroupName(subcategoryUuid);
+      if (groupName) {
+        params.set('group', groupName);
+      }
+    }
+    return `/?${params.toString()}`;
+  };
+
   // Calendar functions
   // 展示会など終了日(event_end_date)があるイベントは、カレンダーに登録する日を以下のルールで決める:
   // - まだ始まっていない(開始日が未来) → 開始日をそのまま登録
