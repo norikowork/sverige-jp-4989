@@ -456,11 +456,16 @@ const Index = () => {
     // 同じサブカテゴリーをもう一度押したら選択解除
     const newSubcategory = selectedSubcategory === subcategoryUuid ? '' : subcategoryUuid;
     setSelectedSubcategory(newSubcategory);
+    const params: Record<string, string> = { category: selectedCategory };
     if (newSubcategory) {
-      setSearchParams({ category: selectedCategory, subcategory: newSubcategory });
-    } else {
-      setSearchParams({ category: selectedCategory });
+      params.subcategory = newSubcategory;
     }
+    // サービスの場合は選択中のグループ(食べる/遊ぶ/暮らす)もURLに保持しないと、
+    // サブカテゴリーを押した瞬間に先頭のグループへ戻ってしまう
+    if (selectedCategory === 'cat-services' && selectedServiceGroup) {
+      params.group = selectedServiceGroup;
+    }
+    setSearchParams(params);
   };
 
   const handleNewPost = () => {
