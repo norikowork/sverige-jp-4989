@@ -557,8 +557,10 @@ const Index = () => {
       }
 
       // サービスでグループ(食べる/遊ぶ/暮らす)を選んでいて、個別サブカテゴリーは
-      // まだ選択していない場合、そのグループに属するサブカテゴリーの投稿だけに絞り込む
-      if (selectedCategory === 'cat-services' && !selectedSubcategory && selectedServiceGroup) {
+      // まだ選択していない場合、そのグループに属するサブカテゴリーの投稿だけに絞り込む。
+      // ただしsubcategoriesがまだ読み込まれていない場合(直接このURLに来た直後など)は、
+      // 絞り込むと投稿が0件になってしまうため、読み込み完了まで絞り込みを行わない
+      if (selectedCategory === 'cat-services' && !selectedSubcategory && selectedServiceGroup && subcategories.length > 0) {
         const group = SERVICE_SUBCATEGORY_GROUPS.find((g) => g.label === selectedServiceGroup);
         if (group) {
           const groupSubcategoryUuids = new Set(
