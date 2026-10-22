@@ -171,6 +171,11 @@ const Index = () => {
     setSearchTerm(searchParam || '');
     const subcategoryParam = searchParams.get('subcategory');
     setSelectedSubcategory(subcategoryParam || '');
+    // サービスのグループ(食べる/遊ぶ/暮らす)もURLから復元する。
+    // 不正な値や未指定の場合は先頭のグループにフォールバックする
+    const groupParam = searchParams.get('group');
+    const matchedGroup = SERVICE_SUBCATEGORY_GROUPS.find((g) => g.label === groupParam);
+    setSelectedServiceGroup(matchedGroup?.label || SERVICE_SUBCATEGORY_GROUPS[0]?.label || '');
   }, [searchParams]);
 
   // カテゴリーが選択されたら、サブカテゴリーごとの投稿件数を取得する

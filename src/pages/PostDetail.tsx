@@ -1478,7 +1478,7 @@ useEffect(() => {
                         </Link>
                       )}
                       {post.category_uuid === 'cat-services' && post.subcategory_uuid && getServiceGroupName(post.subcategory_uuid) && (
-                        <Link to={`/?category=${post.category_uuid}`}>
+                        <Link to={`/?category=${post.category_uuid}&group=${encodeURIComponent(getServiceGroupName(post.subcategory_uuid))}`}>
                           <Badge
                             variant="outline"
                             className="border-green-400 text-green-600 hover:bg-green-50 cursor-pointer"
