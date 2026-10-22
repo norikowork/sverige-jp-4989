@@ -1435,7 +1435,7 @@ useEffect(() => {
               <>
                 <ChevronRight className="w-4 h-4 flex-shrink-0" />
                 <Link
-                  to={`/?category=${post.category_uuid}&subcategory=${post.subcategory_uuid}`}
+                  to={buildCategoryLink(post.category_uuid, post.subcategory_uuid)}
                   className="hover:text-blue-600 hover:underline flex-shrink-0"
                 >
                   {getSubcategoryName(post.subcategory_uuid)}
