@@ -503,7 +503,8 @@ export const AuthModal = ({ isOpen, onClose, onAuthSuccess, defaultTab }: AuthMo
             <TabsTrigger value="register">新規登録</TabsTrigger>
           </TabsList>
 
-          {!totpRequired && !isResetPassword && (
+          {/* Googleログインが正常に動作していないため、直るまで一旦非表示にしています */}
+          {false && !totpRequired && !isResetPassword && (
             <div className="mt-4 space-y-3">
               <Button
                 type="button"
