@@ -268,7 +268,18 @@ const Profile = () => {
       });
       
       setUserPosts(postsWithImages.sort((a, b) => b._created_at - a._created_at));
-      
+
+      // Load user's own forum topics
+      try {
+        const forumTopics = await db.query('forum_topics', {
+          _created_by: `eq.${currentUser.userUuid}`,
+          order: '_created_at.desc'
+        });
+        setUserForumTopics(forumTopics || []);
+      } catch (error) {
+        console.error('Error loading forum topics:', error);
+      }
+
       // Load unread message count
       try {
         const unreadMessages = await db.query('messages', {
