@@ -607,35 +607,79 @@ export default function ForumTopicDetail() {
             replies.map((reply) => (
               <Card key={reply._row_id}>
                 <CardContent className="pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2 text-sm text-gray-500 flex-wrap">
-                        <span className="flex items-center font-medium text-gray-700">
-                          <User className="w-4 h-4 mr-1" />
-                          {reply.user_name || '不明'}
-                        </span>
-                        <span className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {formatDistanceToNow(new Date(reply._created_at * 1000), { 
-                            addSuffix: true
-                          })}
-                        </span>
-                      </div>
-                      <div className="prose max-w-none whitespace-pre-wrap">
-                        {reply.body}
+                  {editingReplyId === reply._row_id ? (
+                    <div className="space-y-3">
+                      <Textarea
+                        value={editReplyBody}
+                        onChange={(e) => setEditReplyBody(e.target.value)}
+                        rows={4}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveReply(reply._row_id)}
+                          disabled={isSavingReply}
+                        >
+                          {isSavingReply ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              保存中...
+                            </>
+                          ) : (
+                            '保存'
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleCancelEditReply}
+                          disabled={isSavingReply}
+                        >
+                          キャンセル
+                        </Button>
                       </div>
                     </div>
-                    {user && reply._created_by === user.userUuid && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteReply(reply._row_id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 text-sm text-gray-500 flex-wrap">
+                          <span className="flex items-center font-medium text-gray-700">
+                            <User className="w-4 h-4 mr-1" />
+                            {reply.user_name || '不明'}
+                          </span>
+                          <span className="flex items-center">
+                            <Clock className="w-4 h-4 mr-1" />
+                            {formatDistanceToNow(new Date(reply._created_at * 1000), {
+                              addSuffix: true
+                            })}
+                          </span>
+                        </div>
+                        <div className="prose max-w-none whitespace-pre-wrap">
+                          {reply.body}
+                        </div>
+                      </div>
+                      {user && reply._created_by === user.userUuid && (
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStartEditReply(reply)}
+                            className="text-gray-600 hover:text-gray-700"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteReply(reply._row_id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))
