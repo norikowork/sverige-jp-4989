@@ -15,6 +15,7 @@ import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
 import content from '@/lib/shared/kliv-content';
 import { toAsciiFile } from '@/lib/asciiFilename';
+import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
 import { useToast } from '@/hooks/use-toast';
 import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
