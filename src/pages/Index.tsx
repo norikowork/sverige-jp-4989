@@ -164,6 +164,18 @@ const Index = () => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    // Mapタブを押した瞬間に読み込みが発生しないよう、他の表示が落ち着いた後に裏で先読みしておく
+    const prefetchMapView = () => {
+      import('@/components/MapView');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(prefetchMapView);
+    } else {
+      setTimeout(prefetchMapView, 2000);
+    }
+  }, []);
+
   // Read category/search from URL params on mount and when URL changes
   useEffect(() => {
     const categoryParam = searchParams.get('category');
