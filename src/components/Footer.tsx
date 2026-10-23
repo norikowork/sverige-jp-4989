@@ -114,28 +114,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* ホーム画面への追加案内（インストール済みの場合は表示しない） */}
-        {!isStandalone && (
-          <div className="border-t border-gray-800 mt-8 pt-8">
-            <h4 className="text-sm font-semibold text-gray-200 mb-2">
-              📱 ホーム画面に追加してアプリのように使う
-            </h4>
-            <div className="text-gray-400 text-xs leading-relaxed">
-              <p className="font-medium text-gray-300">iPhone(Safariブラウザ)の場合：</p>
-              <ol className="list-decimal list-inside space-y-0.5 mt-1">
-                <li>画面の下にある「共有」ボタンをタップ</li>
-                <li>出てきたメニューを下にスクロールする</li>
-                <li>「ホーム画面に追加」をタップ</li>
-                <li>右上の「追加」をタップ</li>
-              </ol>
-            </div>
-            <p className="text-gray-400 text-xs leading-relaxed mt-3">
-              <span className="font-medium text-gray-300">PCの場合：</span>
-              アドレスバーの右端に表示されるインストールアイコンをクリックしてください。
-            </p>
-          </div>
-        )}
-
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
@@ -143,6 +121,11 @@ const Footer = () => {
               © {currentYear} Sverige.JP. All rights reserved.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
+              {!isStandalone && (
+                <Link to="/install-app" className="text-gray-400 hover:text-white text-xs transition-colors">
+                  アプリのように使うには
+                </Link>
+              )}
               <Link to="/about" className="text-gray-400 hover:text-white text-xs transition-colors">
                 当サイトについて
               </Link>
