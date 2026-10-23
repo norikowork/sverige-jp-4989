@@ -9,4 +9,13 @@ if (typeof window !== 'undefined') {
   (window as any).auth = auth;
 }
 
+// PWA(ホーム画面に追加)対応のためのサービスワーカー登録
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
+
 createRoot(document.getElementById("root")!).render(<App />);
