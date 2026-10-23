@@ -14,7 +14,8 @@ import { PostModal } from '@/components/PostModal';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import MapView from '@/components/MapView';
+// Leafletは重いため、初回表示時は読み込まずMapタブを開いた時だけ読み込む
+const MapView = lazy(() => import('@/components/MapView'));
 import { statusLabels } from '@/constants/postLabels';
 import { SERVICE_SUBCATEGORY_GROUPS, SERVICE_SUBCATEGORY_EMOJI } from '@/constants/serviceSubcategories';
 import { EVENT_SUBCATEGORIES, EVENT_SUBCATEGORY_EMOJI } from '@/constants/eventSubcategories';
