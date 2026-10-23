@@ -1638,7 +1638,9 @@ const Index = () => {
                               <div className="flex items-center justify-between gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <CategoryIcon className="w-4 h-4 flex-shrink-0" style={{ color: category.color }} />
-                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">{category.name_ja}</h2>
+                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">
+                                    {category.name_ja}（{forumTopics.length}）
+                                  </h2>
                                 </div>
                                 {categoryItems.length > 0 && (
                                   <span className="text-blue-600 text-xs flex items-center gap-1 flex-shrink-0">
