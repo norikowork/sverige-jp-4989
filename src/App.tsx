@@ -29,6 +29,7 @@ import ScamsEmailExamples from "./pages/ScamsEmailExamples";
 import ScamsPhoneExamples from "./pages/ScamsPhoneExamples";
 import ScamsPhishing from "./pages/ScamsPhishing";
 import PasswordResetHelp from "./pages/PasswordResetHelp";
+import InstallApp from "./pages/InstallApp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/scams/phone-examples" element={<ScamsPhoneExamples />} />
           <Route path="/scams/phishing" element={<ScamsPhishing />} />
           <Route path="/help/password-reset" element={<PasswordResetHelp />} />
+          <Route path="/install-app" element={<InstallApp />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
