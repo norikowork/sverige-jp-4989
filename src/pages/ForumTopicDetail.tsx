@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, MessageSquare, Clock, User, Reply, Loader2, Send, Trash2, ShoppingBag, Home, Star, Wrench } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, MessageSquare, Clock, User, Reply, Loader2, Send, Trash2, Pencil, ShoppingBag, Home, Star, Wrench } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
@@ -15,6 +17,7 @@ import auth from '@/lib/shared/kliv-auth.js';
 import functions from '@/lib/shared/kliv-functions.js';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
+import { FORUM_CATEGORIES } from '@/constants/forumCategories';
 import { toast } from 'sonner';
 
 interface ForumTopic {
