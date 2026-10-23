@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import CookieNotice from "./components/CookieNotice";
+import PwaInstallBanner from "./components/PwaInstallBanner";
 import Index from "./pages/Index";
 import Activate from "./pages/Activate";
 import Profile from "./pages/Profile";
