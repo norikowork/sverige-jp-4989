@@ -46,6 +46,37 @@ const InstallApp = () => {
                 アドレスバーの右端に表示されるインストールアイコンをクリックしてください。表示されない場合は、ブラウザ右上のメニューから「インストール」を選んでください。
               </p>
             </div>
+
+            <div className="border-t pt-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">アプリを削除するには</h2>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">iPhoneの場合</h3>
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>ホーム画面の「Sverige.JP」のアイコンを長押しする</li>
+                    <li>「Appを削除」をタップ</li>
+                    <li>確認画面で「削除」をタップ</li>
+                  </ol>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Androidの場合</h3>
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>ホーム画面またはアプリ一覧の「Sverige.JP」のアイコンを長押しする</li>
+                    <li>「アンインストール」または「削除」をタップ</li>
+                    <li>確認画面で「OK」をタップ</li>
+                  </ol>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">PCの場合</h3>
+                  <p>
+                    インストールしたアプリを開き、画面右上のメニュー（縦に3つ並んだ点）から「Sverige.JPをアンインストール」を選んでください。
+                  </p>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
