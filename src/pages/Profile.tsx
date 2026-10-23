@@ -385,18 +385,6 @@ const Profile = () => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // ファイルサイズチェック（1MB = 1,048,576 bytes）
-    const maxSize = 1 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast({
-        title: "ファイルサイズ超過",
-        description: "プロフィール写真は1MBまでです",
-        variant: "destructive"
-      });
-      event.target.value = ''; // ファイル選択をリセット
-      return;
-    }
-
     // 画像ファイルチェック
     if (!file.type.startsWith('image/')) {
       toast({
@@ -408,11 +396,25 @@ const Profile = () => {
       return;
     }
 
+    // ファイルサイズチェック（iPhone撮影そのままなど明らかに大きすぎるものだけ弾く）
+    if (file.size > ABUSE_MAX_BYTES) {
+      toast({
+        title: "ファイルサイズ超過",
+        description: `${(file.size / (1024 * 1024)).toFixed(1)}MBです。25MBまでのファイルをご利用ください。`,
+        variant: "destructive"
+      });
+      event.target.value = ''; // ファイル選択をリセット
+      return;
+    }
+
     try {
       setProfilePhotoUploading(true);
 
+      // iPhone撮影の写真などサイズが大きい画像は、アップロード前にブラウザ側で自動的に圧縮する
+      const compressedFile = await compressImage(file);
+
       // 日本語・スペース入りのファイル名でも安全なASCII名で保存する
-      const result = await content.uploadFile(toAsciiFile(file, 'profile'), '/content/profile-photos/');
+      const result = await content.uploadFile(toAsciiFile(compressedFile, 'profile'), '/content/profile-photos/');
       const photoUrl = result.path || result.contentUrl || result.url || result.fileUrl;
 
       // プロフィールを更新
