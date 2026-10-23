@@ -152,6 +152,8 @@ const Profile = () => {
   // 電話番号は本人と管理者だけが読める member_contacts に保存する(user_profiles は誰でも読めるため)
   const [contactPhone, setContactPhone] = useState('');
   const [userPosts, setUserPosts] = useState([]);
+  const [userForumTopics, setUserForumTopics] = useState([]);
+  const [deletingForumTopic, setDeletingForumTopic] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
