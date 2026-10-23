@@ -1236,7 +1236,7 @@ const Index = () => {
           <img
             src="/content/uploads/helloween.jpg"
             alt="ハロウィンイベント"
-            className="w-full rounded-lg"
+            className="w-1/2 rounded-lg"
           />
         </Link>
 
