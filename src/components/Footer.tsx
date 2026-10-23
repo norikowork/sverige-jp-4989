@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react';
 import { Home, Mail, Phone, MapPin, Globe, Github, Facebook, Twitter,Instagram,Linkedin, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    // すでにアプリとして起動している場合は案内を表示しない
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+  }, []);
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -106,6 +113,23 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* ホーム画面への追加案内（インストール済みの場合は表示しない） */}
+        {!isStandalone && (
+          <div className="border-t border-gray-800 mt-8 pt-8">
+            <h4 className="text-sm font-semibold text-gray-200 mb-2">
+              📱 ホーム画面に追加してアプリのように使う
+            </h4>
+            <p className="text-gray-400 text-xs leading-relaxed">
+              <span className="font-medium text-gray-300">iPhone(Safari)の場合：</span>
+              画面下の共有ボタン（□と↑のアイコン）をタップし、「ホーム画面に追加」を選択してください。
+            </p>
+            <p className="text-gray-400 text-xs leading-relaxed mt-1">
+              <span className="font-medium text-gray-300">PCの場合：</span>
+              アドレスバーの右端に表示されるインストールアイコンをクリックしてください。
+            </p>
+          </div>
+        )}
 
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-8">
