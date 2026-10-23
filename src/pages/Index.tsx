@@ -1960,17 +1960,23 @@ const Index = () => {
             ) : (
               <>
                 {/* Real Map using Leaflet */}
-                <MapView 
-                  posts={allPosts}
-                  locations={locations}
-                  onPostClick={(postId) => setSelectedMapPost(postId)}
-                  selectedPostId={selectedMapPost}
-                  getCategoryName={getCategoryName}
-                  getCategoryColor={getCategoryColor}
-                  getLocationName={getLocationName}
-                  formatDate={formatDate}
-                  userCounty={userCounty}
-                />
+                <Suspense fallback={
+                  <div className="flex items-center justify-center h-64 bg-white rounded-lg border">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                  </div>
+                }>
+                  <MapView 
+                    posts={allPosts}
+                    locations={locations}
+                    onPostClick={(postId) => setSelectedMapPost(postId)}
+                    selectedPostId={selectedMapPost}
+                    getCategoryName={getCategoryName}
+                    getCategoryColor={getCategoryColor}
+                    getLocationName={getLocationName}
+                    formatDate={formatDate}
+                    userCounty={userCounty}
+                  />
+                </Suspense>
 
                 {/* Location Legend */}
                 <div className="bg-white rounded-lg p-4 border">
