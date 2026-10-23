@@ -1496,6 +1496,78 @@ const Profile = () => {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="forum" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">投稿したトピック</h2>
+              <Link to="/forum">
+                <Button>新しいトピックを作成</Button>
+              </Link>
+            </div>
+
+            {userForumTopics.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-8">
+                    <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">トピックはありません</h3>
+                    <p className="text-gray-500 mb-4">情報・掲示板に最初のトピックを作成しましょう</p>
+                    <Link to="/forum">
+                      <Button>トピックを作成</Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {userForumTopics.map((topic) => (
+                  <Card key={topic._row_id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-lg line-clamp-2">{topic.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        <Badge variant="secondary" className="mr-2">{topic.category}</Badge>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3 whitespace-pre-wrap">
+                        {topic.body}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {formatDate(topic._created_at)}
+                        </div>
+                        <div className="flex space-x-2">
+                          <Link to={`/forum/${topic._row_id}`}>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              編集
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteForumTopic(topic._row_id)}
+                            disabled={deletingForumTopic === topic._row_id}
+                          >
+                            {deletingForumTopic === topic._row_id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         {/* Post Detail Modal */}
