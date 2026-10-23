@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload, Truck, CircleX, RotateCcw } from 'lucide-react';
+import { User, Settings, Trash2, Edit, Phone, Mail, Calendar, MapPin, Camera, Upload, Truck, CircleX, RotateCcw, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
