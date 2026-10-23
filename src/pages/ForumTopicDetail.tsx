@@ -232,6 +232,19 @@ export default function ForumTopicDetail() {
       toast.success('返信を投稿しました！');
       setReplyBody('');
       loadReplies();
+
+      // トピック投稿者へ返信通知メールを送る(自分自身のトピックへの返信は通知しない)
+      if (topic && topic._created_by !== user.userUuid) {
+        try {
+          await functions.post('send-forum-reply-notification', {
+            topicId,
+            toUuid: topic._created_by
+          });
+        } catch (notificationError) {
+          console.error('Forum reply notification error:', notificationError);
+          // 通知のエラーは返信投稿自体の成功に影響しない
+        }
+      }
     } catch (error) {
       console.error('Failed to submit reply:', error);
       toast.error('投稿に失敗しました。もう一度お試しください。');
