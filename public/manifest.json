@@ -1,0 +1,22 @@
+{
+  "name": "Sverige.JP",
+  "short_name": "Sverige.JP",
+  "description": "スウェーデンのローカル情報満載の日本語情報サイト",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "icons": [
+    {
+      "src": "/content/templates/sverigelogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/content/templates/sverigelogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
