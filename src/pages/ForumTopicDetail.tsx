@@ -274,6 +274,80 @@ export default function ForumTopicDetail() {
     }
   };
 
+  const handleStartEditTopic = () => {
+    if (!topic) return;
+    setEditTopicTitle(topic.title);
+    setEditTopicBody(topic.body);
+    setEditTopicCategory(topic.category);
+    setIsEditingTopic(true);
+  };
+
+  const handleCancelEditTopic = () => {
+    setIsEditingTopic(false);
+  };
+
+  const handleSaveTopic = async () => {
+    if (!topic) return;
+    if (!editTopicTitle.trim() || !editTopicBody.trim() || !editTopicCategory) {
+      toast.error('すべての項目を入力してください');
+      return;
+    }
+
+    setIsSavingTopic(true);
+    try {
+      await db.update(
+        'forum_topics',
+        { _row_id: `eq.${topic._row_id}` },
+        {
+          title: editTopicTitle.trim(),
+          body: editTopicBody.trim(),
+          category: editTopicCategory,
+        }
+      );
+      toast.success('トピックを更新しました');
+      setIsEditingTopic(false);
+      loadTopic();
+    } catch (error) {
+      console.error('Failed to update topic:', error);
+      toast.error('更新に失敗しました');
+    } finally {
+      setIsSavingTopic(false);
+    }
+  };
+
+  const handleStartEditReply = (reply: ForumReply) => {
+    setEditingReplyId(reply._row_id);
+    setEditReplyBody(reply.body);
+  };
+
+  const handleCancelEditReply = () => {
+    setEditingReplyId(null);
+  };
+
+  const handleSaveReply = async (replyId: number) => {
+    if (!editReplyBody.trim()) {
+      toast.error('返信内容を入力してください');
+      return;
+    }
+
+    setIsSavingReply(true);
+    try {
+      await db.update(
+        'forum_replies',
+        { _row_id: `eq.${replyId}` },
+        { body: editReplyBody.trim() }
+      );
+      toast.success('返信を更新しました');
+      setEditingReplyId(null);
+      loadReplies();
+    } catch (error) {
+      console.error('Failed to update reply:', error);
+      toast.error('更新に失敗しました');
+    } finally {
+      setIsSavingReply(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
