@@ -336,6 +336,21 @@ const Index = () => {
       let forumTopicsData = [];
       try {
         forumTopicsData = await db.query('forum_topics', { is_hidden: 'neq.1', order: '_created_at.desc', limit: '100' });
+
+        // 各トピックの返信数を集計する
+        try {
+          const allForumReplies = await db.query('forum_replies', {});
+          const replyCounts: Record<number, number> = {};
+          (allForumReplies || []).forEach((reply: any) => {
+            replyCounts[reply.topic_id] = (replyCounts[reply.topic_id] || 0) + 1;
+          });
+          forumTopicsData = forumTopicsData.map((topic: any) => ({
+            ...topic,
+            reply_count: replyCounts[topic._row_id] || 0
+          }));
+        } catch (replyCountError) {
+          console.warn('Failed to load forum reply counts:', replyCountError);
+        }
       } catch (forumError) {
         console.warn('Forum topics table not available or error loading:', forumError);
         forumTopicsData = [];
@@ -1638,9 +1653,7 @@ const Index = () => {
                               <div className="flex items-center justify-between gap-2 hover:bg-gray-50 transition-colors rounded p-1 -m-1 cursor-pointer">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <CategoryIcon className="w-4 h-4 flex-shrink-0" style={{ color: category.color }} />
-                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">
-                                    {category.name_ja}（{forumTopics.length}）
-                                  </h2>
+                                  <h2 className="text-base font-semibold hover:text-blue-600 transition-colors truncate">{category.name_ja}</h2>
                                 </div>
                                 {categoryItems.length > 0 && (
                                   <span className="text-blue-600 text-xs flex items-center gap-1 flex-shrink-0">
@@ -1742,6 +1755,7 @@ const Index = () => {
                                     <span className="text-xs truncate flex-1 min-w-0 leading-tight">
                                       {isEventsBoard && isContinuingEvent(item) && '（前月継続）'}
                                       {item.title}
+                                      {isBulletinBoard && ` (${item.reply_count || 0})`}
                                     </span>
                                   </div>
                                 </Link>
