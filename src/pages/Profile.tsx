@@ -615,6 +615,31 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteForumReply = async (replyId) => {
+    if (!window.confirm('この返信を削除しますか？')) {
+      return;
+    }
+
+    try {
+      setDeletingForumReply(replyId);
+      await db.delete('forum_replies', { _row_id: `eq.${replyId}` });
+      setUserForumReplies(prev => prev.filter(reply => reply._row_id !== replyId));
+      toast({
+        title: "返信削除",
+        description: "返信が削除されました",
+      });
+    } catch (error) {
+      console.error('Error deleting forum reply:', error);
+      toast({
+        title: "エラー",
+        description: "返信の削除に失敗しました",
+        variant: "destructive"
+      });
+    } finally {
+      setDeletingForumReply(null);
+    }
+  };
+
   const handleOpenTracking = (post) => {
     setTrackingPost(post);
     setTrackingNumberInput(post.tracking_number || '');
