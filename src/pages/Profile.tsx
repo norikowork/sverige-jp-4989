@@ -915,9 +915,10 @@ const Profile = () => {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">プロフィール設定</TabsTrigger>
             <TabsTrigger value="posts">投稿管理</TabsTrigger>
+            <TabsTrigger value="forum">掲示板管理</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-6">
