@@ -282,6 +282,32 @@ const Profile = () => {
         console.error('Error loading forum topics:', error);
       }
 
+      // Load user's own forum replies (他人が立てたトピックへの返信も含む)
+      try {
+        const forumReplies = await db.query('forum_replies', {
+          _created_by: `eq.${currentUser.userUuid}`,
+          order: '_created_at.desc'
+        });
+        const topicIds = Array.from(new Set((forumReplies || []).map((reply: any) => reply.topic_id)));
+        const topicsById: Record<number, any> = {};
+        await Promise.all(topicIds.map(async (topicId) => {
+          try {
+            const topicData = await db.get('forum_topics', topicId);
+            if (topicData) topicsById[topicId] = topicData;
+          } catch (error) {
+            console.error('Error loading topic for reply:', error);
+          }
+        }));
+        setUserForumReplies(
+          (forumReplies || []).map((reply: any) => ({
+            ...reply,
+            topic_title: topicsById[reply.topic_id]?.title || '(削除されたトピック)'
+          }))
+        );
+      } catch (error) {
+        console.error('Error loading forum replies:', error);
+      }
+
       // Load unread message count
       try {
         const unreadMessages = await db.query('messages', {
