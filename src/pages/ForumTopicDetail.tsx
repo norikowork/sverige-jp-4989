@@ -427,43 +427,109 @@ export default function ForumTopicDetail() {
 
         {/* Topic */}
         <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge>{topic.category}</Badge>
-                </div>
-                <CardTitle className="text-2xl mb-2">{topic.title}</CardTitle>
-                <CardDescription className="flex items-center gap-3 text-sm flex-wrap">
-                  <span className="flex items-center font-medium text-gray-700">
-                    <User className="w-4 h-4 mr-1" />
-                    {topic.user_name || '不明'}
-                  </span>
-                  <span className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {formatDistanceToNow(new Date(topic._created_at * 1000), { 
-                      addSuffix: true
-                    })}
-                  </span>
-                </CardDescription>
+          {isEditingTopic ? (
+            <CardContent className="pt-6 space-y-4">
+              <div>
+                <Label htmlFor="edit-topic-category">カテゴリ</Label>
+                <Select value={editTopicCategory} onValueChange={setEditTopicCategory}>
+                  <SelectTrigger id="edit-topic-category">
+                    <SelectValue placeholder="カテゴリを選択" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FORUM_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              {user && topic._created_by === user.userUuid && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDeleteTopic}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="w-4 h-4" />
+              <div>
+                <Label htmlFor="edit-topic-title">タイトル</Label>
+                <Input
+                  id="edit-topic-title"
+                  value={editTopicTitle}
+                  onChange={(e) => setEditTopicTitle(e.target.value)}
+                  maxLength={100}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-topic-body">本文</Label>
+                <Textarea
+                  id="edit-topic-body"
+                  value={editTopicBody}
+                  onChange={(e) => setEditTopicBody(e.target.value)}
+                  rows={8}
+                  maxLength={5000}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleSaveTopic} disabled={isSavingTopic}>
+                  {isSavingTopic ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      保存中...
+                    </>
+                  ) : (
+                    '保存'
+                  )}
                 </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="prose max-w-none whitespace-pre-wrap">
-              {topic.body}
-            </div>
-          </CardContent>
+                <Button variant="outline" onClick={handleCancelEditTopic} disabled={isSavingTopic}>
+                  キャンセル
+                </Button>
+              </div>
+            </CardContent>
+          ) : (
+            <>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge>{topic.category}</Badge>
+                    </div>
+                    <CardTitle className="text-2xl mb-2">{topic.title}</CardTitle>
+                    <CardDescription className="flex items-center gap-3 text-sm flex-wrap">
+                      <span className="flex items-center font-medium text-gray-700">
+                        <User className="w-4 h-4 mr-1" />
+                        {topic.user_name || '不明'}
+                      </span>
+                      <span className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {formatDistanceToNow(new Date(topic._created_at * 1000), {
+                          addSuffix: true
+                        })}
+                      </span>
+                    </CardDescription>
+                  </div>
+                  {user && topic._created_by === user.userUuid && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleStartEditTopic}
+                        className="text-gray-600 hover:text-gray-700"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleDeleteTopic}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="prose max-w-none whitespace-pre-wrap">
+                  {topic.body}
+                </div>
+              </CardContent>
+            </>
+          )}
         </Card>
 
         {/* Replies Section */}
