@@ -41,6 +41,7 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <CookieNotice />
+        <PwaInstallBanner />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/activate" element={<Activate />} />
