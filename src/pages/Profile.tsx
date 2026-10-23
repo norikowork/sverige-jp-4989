@@ -562,6 +562,31 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteForumTopic = async (topicId) => {
+    if (!window.confirm('このトピックを削除しますか？すべての返信も削除されます。')) {
+      return;
+    }
+
+    try {
+      setDeletingForumTopic(topicId);
+      await db.delete('forum_topics', { _row_id: `eq.${topicId}` });
+      setUserForumTopics(prev => prev.filter(topic => topic._row_id !== topicId));
+      toast({
+        title: "トピック削除",
+        description: "トピックが削除されました",
+      });
+    } catch (error) {
+      console.error('Error deleting forum topic:', error);
+      toast({
+        title: "エラー",
+        description: "トピックの削除に失敗しました",
+        variant: "destructive"
+      });
+    } finally {
+      setDeletingForumTopic(null);
+    }
+  };
+
   const handleOpenTracking = (post) => {
     setTrackingPost(post);
     setTrackingNumberInput(post.tracking_number || '');
