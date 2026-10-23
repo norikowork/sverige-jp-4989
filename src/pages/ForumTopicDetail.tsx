@@ -85,6 +85,14 @@ export default function ForumTopicDetail() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [postCategories, setPostCategories] = useState<any[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isEditingTopic, setIsEditingTopic] = useState(false);
+  const [editTopicTitle, setEditTopicTitle] = useState('');
+  const [editTopicBody, setEditTopicBody] = useState('');
+  const [editTopicCategory, setEditTopicCategory] = useState('');
+  const [isSavingTopic, setIsSavingTopic] = useState(false);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editReplyBody, setEditReplyBody] = useState('');
+  const [isSavingReply, setIsSavingReply] = useState(false);
 
   useEffect(() => {
     loadTopic();
