@@ -120,11 +120,16 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-gray-200 mb-2">
               📱 ホーム画面に追加してアプリのように使う
             </h4>
-            <p className="text-gray-400 text-xs leading-relaxed">
-              <span className="font-medium text-gray-300">iPhone(Safari)の場合：</span>
-              画面下の共有ボタン（□と↑のアイコン）をタップし、「ホーム画面に追加」を選択してください。
-            </p>
-            <p className="text-gray-400 text-xs leading-relaxed mt-1">
+            <div className="text-gray-400 text-xs leading-relaxed">
+              <p className="font-medium text-gray-300">iPhone(Safariブラウザ)の場合：</p>
+              <ol className="list-decimal list-inside space-y-0.5 mt-1">
+                <li>画面の下にある「共有」ボタンをタップ</li>
+                <li>出てきたメニューを下にスクロールする</li>
+                <li>「ホーム画面に追加」をタップ</li>
+                <li>右上の「追加」をタップ</li>
+              </ol>
+            </div>
+            <p className="text-gray-400 text-xs leading-relaxed mt-3">
               <span className="font-medium text-gray-300">PCの場合：</span>
               アドレスバーの右端に表示されるインストールアイコンをクリックしてください。
             </p>
