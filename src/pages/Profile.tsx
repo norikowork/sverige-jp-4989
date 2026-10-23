@@ -1620,6 +1620,65 @@ const Profile = () => {
                 ))}
               </div>
             )}
+
+            <h2 className="text-2xl font-bold pt-4">投稿した返信</h2>
+
+            {userForumReplies.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-8 text-gray-500">
+                    <p>まだ返信はありません</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {userForumReplies.map((reply) => (
+                  <Card key={reply._row_id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardDescription>
+                        返信先: <span className="font-medium text-gray-700">{reply.topic_title}</span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3 whitespace-pre-wrap">
+                        {reply.body}
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {formatDate(reply._created_at)}
+                        </div>
+                        <div className="flex space-x-2">
+                          <Link to={`/forum/${reply.topic_id}`}>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              編集
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteForumReply(reply._row_id)}
+                            disabled={deletingForumReply === reply._row_id}
+                          >
+                            {deletingForumReply === reply._row_id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
