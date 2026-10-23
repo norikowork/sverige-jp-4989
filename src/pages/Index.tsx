@@ -1231,6 +1231,15 @@ const Index = () => {
           </div>
         </div>
 
+        {/* ハロウィンイベントバナー */}
+        <Link to="/?category=cat-events&subcategory=sub-events-other" className="block mb-6">
+          <img
+            src="/content/uploads/helloween.jpg"
+            alt="ハロウィンイベント"
+            className="w-full rounded-lg"
+          />
+        </Link>
+
         {/* Month Filter for Events - Only show when events category is selected */}
         {selectedCategory === 'cat-events' && (
           <div className="mb-6">
