@@ -2505,6 +2505,39 @@ useEffect(() => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Recommended Posts - よく見ているカテゴリーからのおすすめ */}
+            {recommendedPosts.length > 0 && (
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold mb-3">あなたへのおすすめ</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {recommendedPosts.map((rpost: any) => {
+                    let rImages = [];
+                    try {
+                      rImages = typeof rpost.images === 'string' ? JSON.parse(rpost.images) : (rpost.images || []);
+                    } catch (e) {
+                      rImages = [];
+                    }
+                    return (
+                      <Link
+                        key={rpost._row_id}
+                        to={`/post/${rpost._row_id}`}
+                        className="block border border-purple-200 bg-purple-50 rounded-lg overflow-hidden hover:bg-purple-100 transition-colors"
+                      >
+                        <div className="w-full aspect-square bg-gray-100">
+                          <img
+                            src={Array.isArray(rImages) && rImages.length > 0 ? rImages[0] : '/content/templates/sverige_blank.png'}
+                            alt={rpost.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <p className="text-xs p-2 truncate">{rpost.title}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
