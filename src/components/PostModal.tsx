@@ -662,13 +662,12 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       // 管理者が他人の投稿を編集している場合は、投稿者を問わず全てのお店から選べるようにする
       // (ユーザー自身が投稿する場合は、なりすまし防止のため自分のお店のみ)
       if (user) {
-        const isAdminEditing = !!(user as any)?.userMetadata?.is_admin;
         try {
           const myPosts = await db.query('posts', {
             category_uuid: 'eq.cat-services',
             status: 'eq.active',
             _deleted: 'eq.0',
-            ...(isAdminEditing ? {} : { _created_by: `eq.${(user as any).userUuid || (user as any).id}` })
+            ...(isAdmin ? {} : { _created_by: `eq.${(user as any).userUuid || (user as any).id}` })
           });
           setMyServicePosts(myPosts || []);
         } catch (e) {
