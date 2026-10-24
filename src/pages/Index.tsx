@@ -1328,7 +1328,7 @@ const Index = () => {
         {recommendedPosts.length > 0 && (
           <div className="mb-6">
             <h2 className="text-base font-semibold mb-3">
-              あなたへのおすすめ（{getCategoryName(topViewedCategory)}）
+              あなたへのおすすめ
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               {recommendedPosts.map((rpost: any) => (
