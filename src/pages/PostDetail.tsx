@@ -240,18 +240,31 @@ const PostDetail = () => {
       });
       if (!profiles || profiles.length === 0) return;
       const counts = profiles[0].category_view_counts ? JSON.parse(profiles[0].category_view_counts) : {};
-      const topCategory = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
-      if (!topCategory) return;
+      const topCategories = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
+      if (topCategories.length === 0) return;
 
-      const candidates = await db.query('posts', {
-        category_uuid: `eq.${topCategory}`,
-        status: 'eq.active',
-        _deleted: 'eq.0',
-        order: '_created_at.desc',
-        limit: '10'
-      });
-      const filtered = (candidates || []).filter((p: any) => p._row_id !== excludePostId).slice(0, 3);
-      setRecommendedPosts(filtered);
+      // 上位カテゴリーそれぞれから候補を取り、持ち回りで混ぜる
+      const candidatesByCategory = await Promise.all(
+        topCategories.map(cat =>
+          db.query('posts', {
+            category_uuid: `eq.${cat}`,
+            status: 'eq.active',
+            _deleted: 'eq.0',
+            order: '_created_at.desc',
+            limit: '5'
+          })
+        )
+      );
+      const groups = candidatesByCategory.map((list: any) =>
+        (list || []).filter((p: any) => p._row_id !== excludePostId)
+      );
+      const mixed: any[] = [];
+      for (let i = 0; i < 3; i++) {
+        for (const group of groups) {
+          if (group[i]) mixed.push(group[i]);
+        }
+      }
+      setRecommendedPosts(mixed.slice(0, 3));
     } catch (e) {
       console.warn('Error loading recommended posts:', e);
     }
