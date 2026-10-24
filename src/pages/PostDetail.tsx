@@ -1997,11 +1997,12 @@ useEffect(() => {
                           <img
                             src={
                               event.images && Array.isArray(event.images) && event.images.length > 0
-                                ? event.images[0]
+                                ? resizedImageUrl(event.images[0], 160)
                                 : (typeof event.images === 'string' && JSON.parse(event.images || '[]')[0]) || '/content/templates/sverige_blank.webp'
                             }
                             alt={event.title}
                             className="w-12 h-12 rounded object-cover flex-shrink-0"
+                            loading="lazy"
                           />
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{event.title}</p>
