@@ -1821,7 +1821,7 @@ useEffect(() => {
 
                           <div className="flex flex-col items-center gap-2" onClick={(e) => e.stopPropagation()}>
                             <img
-                              src={selectedPhoto ? selectedPhoto.url : ''}
+                              src={selectedPhoto ? resizedImageUrl(selectedPhoto.url, 2560) : ''}
                               alt={post.title}
                               className="max-w-full max-h-[85vh] object-contain"
                             />
