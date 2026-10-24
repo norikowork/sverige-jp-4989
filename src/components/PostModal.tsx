@@ -470,6 +470,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     event_fee: '',
     event_url: '',
     ticket_url: '',
+    linked_post_id: '',
     // Contact fields
     contact_method: 'email',
     phone: '',
@@ -565,6 +566,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         event_fee: editingPost.event_fee || '',
         event_url: editingPost.event_url || '',
         ticket_url: editingPost.ticket_url || '',
+        linked_post_id: editingPost.linked_post_id ? String(editingPost.linked_post_id) : '',
         // Contact fields
         contact_method: editingPost.contact_method || 'email',
         phone: editingPost.phone || '',
@@ -636,6 +638,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       event_fee: '',
       event_url: '',
       ticket_url: '',
+      linked_post_id: '',
       // Contact fields
       contact_method: 'email',
       phone: '',
@@ -655,6 +658,20 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       ]);
       setCategories(categoriesResult || []);
       setSubcategories(subcategoriesResult || []);
+      // 自分のサービス投稿一覧(イベントとの紐づけ用)
+      if (user) {
+        try {
+          const myPosts = await db.query('posts', {
+            category_uuid: 'eq.cat-services',
+            status: 'eq.active',
+            _deleted: 'eq.0',
+            _created_by: `eq.${(user as any).userUuid || (user as any).id}`
+          });
+          setMyServicePosts(myPosts || []);
+        } catch (e) {
+          console.warn('Error loading my service posts:', e);
+        }
+      }
       // Sort locations: English name alphabetically, but put "Other" and "Övriga" at the end
       const specialLocations = ['Other (including Japan)', 'Övriga Stockholmsområden'];
       const normalLocations = (locationsResult || []).filter((loc: any) => 
