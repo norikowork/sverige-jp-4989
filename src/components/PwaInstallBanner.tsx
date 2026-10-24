@@ -3,6 +3,7 @@ import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const DISMISS_KEY = 'sverige_jp_pwa_install_dismissed';
+const DISMISS_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 1ヶ月
 
 // ブラウザ標準の「インストール」ダイアログはロゴと名前だけの簡素な表示で、
 // 初めて見るユーザーには詐欺アプリと見分けがつきにくい。そこで標準ダイアログが
