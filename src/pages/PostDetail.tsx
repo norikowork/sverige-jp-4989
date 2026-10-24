@@ -294,6 +294,33 @@ const PostDetail = () => {
         if (postData.post_type === 'service' || (postData.category_uuid || postData.category) === 'cat-services') {
           loadPostPhotos(postData._row_id);
         }
+
+        // サービス投稿なら、このお店に紐づいたイベントを読み込む
+        if ((postData.category_uuid || postData.category) === 'cat-services') {
+          try {
+            const linkedEvents = await db.query('posts', {
+              linked_post_id: `eq.${postData._row_id}`,
+              category_uuid: 'eq.cat-events',
+              status: 'eq.active',
+              _deleted: 'eq.0'
+            });
+            setRelatedEvents(linkedEvents || []);
+          } catch (e) {
+            console.warn('Error loading related events:', e);
+          }
+        }
+
+        // イベント投稿で、お店がリンクされていれば読み込む
+        if ((postData.category_uuid || postData.category) === 'cat-events' && postData.linked_post_id) {
+          try {
+            const shopData = await db.get('posts', postData.linked_post_id);
+            if (shopData && shopData.status !== 'removed' && shopData._deleted !== 1) {
+              setLinkedShop(shopData);
+            }
+          } catch (e) {
+            console.warn('Error loading linked shop:', e);
+          }
+        }
       } else {
         navigate('/');
       }
