@@ -1891,7 +1891,7 @@ useEffect(() => {
                     <h3 className="text-base sm:text-lg font-semibold mb-3">このイベントのお店</h3>
                     <Link
                       to={`/post/${linkedShop._row_id}`}
-                      className="flex items-center gap-3 border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-3 border border-purple-200 bg-purple-50 rounded-lg p-3 hover:bg-purple-100 transition-colors"
                     >
                       <img
                         src={
