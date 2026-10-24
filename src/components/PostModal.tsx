@@ -658,14 +658,17 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       ]);
       setCategories(categoriesResult || []);
       setSubcategories(subcategoriesResult || []);
-      // 自分のサービス投稿一覧(イベントとの紐づけ用)
+      // サービス投稿一覧(イベントとの紐づけ用)。
+      // 管理者が他人の投稿を編集している場合は、投稿者を問わず全てのお店から選べるようにする
+      // (ユーザー自身が投稿する場合は、なりすまし防止のため自分のお店のみ)
       if (user) {
+        const isAdminEditing = !!(user as any)?.userMetadata?.is_admin;
         try {
           const myPosts = await db.query('posts', {
             category_uuid: 'eq.cat-services',
             status: 'eq.active',
             _deleted: 'eq.0',
-            _created_by: `eq.${(user as any).userUuid || (user as any).id}`
+            ...(isAdminEditing ? {} : { _created_by: `eq.${(user as any).userUuid || (user as any).id}` })
           });
           setMyServicePosts(myPosts || []);
         } catch (e) {
