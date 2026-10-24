@@ -1032,6 +1032,16 @@ const Index = () => {
           {/* Area Filter + View Mode Toggle (same row) */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex flex-wrap items-center gap-4">
+              {/* ハロウィンイベントバナー - ホーム画面でのみ、この余白に表示して縦スペースを節約する */}
+              {selectedCategory === '' && !searchTerm && (
+                <Link to="/?category=cat-events&subcategory=sub-events-other" className="block w-full md:w-auto md:max-w-xl">
+                  <img
+                    src="/content/uploads/helloween.jpg"
+                    alt="ハロウィンイベント"
+                    className="w-full rounded-lg"
+                  />
+                </Link>
+              )}
               {AREA_FILTER_CATEGORIES.includes(selectedCategory) && (
                 <>
                   <div className="flex items-center gap-4 w-full md:w-auto">
@@ -1314,15 +1324,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-
-        {/* ハロウィンイベントバナー */}
-        <Link to="/?category=cat-events&subcategory=sub-events-other" className="block mb-6">
-          <img
-            src="/content/uploads/helloween.jpg"
-            alt="ハロウィンイベント"
-            className="w-full max-w-xs rounded-lg"
-          />
-        </Link>
 
         {/* Month Filter for Events - Only show when events category is selected */}
         {selectedCategory === 'cat-events' && (
