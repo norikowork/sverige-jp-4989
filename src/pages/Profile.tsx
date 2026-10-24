@@ -1455,7 +1455,7 @@ const Profile = () => {
               </Card>
             ) : (
               <div className="space-y-4">
-                {userPosts.filter(post => post && post._row_id).map((post) => (
+                {userPosts.filter(post => post && post._row_id && (postCategoryFilter === 'all' || post.category_uuid === postCategoryFilter)).map((post) => (
                   <Card key={post._row_id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <div className="flex justify-between items-start">
