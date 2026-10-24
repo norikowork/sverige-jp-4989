@@ -524,7 +524,7 @@ export default function ForumTopicDetail() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="prose max-w-none whitespace-pre-wrap">
+                <div className="prose max-w-none whitespace-pre-wrap break-words">
                   {topic.body}
                 </div>
               </CardContent>
