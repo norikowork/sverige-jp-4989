@@ -826,19 +826,28 @@ const Index = () => {
     return category ? category.name_ja : '未分類';
   };
 
-  // よく見ているカテゴリーの新着を、エリアが一致するものを優先して並べる
+  // よく見ている上位カテゴリーそれぞれから新着を取り、持ち回りで混ぜる(エリアが一致するものを優先)
   const recommendedPosts = useMemo(() => {
-    if (!user || !topViewedCategory) return [];
-    return allPosts
-      .filter(p => p.category_uuid === topViewedCategory && p.status === 'active')
-      .sort((a, b) => {
-        const aMatch = userCounty && locations.find(l => l.uuid === a.location_uuid)?.county === userCounty;
-        const bMatch = userCounty && locations.find(l => l.uuid === b.location_uuid)?.county === userCounty;
-        if (aMatch !== bMatch) return aMatch ? -1 : 1;
-        return b._created_at - a._created_at;
-      })
-      .slice(0, 6);
-  }, [user, topViewedCategory, allPosts, userCounty, locations]);
+    if (!user || topViewedCategories.length === 0) return [];
+    const sortByAreaThenDate = (a: any, b: any) => {
+      const aMatch = userCounty && locations.find(l => l.uuid === a.location_uuid)?.county === userCounty;
+      const bMatch = userCounty && locations.find(l => l.uuid === b.location_uuid)?.county === userCounty;
+      if (aMatch !== bMatch) return aMatch ? -1 : 1;
+      return b._created_at - a._created_at;
+    };
+    const postsByCategory = topViewedCategories.map(cat =>
+      allPosts
+        .filter(p => p.category_uuid === cat && p.status === 'active')
+        .sort(sortByAreaThenDate)
+    );
+    const mixed: any[] = [];
+    for (let i = 0; i < 6; i++) {
+      for (const group of postsByCategory) {
+        if (group[i]) mixed.push(group[i]);
+      }
+    }
+    return mixed.slice(0, 6);
+  }, [user, topViewedCategories, allPosts, userCounty, locations]);
 
   const getSubcategoryName = (subcategoryUuid) => {
     const subcategory = subcategories.find(s => s.uuid === subcategoryUuid);
