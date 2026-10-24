@@ -1766,6 +1766,31 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                   />
                 </div>
 
+                {myServicePosts.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="linked_post_id">関連するお店(任意)</Label>
+                    <Select
+                      value={formData.linked_post_id || 'none'}
+                      onValueChange={(value) => handleInputChange('linked_post_id', value === 'none' ? '' : value)}
+                    >
+                      <SelectTrigger id="linked_post_id">
+                        <SelectValue placeholder="関連するお店を選択(任意)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">選択しない</SelectItem>
+                        {myServicePosts.map((shop: any) => (
+                          <SelectItem key={shop._row_id} value={String(shop._row_id)}>
+                            {shop.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500">
+                      選択すると、このイベントとお店の詳細ページに、お互いへのリンクが表示されます
+                    </p>
+                  </div>
+                )}
+
                 {isAdmin && (
                   <div className="space-y-2">
                     <Label htmlFor="ticket_url">チケット購入リンク(管理者のみ・公式サイトと異なる場合)</Label>
