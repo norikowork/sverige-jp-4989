@@ -8,6 +8,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
-});
+// インストール判定に必要な最小限のfetchリスナーとしてだけ存在させる。
+// respondWith()を呼ばないことで、リクエストを横取りせずブラウザの通常の
+// ネットワーク処理に任せる(横取りすると全リクエストが二重に発生し、読み込みが大幅に遅くなるため)。
+self.addEventListener('fetch', () => {});
