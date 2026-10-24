@@ -1755,9 +1755,10 @@ useEffect(() => {
                                 onClick={() => setSelectedImageIndex(index)}
                               >
                                 <img
-                                  src={photo.url}
+                                  src={resizedImageUrl(photo.url, 160)}
                                   alt={`画像 ${index + 1}`}
                                   className="w-full h-full object-cover"
+                                  loading="lazy"
                                 />
                               </div>
                             ))}
