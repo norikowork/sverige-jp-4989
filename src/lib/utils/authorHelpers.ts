@@ -4,9 +4,9 @@ import db from '@/lib/shared/kliv-database';
  * 投稿者名を解決するヘルパー関数
  * 優先順位: display_name → デフォルト(メールアドレスは公開しない)
  */
-export const resolveAuthorName = async (userUuid: string, userProfiles?: any[]): Promise<string> => {
+export const resolveAuthorName = async (userUuid: string, userProfiles?: any[], fallbackName: string = '不明'): Promise<string> => {
   if (!userUuid) {
-    return '不明';
+    return fallbackName;
   }
 
   // userProfilesが渡されていない場合は検索
