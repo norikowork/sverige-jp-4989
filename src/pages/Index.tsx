@@ -318,10 +318,13 @@ const Index = () => {
   useEffect(() => {
     if (debouncedSearchTerm || selectedCategory || selectedMonth) {
       loadFilteredPosts();
+      // 実際にフィルターが使われた時だけガードを解除する。
+      // そうしないと、フィルターが空のままsubcategoriesの読み込みが完了した時に
+      // このeffectが再実行され、loadData()と同じloadPosts()が無駄にもう一度走ってしまう
+      isFirstFilterRunRef.current = false;
     } else if (!isFirstFilterRunRef.current) {
       loadPosts();
     }
-    isFirstFilterRunRef.current = false;
   }, [debouncedSearchTerm, selectedCategory, selectedMonth, selectedSubcategory, selectedArea, selectedServiceGroup, priceFilterFree, priceFilterMin, priceFilterMax, selectedConditions, subcategories]);
 
   // Reset page when filters change
