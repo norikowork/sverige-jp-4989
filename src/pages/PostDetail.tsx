@@ -26,6 +26,7 @@ import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 import { toAsciiFile } from '@/lib/asciiFilename';
 import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
 import { SERVICE_SUBCATEGORY_GROUPS } from '@/constants/serviceSubcategories';
+import { resizedImageUrl } from '@/lib/imageUrl';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
@@ -1970,11 +1971,12 @@ useEffect(() => {
                       <img
                         src={
                           linkedShop.images && Array.isArray(linkedShop.images) && linkedShop.images.length > 0
-                            ? linkedShop.images[0]
+                            ? resizedImageUrl(linkedShop.images[0], 160)
                             : (typeof linkedShop.images === 'string' && JSON.parse(linkedShop.images || '[]')[0]) || '/content/templates/sverige_blank.webp'
                         }
                         alt={linkedShop.title}
                         className="w-12 h-12 rounded object-cover flex-shrink-0"
+                        loading="lazy"
                       />
                       <span className="text-sm font-medium text-gray-900">{linkedShop.title}</span>
                     </Link>
