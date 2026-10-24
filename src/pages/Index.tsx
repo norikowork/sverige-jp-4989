@@ -274,10 +274,30 @@ const Index = () => {
         if (sortOrder === 'price_high') return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
         return b._created_at - a._created_at; // newest (default)
       });
+    } else if (!selectedCategory && !searchTerm) {
+      // ホーム(カテゴリー未選択)のカード/画像表示では、特定カテゴリーへの投稿が
+      // 一度に集中しても他のカテゴリーが埋もれないよう、カテゴリーごとに最大3件ずつ
+      // 持ち回りで混ぜる(リスト表示側のカテゴリー別グリッドと同じ考え方)
+      const postsByCategory = new Map<string, any[]>();
+      allPosts.forEach((post: any) => {
+        const list = postsByCategory.get(post.category_uuid) || [];
+        if (list.length < 3) {
+          list.push(post);
+          postsByCategory.set(post.category_uuid, list);
+        }
+      });
+      const categoryGroups = Array.from(postsByCategory.values());
+      const balanced: any[] = [];
+      for (let i = 0; i < 3; i++) {
+        for (const group of categoryGroups) {
+          if (group[i]) balanced.push(group[i]);
+        }
+      }
+      sorted = balanced;
     }
     setPosts(sorted);
     setCurrentPage(1);
-  }, [allPosts, sortOrder, selectedCategory]);
+  }, [allPosts, sortOrder, selectedCategory, searchTerm]);
 
   // 検索語の入力が落ち着いてから(300ms)実際の検索を実行する
   // (1文字ごとに検索を実行すると、複数のリクエストが前後して結果が
