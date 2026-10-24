@@ -826,6 +826,20 @@ const Index = () => {
     return category ? category.name_ja : '未分類';
   };
 
+  // よく見ているカテゴリーの新着を、エリアが一致するものを優先して並べる
+  const recommendedPosts = useMemo(() => {
+    if (!user || !topViewedCategory) return [];
+    return allPosts
+      .filter(p => p.category_uuid === topViewedCategory && p.status === 'active')
+      .sort((a, b) => {
+        const aMatch = userCounty && locations.find(l => l.uuid === a.location_uuid)?.county === userCounty;
+        const bMatch = userCounty && locations.find(l => l.uuid === b.location_uuid)?.county === userCounty;
+        if (aMatch !== bMatch) return aMatch ? -1 : 1;
+        return b._created_at - a._created_at;
+      })
+      .slice(0, 6);
+  }, [user, topViewedCategory, allPosts, userCounty, locations]);
+
   const getSubcategoryName = (subcategoryUuid) => {
     const subcategory = subcategories.find(s => s.uuid === subcategoryUuid);
     return subcategory ? subcategory.name_ja : '';
