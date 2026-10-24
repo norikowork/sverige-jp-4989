@@ -2066,14 +2066,21 @@ const Index = () => {
               <Link key={post._row_id} to={`/post/${post._row_id}`}>
                 <div className="flex flex-col gap-1 hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square rounded overflow-hidden bg-gray-100 group">
-                    <img 
+                    <img
                       src={
                         post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
-                          ? post.images[0]
+                          ? resizedImageUrl(post.images[0], 320)
                           : '/content/templates/sverige_blank.webp'
                       }
+                      srcSet={
+                        post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
+                          ? imageSrcSet(post.images[0])
+                          : undefined
+                      }
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 16vw"
                       alt={post.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         if (target.src !== '/content/templates/sverige_blank.webp') {
