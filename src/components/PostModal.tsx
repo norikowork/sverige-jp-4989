@@ -997,6 +997,13 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         postData.price = '';
       }
 
+      // イベントとお店のリンクは、選択した投稿のIDを数値で保存する(未選択ならnull)
+      if (formData.category_uuid === 'cat-events') {
+        postData.linked_post_id = formData.linked_post_id ? parseInt(formData.linked_post_id as string, 10) : null;
+      } else {
+        delete postData.linked_post_id;
+      }
+
       // For events, compute event_date as unix timestamp and event_date_readable
       if (formData.category_uuid === 'cat-events' && formData.event_date) {
         const eventDate = new Date(formData.event_date);
