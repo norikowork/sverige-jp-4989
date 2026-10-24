@@ -1262,7 +1262,7 @@ const Index = () => {
         {/* ハロウィンイベントバナー */}
         <Link to="/?category=cat-events&subcategory=sub-events-other" className="block mb-6">
           <img
-            src="/content/uploads/helloween.jpg"
+            src="/content/uploads/hello.jpg"
             alt="ハロウィンイベント"
             className="w-full md:w-1/2 rounded-lg"
           />
