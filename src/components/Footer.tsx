@@ -120,7 +120,32 @@ const Footer = () => {
             <div className="text-gray-400 text-sm">
               © {currentYear} Sverige.JP. All rights reserved.
             </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
+            {/* モバイル: 2列グリッド・短い文言 */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 md:hidden w-full">
+              {!isStandalone && (
+                <Link to="/install-app" className="text-gray-400 hover:text-white text-xs transition-colors">
+                  アプリ版
+                </Link>
+              )}
+              <Link to="/about" className="text-gray-400 hover:text-white text-xs transition-colors">
+                当サイトについて
+              </Link>
+              <Link to="/safety" className="text-gray-400 hover:text-white text-xs transition-colors">
+                安全に使うために
+              </Link>
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-xs transition-colors">
+                プライバシー
+              </Link>
+              <Link to="/terms" className="text-gray-400 hover:text-white text-xs transition-colors">
+                利用規約
+              </Link>
+              <a href="mailto:support@sverige.jp" className="text-gray-400 hover:text-white text-xs transition-colors">
+                お問い合わせ
+              </a>
+            </div>
+
+            {/* PC: 横一列・元の文言 */}
+            <div className="hidden md:flex space-x-6">
               {!isStandalone && (
                 <Link to="/install-app" className="text-gray-400 hover:text-white text-xs transition-colors">
                   アプリのように使うには
