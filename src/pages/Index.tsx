@@ -204,14 +204,11 @@ const Index = () => {
         return;
       }
       try {
-        // 件数の集計にしか使わないので、タイトルや画像など不要なデータまで
-        // 転送しないよう、必要な項目だけに絞って取得する
         let categoryPosts = await db.query('posts', {
           category_uuid: `eq.${selectedCategory}`,
           status: 'eq.active',
           _deleted: 'eq.0',
-          is_hidden: 'eq.0',
-          select: 'subcategory_uuid,price,location_uuid,post_type,event_date,event_end_date'
+          is_hidden: 'eq.0'
         });
 
         if (selectedArea) {
