@@ -1916,7 +1916,7 @@ useEffect(() => {
                         <Link
                           key={event._row_id}
                           to={`/post/${event._row_id}`}
-                          className="flex items-center gap-3 border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 border border-purple-200 bg-purple-50 rounded-lg p-3 hover:bg-purple-100 transition-colors"
                         >
                           <img
                             src={
