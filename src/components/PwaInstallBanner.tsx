@@ -18,7 +18,8 @@ const PwaInstallBanner = () => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
       return;
     }
-    if (sessionStorage.getItem(DISMISS_KEY)) {
+    const dismissedAt = localStorage.getItem(DISMISS_KEY);
+    if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < DISMISS_DURATION_MS) {
       return;
     }
 
