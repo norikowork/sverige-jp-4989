@@ -67,6 +67,7 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);
   const [linkedShop, setLinkedShop] = useState(null);
   const [relatedEvents, setRelatedEvents] = useState([]);
+  const [recommendedPosts, setRecommendedPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
