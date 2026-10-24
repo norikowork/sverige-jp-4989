@@ -1424,7 +1424,7 @@ useEffect(() => {
                       <button className="flex items-center gap-1 h-8 px-2 rounded-md hover:bg-gray-100 transition-colors">
                         {currentUserProfile?.profile_photo_url ? (
                           <img
-                            src={currentUserProfile.profile_photo_url}
+                            src={resizedImageUrl(currentUserProfile.profile_photo_url, 160)}
                             alt="プロフィール画像"
                             className="w-6 h-6 rounded-full object-cover flex-shrink-0"
                           />
