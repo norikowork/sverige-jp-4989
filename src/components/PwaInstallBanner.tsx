@@ -43,7 +43,7 @@ const PwaInstallBanner = () => {
   };
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, 'true');
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setIsVisible(false);
   };
 
