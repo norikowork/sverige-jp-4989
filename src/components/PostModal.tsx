@@ -484,7 +484,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
     if (isOpen) {
       fetchData();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, isAdmin]);
 
   useEffect(() => {
     // 非同期に管理者判定を行う
