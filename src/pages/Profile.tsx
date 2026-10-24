@@ -892,7 +892,8 @@ const Profile = () => {
       'cat-job-offering': '仕事募集',
       'cat-job-seeking': '仕事探し',
       'cat-services': 'サービス',
-      'cat-housing': '住居'
+      'cat-housing': '住居',
+      'cat-events': 'イベントお知らせ'
     };
     return categories[categoryUuid] || '';
   };
