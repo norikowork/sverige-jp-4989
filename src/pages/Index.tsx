@@ -2229,11 +2229,18 @@ const Index = () => {
                     <img
                       src={
                         rpost.images && Array.isArray(rpost.images) && rpost.images.length > 0
-                          ? rpost.images[0]
+                          ? resizedImageUrl(rpost.images[0], 320)
                           : '/content/templates/sverige_blank.webp'
                       }
+                      srcSet={
+                        rpost.images && Array.isArray(rpost.images) && rpost.images.length > 0
+                          ? imageSrcSet(rpost.images[0])
+                          : undefined
+                      }
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 16vw"
                       alt={rpost.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-2">
