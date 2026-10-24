@@ -654,7 +654,7 @@ export default function ForumTopicDetail() {
                             })}
                           </span>
                         </div>
-                        <div className="prose max-w-none whitespace-pre-wrap">
+                        <div className="prose max-w-none whitespace-pre-wrap break-words">
                           {reply.body}
                         </div>
                       </div>
