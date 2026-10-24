@@ -769,6 +769,12 @@ const Index = () => {
     const requestId = ++loadRequestIdRef.current;
     setPostsLoading(true);
     try {
+      // categoriesがまだ読み込まれていない場合は、空の結果で上書きしてしまわないよう
+      // loadDataの完了を待ってから再試行する
+      if (categories.length === 0) {
+        setPostsLoading(false);
+        return;
+      }
       // カテゴリーごとに分けて取得する(loadDataと同じ理由。全体まとめての上限だと
       // 特定カテゴリーへの投稿集中で他のカテゴリーが押し出されてしまうため)
       const postsByCategoryArrays = await Promise.all(
