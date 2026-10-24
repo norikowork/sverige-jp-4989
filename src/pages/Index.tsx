@@ -350,7 +350,7 @@ const Index = () => {
         db.query('categories', { _deleted: 'eq.0' }),
         db.query('locations', { _deleted: 'eq.0' }),
         db.query('subcategories', { _deleted: 'eq.0' }),
-        db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' }),
+        db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc', limit: '300' }),
         db.query('user_profiles', { _deleted: 'eq.0' })
       ]);
       
