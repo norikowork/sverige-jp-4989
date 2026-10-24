@@ -229,6 +229,34 @@ const PostDetail = () => {
     }
   };
 
+  // ログイン中のユーザーがよく見ているカテゴリーから、関連投稿を数件おすすめする
+  const loadRecommendedPosts = async (excludePostId: number) => {
+    try {
+      const currentUser = await auth.getUser();
+      if (!currentUser) return;
+      const profiles = await db.query('user_profiles', {
+        user_uuid: `eq.${currentUser.userUuid}`,
+        _deleted: 'eq.0'
+      });
+      if (!profiles || profiles.length === 0) return;
+      const counts = profiles[0].category_view_counts ? JSON.parse(profiles[0].category_view_counts) : {};
+      const topCategory = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+      if (!topCategory) return;
+
+      const candidates = await db.query('posts', {
+        category_uuid: `eq.${topCategory}`,
+        status: 'eq.active',
+        _deleted: 'eq.0',
+        order: '_created_at.desc',
+        limit: '10'
+      });
+      const filtered = (candidates || []).filter((p: any) => p._row_id !== excludePostId).slice(0, 3);
+      setRecommendedPosts(filtered);
+    } catch (e) {
+      console.warn('Error loading recommended posts:', e);
+    }
+  };
+
   const loadPost = async () => {
     try {
       const postsData = await db.query('posts', {
