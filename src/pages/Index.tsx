@@ -2124,6 +2124,40 @@ const Index = () => {
           </div>
         )}
 
+        {/* あなたへのおすすめ - よく見ているカテゴリーの新着(エリアが一致するものを優先)。Amazon方式でコンテンツの一番下に表示 */}
+        {recommendedPosts.length > 0 && (
+          <div className="mt-8 pt-8 border-t">
+            <h2 className="text-base font-semibold mb-3">
+              あなたへのおすすめ
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              {recommendedPosts.map((rpost: any) => (
+                <Link
+                  key={rpost._row_id}
+                  to={`/post/${rpost._row_id}`}
+                  className="block bg-white rounded-lg border hover:shadow-md transition-shadow overflow-hidden"
+                >
+                  <div className="w-full aspect-square bg-gray-100">
+                    <img
+                      src={
+                        rpost.images && Array.isArray(rpost.images) && rpost.images.length > 0
+                          ? rpost.images[0]
+                          : '/content/templates/sverige_blank.png'
+                      }
+                      alt={rpost.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-2">
+                    <p className="text-xs truncate">{rpost.title}</p>
+                    <p className="text-[10px] text-gray-500">{formatDateShort(rpost._created_at)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Auth and Post Modals */}
         <AuthModal
           isOpen={isAuthModalOpen}
