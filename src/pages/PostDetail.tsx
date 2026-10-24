@@ -318,6 +318,7 @@ const PostDetail = () => {
         });
 
         setPost(postWithImages);
+        trackCategoryView(postData.category_uuid || postData.category);
 
         // サービス投稿の場合、他のユーザーが投稿した写真も読み込む
         if (postData.post_type === 'service' || (postData.category_uuid || postData.category) === 'cat-services') {
