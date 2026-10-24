@@ -142,7 +142,8 @@ const categoryIcons = {
   'cat-job-offering': '💼',
   'cat-job-seeking': '👤',
   'cat-services': '🔧',
-  'cat-housing': '🏠'
+  'cat-housing': '🏠',
+  'cat-events': '📅'
 };
 
 const Profile = () => {
