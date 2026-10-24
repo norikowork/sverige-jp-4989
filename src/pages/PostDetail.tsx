@@ -2330,7 +2330,7 @@ useEffect(() => {
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
                       {post.userProfile?.profile_photo_url ? (
                         <img 
-                          src={post.userProfile.profile_photo_url}
+                          src={resizedImageUrl(post.userProfile.profile_photo_url, 160)}
                           alt={post.userName || 'プロフィール写真'}
                           className="w-full h-full object-cover"
                         />
