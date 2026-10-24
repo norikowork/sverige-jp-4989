@@ -212,6 +212,25 @@ const Help = () => {
                   </p>
                 </AccordionContent>
               </AccordionItem>
+
+              <AccordionItem value="q8">
+                <AccordionTrigger>お店（サービス）とイベントをリンクするには？</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3 text-gray-700 leading-relaxed">
+                    <p>
+                      自分が投稿したお店（サービスカテゴリー）に関連するイベントがある場合、イベント投稿時にそのお店を選んでリンクできます。リンクすると、お店の詳細ページに「関連イベント」、イベントの詳細ページに「このイベントのお店」が、それぞれ画像付きで自動的に表示されます。
+                    </p>
+                    <ol className="list-decimal pl-6 space-y-1">
+                      <li>先に、お店をサービスカテゴリーで投稿しておきます</li>
+                      <li>イベントを新規投稿（または編集）する時、「関連するお店（任意）」という欄が表示されるので、自分が投稿したお店の中から選びます</li>
+                      <li>投稿すると、お店とイベント、両方の詳細ページにお互いへのリンクが表示されます</li>
+                    </ol>
+                    <p className="text-sm text-gray-500">
+                      ※「関連するお店」の欄は、自分がサービスカテゴリーでお店を投稿している場合のみ表示されます。他の人が投稿したお店は選べません。
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </CardContent>
         </Card>
