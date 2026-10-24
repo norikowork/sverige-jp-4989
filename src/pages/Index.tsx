@@ -769,7 +769,21 @@ const Index = () => {
     const requestId = ++loadRequestIdRef.current;
     setPostsLoading(true);
     try {
-      const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc', limit: '300' });
+      // カテゴリーごとに分けて取得する(loadDataと同じ理由。全体まとめての上限だと
+      // 特定カテゴリーへの投稿集中で他のカテゴリーが押し出されてしまうため)
+      const postsByCategoryArrays = await Promise.all(
+        categories.map((cat: any) =>
+          db.query('posts', {
+            category_uuid: `eq.${cat.uuid}`,
+            status: 'eq.active',
+            _deleted: 'eq.0',
+            is_hidden: 'eq.0',
+            order: '_created_at.desc',
+            limit: '60'
+          })
+        )
+      );
+      const postsData = postsByCategoryArrays.flat().sort((a: any, b: any) => b._created_at - a._created_at);
 
       // ユーザー情報を一括取得してMapで引けるようにする
       // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
