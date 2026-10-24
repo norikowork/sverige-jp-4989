@@ -1606,14 +1606,21 @@ const Index = () => {
                       {/* Images */}
                       <div className="mb-4">
                         <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden">
-                          <img 
+                          <img
                                 src={
                                   post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
-                                    ? post.images[0] 
+                                    ? resizedImageUrl(post.images[0], 640)
                                     : '/content/templates/sverige_blank.webp'
                                 }
+                                srcSet={
+                                  post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
+                                    ? imageSrcSet(post.images[0])
+                                    : undefined
+                                }
+                                sizes="(max-width: 768px) 100vw, 700px"
                             alt="投稿画像"
                             className="w-full h-full object-cover"
+                            loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               if (target.src !== '/content/templates/sverige_blank.webp') {
