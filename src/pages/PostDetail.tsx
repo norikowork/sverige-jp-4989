@@ -2530,9 +2530,10 @@ useEffect(() => {
                       >
                         <div className="w-full aspect-square bg-gray-100">
                           <img
-                            src={Array.isArray(rImages) && rImages.length > 0 ? rImages[0] : '/content/templates/sverige_blank.webp'}
+                            src={Array.isArray(rImages) && rImages.length > 0 ? resizedImageUrl(rImages[0], 320) : '/content/templates/sverige_blank.webp'}
                             alt={rpost.title}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         </div>
                         <p className="text-xs p-2 truncate">{rpost.title}</p>
