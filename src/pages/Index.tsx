@@ -1107,9 +1107,10 @@ const Index = () => {
               {selectedCategory === '' && !searchTerm && (
                 <Link to="/?category=cat-events&subcategory=sub-events-other" className="block w-full md:w-auto md:max-w-xl">
                   <img
-                    src="/content/uploads/helloween.jpg"
+                    src={resizedImageUrl('/content/uploads/helloween.jpg', 960)}
                     alt="ハロウィンイベント"
                     className="w-full rounded-lg"
+                    loading="lazy"
                   />
                 </Link>
               )}
