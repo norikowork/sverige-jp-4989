@@ -1719,7 +1719,7 @@ useEffect(() => {
                       <div className="mb-6">
                         <div className="relative mx-auto w-1/2 md:w-3/4">
                           <img
-                            src={selectedPhoto ? selectedPhoto.url : '/content/templates/sverige_blank.png'}
+                            src={selectedPhoto ? selectedPhoto.url : '/content/templates/sverige_blank.webp'}
                             alt={post.title}
                             className="w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() => combinedPhotos.length > 0 && setIsImageLightboxOpen(true)}
@@ -1971,7 +1971,7 @@ useEffect(() => {
                         src={
                           linkedShop.images && Array.isArray(linkedShop.images) && linkedShop.images.length > 0
                             ? linkedShop.images[0]
-                            : (typeof linkedShop.images === 'string' && JSON.parse(linkedShop.images || '[]')[0]) || '/content/templates/sverige_blank.png'
+                            : (typeof linkedShop.images === 'string' && JSON.parse(linkedShop.images || '[]')[0]) || '/content/templates/sverige_blank.webp'
                         }
                         alt={linkedShop.title}
                         className="w-12 h-12 rounded object-cover flex-shrink-0"
@@ -1996,7 +1996,7 @@ useEffect(() => {
                             src={
                               event.images && Array.isArray(event.images) && event.images.length > 0
                                 ? event.images[0]
-                                : (typeof event.images === 'string' && JSON.parse(event.images || '[]')[0]) || '/content/templates/sverige_blank.png'
+                                : (typeof event.images === 'string' && JSON.parse(event.images || '[]')[0]) || '/content/templates/sverige_blank.webp'
                             }
                             alt={event.title}
                             className="w-12 h-12 rounded object-cover flex-shrink-0"
@@ -2527,7 +2527,7 @@ useEffect(() => {
                       >
                         <div className="w-full aspect-square bg-gray-100">
                           <img
-                            src={Array.isArray(rImages) && rImages.length > 0 ? rImages[0] : '/content/templates/sverige_blank.png'}
+                            src={Array.isArray(rImages) && rImages.length > 0 ? rImages[0] : '/content/templates/sverige_blank.webp'}
                             alt={rpost.title}
                             className="w-full h-full object-cover"
                           />

@@ -1608,14 +1608,14 @@ const Index = () => {
                                 src={
                                   post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
                                     ? post.images[0] 
-                                    : '/content/templates/sverige_blank.png'
+                                    : '/content/templates/sverige_blank.webp'
                                 }
                             alt="投稿画像"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              if (target.src !== '/content/templates/sverige_blank.png') {
-                                target.src = '/content/templates/sverige_blank.png';
+                              if (target.src !== '/content/templates/sverige_blank.webp') {
+                                target.src = '/content/templates/sverige_blank.webp';
                               }
                             }}
                           />
@@ -1910,14 +1910,14 @@ const Index = () => {
                                     src={
                                       post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
                                         ? post.images[0]
-                                        : '/content/templates/sverige_blank.png'
+                                        : '/content/templates/sverige_blank.webp'
                                     }
                                     alt={post.title}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
-                                      if (target.src !== '/content/templates/sverige_blank.png') {
-                                        target.src = '/content/templates/sverige_blank.png';
+                                      if (target.src !== '/content/templates/sverige_blank.webp') {
+                                        target.src = '/content/templates/sverige_blank.webp';
                                       }
                                     }}
                                   />
@@ -2060,14 +2060,14 @@ const Index = () => {
                       src={
                         post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
                           ? post.images[0]
-                          : '/content/templates/sverige_blank.png'
+                          : '/content/templates/sverige_blank.webp'
                       }
                       alt={post.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== '/content/templates/sverige_blank.png') {
-                          target.src = '/content/templates/sverige_blank.png';
+                        if (target.src !== '/content/templates/sverige_blank.webp') {
+                          target.src = '/content/templates/sverige_blank.webp';
                         }
                       }}
                     />
@@ -2213,7 +2213,7 @@ const Index = () => {
                       src={
                         rpost.images && Array.isArray(rpost.images) && rpost.images.length > 0
                           ? rpost.images[0]
-                          : '/content/templates/sverige_blank.png'
+                          : '/content/templates/sverige_blank.webp'
                       }
                       alt={rpost.title}
                       className="w-full h-full object-cover"
