@@ -1425,8 +1425,22 @@ const Profile = () => {
                 新規投稿
               </Button>
             </div>
+
+            <Select value={postCategoryFilter} onValueChange={setPostCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-64">
+                <SelectValue placeholder="カテゴリーで絞り込み" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全て</SelectItem>
+                <SelectItem value="cat-for-sale">売ります/あげます</SelectItem>
+                <SelectItem value="cat-job-seeking">仕事探し</SelectItem>
+                <SelectItem value="cat-housing">住居</SelectItem>
+                <SelectItem value="cat-events">イベントお知らせ</SelectItem>
+                <SelectItem value="cat-services">サービス</SelectItem>
+              </SelectContent>
+            </Select>
             
-            {userPosts.length === 0 ? (
+            {userPosts.filter(post => post && post._row_id && (postCategoryFilter === 'all' || post.category_uuid === postCategoryFilter)).length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center py-8">
