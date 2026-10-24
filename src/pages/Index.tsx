@@ -599,7 +599,9 @@ const Index = () => {
     const requestId = ++loadRequestIdRef.current;
     setPostsLoading(true);
     try {
-      const filters: Record<string, string> = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' };
+      // limitは、投稿数の多いカテゴリー(イベント等)で読み込みが重くならないようにするための上限。
+      // 複数ページ分(15ページ程度)をカバーできる件数なので、通常の閲覧では問題にならない
+      const filters: Record<string, string> = { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc', limit: '150' };
       
       if (selectedCategory) {
         filters.category_uuid = `eq.${selectedCategory}`;
