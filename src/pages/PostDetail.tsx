@@ -1885,6 +1885,60 @@ useEffect(() => {
                   </div>
                 )}
 
+                {/* Linked Shop - Only show for events linked to a service post */}
+                {post.post_type === 'event' && linkedShop && (
+                  <div className="mb-6">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3">このイベントのお店</h3>
+                    <Link
+                      to={`/post/${linkedShop._row_id}`}
+                      className="flex items-center gap-3 border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <img
+                        src={
+                          linkedShop.images && Array.isArray(linkedShop.images) && linkedShop.images.length > 0
+                            ? linkedShop.images[0]
+                            : (typeof linkedShop.images === 'string' && JSON.parse(linkedShop.images || '[]')[0]) || '/content/templates/sverige_blank.png'
+                        }
+                        alt={linkedShop.title}
+                        className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      />
+                      <span className="text-sm font-medium text-gray-900">{linkedShop.title}</span>
+                    </Link>
+                  </div>
+                )}
+
+                {/* Related Events - Only show for services with linked events */}
+                {post.category_uuid === 'cat-services' && relatedEvents.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3">関連イベント</h3>
+                    <div className="space-y-2">
+                      {relatedEvents.map((event: any) => (
+                        <Link
+                          key={event._row_id}
+                          to={`/post/${event._row_id}`}
+                          className="flex items-center gap-3 border rounded-lg p-3 hover:bg-gray-50 transition-colors"
+                        >
+                          <img
+                            src={
+                              event.images && Array.isArray(event.images) && event.images.length > 0
+                                ? event.images[0]
+                                : (typeof event.images === 'string' && JSON.parse(event.images || '[]')[0]) || '/content/templates/sverige_blank.png'
+                            }
+                            alt={event.title}
+                            className="w-12 h-12 rounded object-cover flex-shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{event.title}</p>
+                            {event.event_date_readable && (
+                              <p className="text-xs text-gray-500">{event.event_date_readable}</p>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Description */}
                 <div className="mb-6">
                   <h3 className="text-base sm:text-lg font-semibold mb-3">詳細</h3>
