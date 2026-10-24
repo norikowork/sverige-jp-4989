@@ -1918,11 +1918,12 @@ const Index = () => {
                                   <img
                                     src={
                                       post.images && Array.isArray(post.images) && post.images.length > 0 && post.images[0]
-                                        ? post.images[0]
+                                        ? resizedImageUrl(post.images[0], 160)
                                         : '/content/templates/sverige_blank.webp'
                                     }
                                     alt={post.title}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       if (target.src !== '/content/templates/sverige_blank.webp') {
