@@ -454,14 +454,14 @@ const Index = () => {
           if (profile.county) {
             setUserCounty(profile.county);
           }
-          // 閲覧履歴から一番よく見ているカテゴリーを調べ、おすすめ表示に使う
+          // 閲覧履歴からよく見ているカテゴリーを調べ、おすすめ表示に使う(上位3つまで、複数カテゴリーを混ぜる)
           if (profile.category_view_counts) {
             try {
               const counts = JSON.parse(profile.category_view_counts);
-              const topCategory = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
-              if (topCategory) {
-                setTopViewedCategory(topCategory);
-              }
+              const topCategories = Object.keys(counts)
+                .sort((a, b) => counts[b] - counts[a])
+                .slice(0, 3);
+              setTopViewedCategories(topCategories);
             } catch (e) {
               console.warn('Error parsing category_view_counts:', e);
             }
