@@ -750,7 +750,7 @@ const Index = () => {
     const requestId = ++loadRequestIdRef.current;
     setPostsLoading(true);
     try {
-      const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc' });
+      const postsData = await db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc', limit: '300' });
 
       // ユーザー情報を一括取得してMapで引けるようにする
       // (投稿1件ごとに問い合わせると、投稿数が多い時に大きく遅くなるため)
