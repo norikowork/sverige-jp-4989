@@ -419,6 +419,7 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
   const [categories, setCategories] = useState([]);
   const [locations, setLocations] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [myServicePosts, setMyServicePosts] = useState([]);
   const [selectedCounty, setSelectedCounty] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
