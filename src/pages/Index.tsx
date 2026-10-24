@@ -20,6 +20,7 @@ import { statusLabels } from '@/constants/postLabels';
 import { SERVICE_SUBCATEGORY_GROUPS, SERVICE_SUBCATEGORY_EMOJI } from '@/constants/serviceSubcategories';
 import { EVENT_SUBCATEGORIES, EVENT_SUBCATEGORY_EMOJI } from '@/constants/eventSubcategories';
 import { FOR_SALE_SUBCATEGORIES, FOR_SALE_SUBCATEGORY_EMOJI } from '@/constants/forSaleSubcategories';
+import { resizedImageUrl, imageSrcSet } from '@/lib/imageUrl';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
