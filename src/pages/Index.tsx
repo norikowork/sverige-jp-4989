@@ -158,6 +158,7 @@ const Index = () => {
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [userCounty, setUserCounty] = useState<string | null>(null);
   const [topViewedCategories, setTopViewedCategories] = useState<string[]>([]);
+  const [recommendedPosts, setRecommendedPosts] = useState<any[]>([]);
   const postsPerPage = 10; // Posts per page
 
   useEffect(() => {
@@ -826,28 +827,48 @@ const Index = () => {
     return category ? category.name_ja : '未分類';
   };
 
-  // よく見ている上位カテゴリーそれぞれから新着を取り、持ち回りで混ぜる(エリアが一致するものを優先)
-  const recommendedPosts = useMemo(() => {
-    if (!user || topViewedCategories.length === 0) return [];
-    const sortByAreaThenDate = (a: any, b: any) => {
-      const aMatch = userCounty && locations.find(l => l.uuid === a.location_uuid)?.county === userCounty;
-      const bMatch = userCounty && locations.find(l => l.uuid === b.location_uuid)?.county === userCounty;
-      if (aMatch !== bMatch) return aMatch ? -1 : 1;
-      return b._created_at - a._created_at;
-    };
-    const postsByCategory = topViewedCategories.map(cat =>
-      allPosts
-        .filter(p => p.category_uuid === cat && p.status === 'active')
-        .sort(sortByAreaThenDate)
-    );
-    const mixed: any[] = [];
-    for (let i = 0; i < 6; i++) {
-      for (const group of postsByCategory) {
-        if (group[i]) mixed.push(group[i]);
-      }
+  // よく見ている上位カテゴリーそれぞれから新着を取り、持ち回りで混ぜる(エリアが一致するものを優先)。
+  // allPostsは選択中カテゴリーで絞り込まれてしまうため、おすすめ専用に別途取得する
+  useEffect(() => {
+    if (!user || topViewedCategories.length === 0) {
+      setRecommendedPosts([]);
+      return;
     }
-    return mixed.slice(0, 6);
-  }, [user, topViewedCategories, allPosts, userCounty, locations]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const candidatesByCategory = await Promise.all(
+          topViewedCategories.map(cat =>
+            db.query('posts', {
+              category_uuid: `eq.${cat}`,
+              status: 'eq.active',
+              _deleted: 'eq.0',
+              order: '_created_at.desc',
+              limit: '10'
+            })
+          )
+        );
+        if (cancelled) return;
+        const sortByAreaThenDate = (a: any, b: any) => {
+          const aMatch = userCounty && locations.find(l => l.uuid === a.location_uuid)?.county === userCounty;
+          const bMatch = userCounty && locations.find(l => l.uuid === b.location_uuid)?.county === userCounty;
+          if (aMatch !== bMatch) return aMatch ? -1 : 1;
+          return b._created_at - a._created_at;
+        };
+        const groups = candidatesByCategory.map((list: any) => (list || []).sort(sortByAreaThenDate));
+        const mixed: any[] = [];
+        for (let i = 0; i < 6; i++) {
+          for (const group of groups) {
+            if (group[i]) mixed.push(group[i]);
+          }
+        }
+        setRecommendedPosts(mixed.slice(0, 6));
+      } catch (e) {
+        console.warn('Error loading recommended posts:', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, topViewedCategories, userCounty, locations]);
 
   const getSubcategoryName = (subcategoryUuid) => {
     const subcategory = subcategories.find(s => s.uuid === subcategoryUuid);
