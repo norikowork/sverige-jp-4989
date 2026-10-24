@@ -259,12 +259,12 @@ const PostDetail = () => {
         (list || []).filter((p: any) => p._row_id !== excludePostId)
       );
       const mixed: any[] = [];
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         for (const group of groups) {
           if (group[i]) mixed.push(group[i]);
         }
       }
-      setRecommendedPosts(mixed.slice(0, 3));
+      setRecommendedPosts(mixed.slice(0, 6));
     } catch (e) {
       console.warn('Error loading recommended posts:', e);
     }
