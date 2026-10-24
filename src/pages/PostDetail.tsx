@@ -317,7 +317,8 @@ const PostDetail = () => {
         }
 
         // 投稿者名を解決
-        const userName = await resolveAuthorName(postData._created_by);
+        // 投稿者が設定されていない投稿(運営が直接追加したイベント等)は「SverigeJP スタッフ」として表示する
+        const userName = await resolveAuthorName(postData._created_by, undefined, 'SverigeJP スタッフ');
 
         // Parse images JSON for the post
         let images = [];
