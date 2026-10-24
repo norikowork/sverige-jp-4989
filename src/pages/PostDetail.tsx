@@ -1720,7 +1720,7 @@ useEffect(() => {
                       <div className="mb-6">
                         <div className="relative mx-auto w-1/2 md:w-3/4">
                           <img
-                            src={selectedPhoto ? selectedPhoto.url : '/content/templates/sverige_blank.webp'}
+                            src={selectedPhoto ? resizedImageUrl(selectedPhoto.url, 1920) : '/content/templates/sverige_blank.webp'}
                             alt={post.title}
                             className="w-full h-auto object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() => combinedPhotos.length > 0 && setIsImageLightboxOpen(true)}
