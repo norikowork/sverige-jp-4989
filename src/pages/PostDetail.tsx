@@ -199,6 +199,35 @@ const PostDetail = () => {
     }
   };
 
+  // ログイン中のユーザーが見たカテゴリーを記録する(ホーム画面の「あなたへのおすすめ」用)
+  const trackCategoryView = async (categoryUuid: string) => {
+    if (!categoryUuid) return;
+    try {
+      const currentUser = await auth.getUser();
+      if (!currentUser) return;
+      const profiles = await db.query('user_profiles', {
+        user_uuid: `eq.${currentUser.userUuid}`,
+        _deleted: 'eq.0'
+      });
+      if (!profiles || profiles.length === 0) return;
+      const profile = profiles[0];
+      let counts: Record<string, number> = {};
+      try {
+        counts = profile.category_view_counts ? JSON.parse(profile.category_view_counts) : {};
+      } catch (e) {
+        counts = {};
+      }
+      counts[categoryUuid] = (counts[categoryUuid] || 0) + 1;
+      await db.update(
+        'user_profiles',
+        { user_uuid: `eq.${currentUser.userUuid}` },
+        { category_view_counts: JSON.stringify(counts) }
+      );
+    } catch (e) {
+      console.warn('Error tracking category view:', e);
+    }
+  };
+
   const loadPost = async () => {
     try {
       const postsData = await db.query('posts', {
