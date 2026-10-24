@@ -454,6 +454,18 @@ const Index = () => {
           if (profile.county) {
             setUserCounty(profile.county);
           }
+          // 閲覧履歴から一番よく見ているカテゴリーを調べ、おすすめ表示に使う
+          if (profile.category_view_counts) {
+            try {
+              const counts = JSON.parse(profile.category_view_counts);
+              const topCategory = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0];
+              if (topCategory) {
+                setTopViewedCategory(topCategory);
+              }
+            } catch (e) {
+              console.warn('Error parsing category_view_counts:', e);
+            }
+          }
         }
       }
     } catch (error) {
