@@ -855,7 +855,15 @@ const Index = () => {
           if (aMatch !== bMatch) return aMatch ? -1 : 1;
           return b._created_at - a._created_at;
         };
-        const groups = candidatesByCategory.map((list: any) => (list || []).sort(sortByAreaThenDate));
+        const parseImages = (post: any) => {
+          try {
+            const images = typeof post.images === 'string' ? JSON.parse(post.images) : (post.images || []);
+            return { ...post, images: Array.isArray(images) ? images : [] };
+          } catch (e) {
+            return { ...post, images: [] };
+          }
+        };
+        const groups = candidatesByCategory.map((list: any) => (list || []).map(parseImages).sort(sortByAreaThenDate));
         const mixed: any[] = [];
         for (let i = 0; i < 6; i++) {
           for (const group of groups) {
