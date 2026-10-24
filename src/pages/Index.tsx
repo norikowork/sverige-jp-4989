@@ -349,14 +349,30 @@ const Index = () => {
   const loadData = async () => {
     const requestId = ++loadRequestIdRef.current;
     try {
-      const [categoriesData, locationsData, subcategoriesData, postsData, profilesData] = await Promise.all([
+      const [categoriesData, locationsData, subcategoriesData, profilesData] = await Promise.all([
         db.query('categories', { _deleted: 'eq.0' }),
         db.query('locations', { _deleted: 'eq.0' }),
         db.query('subcategories', { _deleted: 'eq.0' }),
-        db.query('posts', { status: 'eq.active', _deleted: 'eq.0', is_hidden: 'eq.0', order: '_created_at.desc', limit: '300' }),
         db.query('user_profiles', { _deleted: 'eq.0' })
       ]);
-      
+
+      // 投稿を全カテゴリーまとめて新しい順に上限を付けて取得すると、特定カテゴリーへの
+      // 投稿が集中した時に他のカテゴリーが上限の外に押し出されてしまうため、
+      // カテゴリーごとに分けて取得する(全体の読み込み件数は抑えつつ、どのカテゴリーも必ず含まれるようにする)
+      const postsByCategoryArrays = await Promise.all(
+        categoriesData.map((cat: any) =>
+          db.query('posts', {
+            category_uuid: `eq.${cat.uuid}`,
+            status: 'eq.active',
+            _deleted: 'eq.0',
+            is_hidden: 'eq.0',
+            order: '_created_at.desc',
+            limit: '60'
+          })
+        )
+      );
+      const postsData = postsByCategoryArrays.flat().sort((a: any, b: any) => b._created_at - a._created_at);
+
       // Try to load forum topics separately (may not exist in all environments)
       let forumTopicsData = [];
       try {
