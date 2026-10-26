@@ -1844,6 +1844,9 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
                     placeholder="例：070-123-4567"
                     required
                   />
+                  <p className="text-xs text-amber-600">
+                    電話番号の掲載は、お店や会社など事業者の投稿にのみおすすめします。個人の電話番号を載せることはおすすめしません。
+                  </p>
                 </div>
               )}
             </CardContent>
