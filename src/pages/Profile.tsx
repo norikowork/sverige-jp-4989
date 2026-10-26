@@ -892,7 +892,7 @@ const Profile = () => {
       'cat-wanted': '探しています',
       'cat-job-offering': '仕事募集',
       'cat-job-seeking': '仕事探し',
-      'cat-services': 'サービス',
+      'cat-services': '情報・サービス',
       'cat-housing': '住居',
       'cat-events': 'イベントお知らせ'
     };
@@ -1436,7 +1436,7 @@ const Profile = () => {
                 <SelectItem value="cat-job-seeking">仕事探し</SelectItem>
                 <SelectItem value="cat-housing">住居</SelectItem>
                 <SelectItem value="cat-events">イベントお知らせ</SelectItem>
-                <SelectItem value="cat-services">サービス</SelectItem>
+                <SelectItem value="cat-services">情報・サービス</SelectItem>
               </SelectContent>
             </Select>
             
@@ -1581,7 +1581,7 @@ const Profile = () => {
                   <div className="text-center py-8">
                     <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">トピックはありません</h3>
-                    <p className="text-gray-500 mb-4">情報・掲示板に最初のトピックを作成しましょう</p>
+                    <p className="text-gray-500 mb-4">なんでも掲示板に最初のトピックを作成しましょう</p>
                     <Link to="/forum">
                       <Button>トピックを作成</Button>
                     </Link>

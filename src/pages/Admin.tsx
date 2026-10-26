@@ -1424,7 +1424,7 @@ const Admin = () => {
                         <SelectItem value="cat-job-seeking">仕事探し</SelectItem>
                         <SelectItem value="cat-housing">住居</SelectItem>
                         <SelectItem value="cat-events">イベントお知らせ</SelectItem>
-                        <SelectItem value="cat-services">サービス</SelectItem>
+                        <SelectItem value="cat-services">情報・サービス</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

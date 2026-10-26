@@ -91,12 +91,12 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link to="/?category=cat-services" className="text-gray-300 hover:text-white transition-colors">
-                    サービス
+                    情報・サービス
                   </Link>
                 </li>
                 <li>
                   <Link to="/forum" className="text-gray-300 hover:text-white transition-colors">
-                    情報・掲示板
+                    なんでも掲示板
                   </Link>
                 </li>
                 <li>
