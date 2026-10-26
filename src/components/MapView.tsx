@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import L from 'leaflet';
+import 'leaflet.markercluster';
 import { X } from 'lucide-react';
 
 interface Post {
@@ -88,6 +89,51 @@ const loadLeafletCSS = () => {
   leafletCssLoaded = true;
 };
 
+let markerClusterCssLoaded = false;
+
+const loadMarkerClusterCSS = () => {
+  if (markerClusterCssLoaded) return;
+  ['MarkerCluster.css', 'MarkerCluster.Default.css'].forEach((file) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://unpkg.com/leaflet.markercluster@1.5.3/dist/${file}`;
+    document.head.appendChild(link);
+  });
+  markerClusterCssLoaded = true;
+};
+
+// クラスタ(複数ピンのまとめ)の見た目。件数が多いほど濃い色・大きいサイズにする
+const createClusterIcon = (cluster: L.MarkerCluster) => {
+  const count = cluster.getChildCount();
+  let size = 36;
+  let bg = '#3b82f6';
+  if (count >= 50) {
+    size = 52;
+    bg = '#1e3a8a';
+  } else if (count >= 10) {
+    size = 44;
+    bg = '#1d4ed8';
+  }
+  return L.divIcon({
+    html: `<div style="
+      width: ${size}px;
+      height: ${size}px;
+      background-color: ${bg};
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: ${count >= 100 ? '13px' : '14px'};
+    ">${count}</div>`,
+    className: 'sverigejp-cluster-icon',
+    iconSize: [size, size],
+  });
+};
+
 const loadCustomStyles = () => {
   if (customStylesLoaded) return;
   const style = document.createElement('style');
@@ -129,6 +175,7 @@ const loadCustomStyles = () => {
 export default function MapView({ posts, locations, onPostClick, selectedPostId, getCategoryName, getCategoryColor, getLocationName, formatDate, userCounty }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const [isMapReady, setIsMapReady] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -137,19 +184,14 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
   // Memoize posts with valid locations to avoid recalculating
   // 投稿自身に緯度経度があればそれを優先し(個別の会場などピンポイントな位置)、
   // 無ければ location_uuid の市区町村レベルの座標にフォールバックする
+  // クラスタリングで大量のピンも軽く扱えるため、件数上限は設けない
   const postsWithLocation = useMemo(() => {
-    const validPosts = posts.filter(post => {
+    return posts.filter(post => {
       if (post.latitude && post.longitude) return true;
       const location = locations.find(l => l.uuid === post.location_uuid);
       return location && location.latitude && location.longitude;
-    }).slice(0, 50);
-    return validPosts;
+    });
   }, [posts, locations]);
-
-  // Memoize total count for display
-  const totalLocationCount = useMemo(() => {
-    return posts.filter(p => p.location_uuid).length;
-  }, [posts]);
 
   // Handle marker click - show card instead of popup
   const handleMarkerClick = useCallback((post: Post) => {
@@ -222,6 +264,7 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
   // Load CSS on mount
   useEffect(() => {
     loadLeafletCSS();
+    loadMarkerClusterCSS();
     loadCustomStyles();
   }, []);
 
@@ -246,24 +289,48 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
     map.setMaxBounds(SWEDEN_BOUNDS);
     map.setMinZoom(4);
 
+    // 近いピンをまとめて数字で表示し、ズームすると個別ピンに分かれるクラスタグループ
+    const clusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 60,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      chunkedLoading: true,
+      iconCreateFunction: createClusterIcon,
+    });
+    clusterGroup.addTo(map);
+    clusterGroupRef.current = clusterGroup;
+
     mapInstanceRef.current = map;
     setIsMapReady(true);
 
+    // タブ切り替え直後などコンテナの高さが0の状態で初期化されることがあり、
+    // その場合クラスタリングの表示範囲判定が壊れてピンが一切表示されなくなるため、
+    // 実際のサイズが確定した時点で再計算する
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    resizeObserver.observe(mapRef.current);
+
     return () => {
-      markersRef.current.forEach(marker => marker.remove());
+      resizeObserver.disconnect();
       markersRef.current.clear();
+      clusterGroupRef.current?.clearLayers();
+      clusterGroupRef.current = null;
       map.remove();
       mapInstanceRef.current = null;
     };
   }, []);
 
-  // Update markers efficiently - reuse existing markers
+  // Update markers efficiently - reuse existing markers, batch add/remove on the cluster group
   useEffect(() => {
-    if (!isMapReady || !mapInstanceRef.current) return;
+    if (!isMapReady || !mapInstanceRef.current || !clusterGroupRef.current) return;
 
     const map = mapInstanceRef.current;
+    const clusterGroup = clusterGroupRef.current;
     const currentMarkerIds = new Set<string>();
     const bounds: L.LatLngBoundsExpression = [];
+    const markersToAdd: L.Marker[] = [];
 
     // Add or update markers
     postsWithLocation.forEach((post) => {
@@ -293,18 +360,26 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
           handleMarkerClick(post);
         });
 
-        marker.addTo(map);
         markersRef.current.set(postId, marker);
+        markersToAdd.push(marker);
       }
     });
 
+    if (markersToAdd.length > 0) {
+      clusterGroup.addLayers(markersToAdd);
+    }
+
     // Remove markers that no longer exist
+    const markersToRemove: L.Marker[] = [];
     markersRef.current.forEach((marker, postId) => {
       if (!currentMarkerIds.has(postId)) {
-        marker.remove();
+        markersToRemove.push(marker);
         markersRef.current.delete(postId);
       }
     });
+    if (markersToRemove.length > 0) {
+      clusterGroup.removeLayers(markersToRemove);
+    }
 
     // Reset view if no posts - zoom to user's county if available
     if (postsWithLocation.length === 0) {
@@ -337,7 +412,6 @@ export default function MapView({ posts, locations, onPostClick, selectedPostId,
         <div className="font-semibold text-gray-700 whitespace-nowrap">📍 スウェーデン</div>
         <div className="text-gray-500 whitespace-nowrap">
           {postsWithLocation.length}件
-          {totalLocationCount > 50 && ' (最大50件)'}
         </div>
       </div>
 

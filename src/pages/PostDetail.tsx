@@ -1432,7 +1432,7 @@ useEffect(() => {
                           <User className="w-6 h-6 text-gray-400 bg-gray-100 rounded-full p-1 flex-shrink-0" />
                         )}
                         <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[80px] sm:max-w-[150px]">
-                          {user.firstName || user.email?.split('@')[0]}
+                          {currentUserProfile?.display_name || user.display_name || user.firstName || user.email?.split('@')[0]}
                         </span>
                         <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
                       </button>
