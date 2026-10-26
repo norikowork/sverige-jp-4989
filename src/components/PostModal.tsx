@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import db from '@/lib/shared/kliv-database';
+import functions from '@/lib/shared/kliv-functions';
 import content from '@/lib/shared/kliv-content';
 import { toAsciiFile } from '@/lib/asciiFilename';
 import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
