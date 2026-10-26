@@ -871,13 +871,11 @@ useEffect(() => {
 
   // Share functionality
   const handleShare = async (platform) => {
-    // シェア用のURLはEdge Function(share-post)経由にする。
-    // LINE/Facebook等のリンクプレビューはJavaScriptを実行しないため、
-    // 通常の/post/:idのURLだとReact側で書き換えたog:imageが見えず、
-    // 固定ロゴしか表示されない。share-postはボットにはog:image付きの
-    // HTMLを、人間には/post/:idへのリダイレクトを返す。
+    // シェアするのは https://sverige.jp/post/:id そのもの。クローラー向けには
+    // ヘッドフック(post-preview)が投稿のタイトル・説明・写真をこのURLに付けるので、
+    // プレビューのURL表示もサイトのURLと一致する。share-post は以前シェアされたリンク用に残している。
     const url = post?._row_id
-      ? `${window.location.origin}/api/v2/function/share-post?id=${post._row_id}`
+      ? `https://sverige.jp/post/${post._row_id}`
       : window.location.href;
     const title = post?.title || 'Sverige.JP - スウェーデン日本コミュニティ';
     const text = post?.description || '';
