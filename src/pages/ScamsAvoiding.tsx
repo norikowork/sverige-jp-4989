@@ -3,8 +3,15 @@ import { ArrowLeft, ShieldCheck, Ban, AlertTriangle, CheckCircle2 } from 'lucide
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const ScamsAvoiding = () => {
+  usePageSeo({
+    title: '詐欺を避けるために | Sverige.JP',
+    description: '詐欺の被害に遭わないための注意点をまとめています。',
+    path: '/scams/avoiding',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

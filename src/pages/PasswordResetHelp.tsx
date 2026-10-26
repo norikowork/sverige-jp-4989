@@ -3,8 +3,15 @@ import { ArrowLeft, KeyRound, MailWarning } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const PasswordResetHelp = () => {
+  usePageSeo({
+    title: 'パスワードを忘れた場合 | Sverige.JP',
+    description: 'パスワードを忘れた場合の再設定方法についてご案内します。',
+    path: '/help/password-reset',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

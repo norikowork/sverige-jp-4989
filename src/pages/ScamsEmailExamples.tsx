@@ -3,6 +3,7 @@ import { ArrowLeft, Mail, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const examples = [
   {
@@ -52,6 +53,12 @@ const examples = [
 ];
 
 const ScamsEmailExamples = () => {
+  usePageSeo({
+    title: '詐欺メールの実例 | Sverige.JP',
+    description: '実際にあった詐欺メールの実例を紹介しています。',
+    path: '/scams/email-examples',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

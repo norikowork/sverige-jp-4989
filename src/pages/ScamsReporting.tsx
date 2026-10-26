@@ -3,8 +3,15 @@ import { ArrowLeft, Flag, Shield, ShoppingBag, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const ScamsReporting = () => {
+  usePageSeo({
+    title: '詐欺を報告する | Sverige.JP',
+    description: '詐欺に遭った場合の報告・相談先についてまとめています。',
+    path: '/scams/reporting',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

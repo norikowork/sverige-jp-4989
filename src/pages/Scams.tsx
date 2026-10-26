@@ -3,8 +3,15 @@ import { ArrowLeft, ShieldAlert, Search, Flag, ChevronRight } from 'lucide-react
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Scams = () => {
+  usePageSeo({
+    title: '詐欺について | Sverige.JP',
+    description: 'スウェーデンでの詐欺の手口と対策についてまとめています。',
+    path: '/scams',
+  });
+
   const links = [
     {
       to: '/scams/avoiding',

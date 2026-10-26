@@ -3,8 +3,15 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const InstallApp = () => {
+  usePageSeo({
+    title: 'アプリのように使うには | Sverige.JP',
+    description: 'Sverige.JPをスマートフォンのホーム画面に追加してアプリのように使う方法をご案内します。',
+    path: '/install-app',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SiteHeader />

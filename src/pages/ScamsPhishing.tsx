@@ -3,8 +3,15 @@ import { ArrowLeft, Fish, AlertTriangle, ShieldAlert, RefreshCcw } from 'lucide-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const ScamsPhishing = () => {
+  usePageSeo({
+    title: 'フィッシング詐欺について | Sverige.JP',
+    description: 'フィッシング詐欺の手口と対策について説明しています。',
+    path: '/scams/phishing',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

@@ -3,8 +3,15 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Terms = () => {
+  usePageSeo({
+    title: '利用規約 | Sverige.JP',
+    description: 'Sverige.JPの利用規約です。ご利用前に必ずお読みください。',
+    path: '/terms',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

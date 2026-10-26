@@ -3,8 +3,15 @@ import { ArrowLeft, Users, ShieldAlert, Mail, Phone, Flag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Safety = () => {
+  usePageSeo({
+    title: '安全にご利用いただくために | Sverige.JP',
+    description: 'Sverige.JPを安全にご利用いただくための注意点をまとめています。',
+    path: '/safety',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

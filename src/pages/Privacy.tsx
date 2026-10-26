@@ -3,8 +3,15 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Privacy = () => {
+  usePageSeo({
+    title: 'プライバシーポリシー | Sverige.JP',
+    description: 'Sverige.JPのプライバシーポリシーです。個人情報の取り扱いについて説明しています。',
+    path: '/privacy',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

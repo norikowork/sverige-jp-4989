@@ -2,6 +2,8 @@
 // SPA(クライアント側レンダリング)のため、index.htmlの値は全ページ共通のフォールバックに過ぎず、
 // ここで各ページの内容に合わせて上書きする必要がある。
 
+import { useEffect } from 'react';
+
 const SITE_URL = 'https://sverige.jp';
 
 const setNameMetaTag = (name: string, content: string) => {
@@ -64,4 +66,13 @@ const DEFAULT_DESCRIPTION = 'Sverige.JPは、スウェーデンのローカル�
 // index.htmlの既定値に戻す(トップページなど、ページ固有の内容がない場合に使用)
 export const resetPageSeo = (path: string = '/') => {
   setPageSeo({ title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION, path });
+};
+
+// 内容が固定の静的ページ(About/Help/利用規約など)で使う、マウント時に一度だけ
+// title/description/canonicalを設定するためのフック
+export const usePageSeo = ({ title, description, path, type }: SeoOptions) => {
+  useEffect(() => {
+    setPageSeo({ title, description, path, type });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, path, type]);
 };

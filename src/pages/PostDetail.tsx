@@ -1155,7 +1155,8 @@ useEffect(() => {
       try {
         const result = await functions.post('send-contact-email', {
           postId: post._row_id,
-          message: contactMessage
+          message: contactMessage,
+          requestId: crypto.randomUUID()
         });
 
         console.log('✅ Edge function result:', result);

@@ -3,6 +3,7 @@ import { ArrowLeft, Phone, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const examples = [
   {
@@ -28,6 +29,12 @@ const examples = [
 ];
 
 const ScamsPhoneExamples = () => {
+  usePageSeo({
+    title: '詐欺電話・SMSの実例 | Sverige.JP',
+    description: '実際にあった詐欺電話・SMSの実例を紹介しています。',
+    path: '/scams/phone-examples',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

@@ -3,8 +3,15 @@ import { ArrowLeft, Mail, Phone, Fish, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const ScamsIdentifying = () => {
+  usePageSeo({
+    title: '詐欺を見分けるには | Sverige.JP',
+    description: '詐欺を見分けるためのポイントを解説しています。',
+    path: '/scams/identifying',
+  });
+
   const links = [
     {
       to: '/scams/phishing',

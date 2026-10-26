@@ -3,8 +3,15 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const About = () => {
+  usePageSeo({
+    title: '当サイトについて | Sverige.JP',
+    description: 'Sverige.JPはスウェーデン在住の日本人コミュニティサイトです。サイトの目的や運営についてご紹介します。',
+    path: '/about',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <SiteHeader />

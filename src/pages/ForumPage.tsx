@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 interface ForumTopic {
   _row_id: number;
@@ -77,6 +78,12 @@ const postCategoryIcons = {
 };
 
 export default function ForumPage() {
+  usePageSeo({
+    title: 'なんでも掲示板 | Sverige.JP',
+    description: 'スウェーデン在住の日本人コミュニティの掲示板です。生活の質問や情報交換、雑談などにご利用いただけます。',
+    path: '/forum',
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [topics, setTopics] = useState<ForumTopic[]>([]);
   const [filteredTopics, setFilteredTopics] = useState<ForumTopic[]>([]);

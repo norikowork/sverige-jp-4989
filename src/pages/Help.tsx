@@ -4,8 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Help = () => {
+  usePageSeo({
+    title: '使い方ガイド & FAQ | Sverige.JP',
+    description: 'Sverige.JPの使い方ガイドとよくある質問をまとめています。投稿方法や機能の使い方についてご案内します。',
+    path: '/help',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />

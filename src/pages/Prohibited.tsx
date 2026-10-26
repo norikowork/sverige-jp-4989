@@ -3,8 +3,15 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Footer from '@/components/Footer';
 import SiteHeader from '@/components/SiteHeader';
+import { usePageSeo } from '@/lib/seo';
 
 const Prohibited = () => {
+  usePageSeo({
+    title: '禁止されている投稿内容 | Sverige.JP',
+    description: 'Sverige.JPで禁止されている投稿・出品・勧誘の内容について説明しています。',
+    path: '/prohibited',
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />
