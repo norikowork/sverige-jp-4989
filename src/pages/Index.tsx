@@ -1232,7 +1232,7 @@ const Index = () => {
                           価格
                         </button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64" align="start">
+                      <PopoverContent className="w-72" align="start">
                         <div className="flex items-center justify-between mb-3">
                           <span className="font-semibold text-sm">価格で絞り込み</span>
                           <button type="button" onClick={() => setIsPriceFilterOpen(false)}>
@@ -1258,7 +1258,7 @@ const Index = () => {
                               value={priceFilterMin}
                               disabled={priceFilterFree}
                               onChange={(e) => setPriceFilterMin(e.target.value)}
-                              className="h-8 text-sm"
+                              className="h-11 text-base"
                             />
                           </div>
                           <span className="text-gray-400">〜</span>
@@ -1271,7 +1271,7 @@ const Index = () => {
                               value={priceFilterMax}
                               disabled={priceFilterFree}
                               onChange={(e) => setPriceFilterMax(e.target.value)}
-                              className="h-8 text-sm"
+                              className="h-11 text-base"
                             />
                           </div>
                         </div>

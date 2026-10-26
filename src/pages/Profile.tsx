@@ -1270,13 +1270,13 @@ const Profile = () => {
                           <SelectValue placeholder="連絡の受け取り方を選択してください" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="email">
+                          <SelectItem value="email" textValue="メールで受け取る（おすすめ）">
                             <div className="flex flex-col">
                               <span className="font-medium">メールで受け取る（おすすめ）</span>
                               <span className="text-xs text-gray-500">あなたの投稿への連絡を、サイト内メッセージとメールの両方で受け取れます</span>
                             </div>
                           </SelectItem>
-                          <SelectItem value="dm_only">
+                          <SelectItem value="dm_only" textValue="メールを隠す（サイト内メッセージのみ）">
                             <div className="flex flex-col">
                               <span className="font-medium">メールを隠す（サイト内メッセージのみ）</span>
                               <span className="text-xs text-gray-500">メールアドレスを相手に知られず、サイト内メッセージだけで連絡を受け取ります。信用できたら相手に個別でメールアドレスを伝えられます</span>
