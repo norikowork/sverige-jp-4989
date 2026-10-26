@@ -91,7 +91,7 @@ const PostDetail = () => {
   const [nextPost, setNextPost] = useState(null);
   const [authModalTab, setAuthModalTab] = useState('login');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [contactMethod, setContactMethod] = useState('dm'); // 連絡方法: 'dm' または 'email'
+  const [contactMethod, setContactMethod] = useState('dm'); // 連絡方法: 'dm' / 'email' / 'phone'
   const [showMessageButton, setShowMessageButton] = useState(false); // メッセージを見るボタン表示用
   const [unreadCount, setUnreadCount] = useState(0);
   const [contactError, setContactError] = useState('');
@@ -949,6 +949,8 @@ useEffect(() => {
     // モーダルを開くときにエラー・成功メッセージをリセット
     setContactError('');
     setContactSuccess('');
+    // 投稿者が「電話」のみを選んでいる場合は、電話での連絡をデフォルトにする
+    setContactMethod(post.contact_method === 'phone' && post.phone ? 'phone' : 'dm');
     setIsContactModalOpen(true);
   };
 
@@ -2580,18 +2582,20 @@ useEffect(() => {
             <div>
               <Label>送信方法</Label>
               <RadioGroup value={contactMethod} onValueChange={setContactMethod} className="mt-2">
-                <div className="flex items-start space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                  <RadioGroupItem value="dm" id="dm" className="mt-1" />
-                  <div className="flex-1">
-                    <Label htmlFor="dm" className="cursor-pointer font-medium text-gray-900">
-                      サイト内メッセージで送る（おすすめ）
-                    </Label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      メールアドレスは相手に知られません
-                    </p>
+                {!(post.contact_method === 'phone' && post.phone) && (
+                  <div className="flex items-start space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="dm" id="dm" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="dm" className="cursor-pointer font-medium text-gray-900">
+                        サイト内メッセージで送る（おすすめ）
+                      </Label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        メールアドレスは相手に知られません
+                      </p>
+                    </div>
                   </div>
-                </div>
-                {post.userProfile?.contact_pref !== 'dm_only' && (
+                )}
+                {!(post.contact_method === 'phone' && post.phone) && post.userProfile?.contact_pref !== 'dm_only' && (
                   <div className="flex items-start space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                     <RadioGroupItem value="email" id="email" className="mt-1" />
                     <div className="flex-1">
@@ -2604,27 +2608,49 @@ useEffect(() => {
                     </div>
                   </div>
                 )}
+                {(post.contact_method === 'phone' || post.contact_method === 'both') && post.phone && (
+                  <div className="flex items-start space-x-2 p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="phone" id="phone" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="phone" className="cursor-pointer font-medium text-gray-900">
+                        電話で連絡する
+                      </Label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        投稿者に直接電話をかけます
+                      </p>
+                    </div>
+                  </div>
+                )}
               </RadioGroup>
             </div>
 
-            {/* メッセージ入力欄 */}
-            <div>
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <Label htmlFor="message">メッセージ</Label>
-                {post.category_uuid === 'cat-for-sale' && (
-                  <span className="text-xs text-blue-600">
-                    お互い、気持ちよく会話をして楽しいクラシファイドにしましょう。商談成立後は忘れず投稿を商談終了、または削除してください。
-                  </span>
-                )}
+            {/* メッセージ入力欄、または電話番号の表示 */}
+            {contactMethod === 'phone' ? (
+              <div className="p-4 bg-blue-50 rounded-lg text-center">
+                <p className="text-sm text-gray-600 mb-2">下の番号に直接お電話ください</p>
+                <a href={`tel:${post.phone}`} className="text-2xl font-bold text-blue-700 hover:underline">
+                  {post.phone}
+                </a>
               </div>
-              <Textarea
-                id="message"
-                value={contactMessage}
-                onChange={(e) => setContactMessage(e.target.value)}
-                placeholder="この投稿について質問やメッセージを入力してください..."
-                rows={5}
-              />
-            </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <Label htmlFor="message">メッセージ</Label>
+                  {post.category_uuid === 'cat-for-sale' && (
+                    <span className="text-xs text-blue-600">
+                      お互い、気持ちよく会話をして楽しいクラシファイドにしましょう。商談成立後は忘れず投稿を商談終了、または削除してください。
+                    </span>
+                  )}
+                </div>
+                <Textarea
+                  id="message"
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  placeholder="この投稿について質問やメッセージを入力してください..."
+                  rows={5}
+                />
+              </div>
+            )}
 
             {/* エラー・成功メッセージ表示 */}
             {contactError && (
@@ -2666,14 +2692,16 @@ useEffect(() => {
                   setContactSuccess('');
                 }}
               >
-                キャンセル
+                {contactMethod === 'phone' ? '閉じる' : 'キャンセル'}
               </Button>
-              <Button
-                onClick={handleContactSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? '送信中...' : '送信する'}
-              </Button>
+              {contactMethod !== 'phone' && (
+                <Button
+                  onClick={handleContactSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? '送信中...' : '送信する'}
+                </Button>
+              )}
             </div>
           </div>
         </DialogContent>
