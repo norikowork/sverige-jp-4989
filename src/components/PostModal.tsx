@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import db from '@/lib/shared/kliv-database';
 import content from '@/lib/shared/kliv-content';
 import { toAsciiFile } from '@/lib/asciiFilename';
+import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
 import auth from '@/lib/shared/kliv-auth';
 import { checkIsAdmin } from '@/lib/isAdmin';
 import { useToast } from '@/hooks/use-toast';
@@ -713,72 +714,6 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
       }
       setFormData(prev => ({ ...prev, ...updates }));
     }
-  };
-
-  // iPhoneの写真(HEIC等)や高解像度の画像でも、アップロード前にブラウザ側で
-  // 自動的にリサイズ・再圧縮してWebPに変換する(非対応ブラウザではJPEGにフォールバック)。
-  // 明らかに巨大/不審なファイル(ABUSE_MAX_BYTES超)は圧縮を試みる前に弾く。
-  const ABUSE_MAX_BYTES = 25 * 1024 * 1024; // 25MB — これを超える生ファイルは拒否
-  const TARGET_MAX_BYTES = 1 * 1024 * 1024; // 1MB — 圧縮後の目標サイズ
-  const MAX_DIMENSION = 1920; // 長辺の最大ピクセル数
-
-  const compressImage = (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(objectUrl);
-        let { width, height } = img;
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-          if (width >= height) {
-            height = Math.round((height / width) * MAX_DIMENSION);
-            width = MAX_DIMENSION;
-          } else {
-            width = Math.round((width / height) * MAX_DIMENSION);
-            height = MAX_DIMENSION;
-          }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Canvas not supported'));
-          return;
-        }
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const encode = (mimeType: string, extension: string, isFallback: boolean) => {
-          const tryEncode = (quality: number) => {
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                reject(new Error('画像の変換に失敗しました'));
-                return;
-              }
-              // WebPに対応していないブラウザではPNG等にフォールバックされるため、
-              // その場合はJPEGで再試行する
-              if (!isFallback && blob.type !== mimeType) {
-                encode('image/jpeg', 'jpg', true);
-                return;
-              }
-              if (blob.size > TARGET_MAX_BYTES && quality > 0.4) {
-                tryEncode(quality - 0.15);
-                return;
-              }
-              const newName = file.name.replace(/\.[^.]+$/, '') + '.' + extension;
-              resolve(new File([blob], newName, { type: mimeType }));
-            }, mimeType, quality);
-          };
-          tryEncode(0.85);
-        };
-        encode('image/webp', 'webp', false);
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
-        reject(new Error('画像を読み込めませんでした(対応していない形式の可能性があります)'));
-      };
-      img.src = objectUrl;
-    });
   };
 
   const handleImageUpload = async (files: FileList | null) => {
