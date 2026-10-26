@@ -810,13 +810,13 @@ const Admin = () => {
   const handleHidePost = async (postId, adminName) => {
     try {
       // 投稿を非表示に設定
-      await db.update('posts',
-        { _row_id: `eq.${postId}` },
-        { 
-          is_hidden: 1,
-          _updated_at: Math.floor(Date.now() / 1000)
-        }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'moderate',
+        postId,
+        op: 'hide',
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '投稿の非表示に失敗しました');
       
       // 関連するスパム報告をhiddenに更新
       await db.update('spam_reports',
@@ -847,13 +847,13 @@ const Admin = () => {
   const handleShowPost = async (postId) => {
     try {
       // 投稿を再表示
-      await db.update('posts',
-        { _row_id: `eq.${postId}` },
-        { 
-          is_hidden: 0,
-          _updated_at: Math.floor(Date.now() / 1000)
-        }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'moderate',
+        postId,
+        op: 'show',
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '投稿の再表示に失敗しました');
       
       toast({
         title: "再表示完了",
@@ -875,10 +875,13 @@ const Admin = () => {
     const newStatus = post.status === 'sold' ? 'active' : 'sold';
 
     try {
-      await db.update('posts',
-        { _row_id: `eq.${post._row_id}` },
-        { status: newStatus }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'set-status',
+        postId: post._row_id,
+        status: newStatus,
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || 'ステータスの変更に失敗しました');
 
       toast({
         title: newStatus === 'sold' ? "商談終了にしました" : "投稿を再開しました",
@@ -902,10 +905,12 @@ const Admin = () => {
     }
 
     try {
-      await db.update('posts',
-        { _row_id: `eq.${postId}` },
-        { status: 'removed' }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'delete',
+        postId,
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '投稿の削除に失敗しました');
 
       toast({
         title: "投稿削除",
@@ -997,13 +1002,13 @@ const Admin = () => {
   const handleMarkAsOk = async (postId, adminName) => {
     try {
       // 投稿を再表示する（問題なし＝公開に戻す）
-      await db.update('posts',
-        { _row_id: `eq.${postId}` },
-        { 
-          is_hidden: 0,
-          _updated_at: Math.floor(Date.now() / 1000)
-        }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'moderate',
+        postId,
+        op: 'show',
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '投稿の再表示に失敗しました');
       
       // 関連するスパム報告をokに更新
       await db.update('spam_reports',

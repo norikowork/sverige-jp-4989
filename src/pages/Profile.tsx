@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link, useNavigate } from 'react-router-dom';
 import auth from '@/lib/shared/kliv-auth';
 import db from '@/lib/shared/kliv-database';
+import functions from '@/lib/shared/kliv-functions';
 import content from '@/lib/shared/kliv-content';
 import { toAsciiFile } from '@/lib/asciiFilename';
 import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
@@ -567,10 +568,12 @@ const Profile = () => {
       setDeletingPost(postUuid);
       
       // Soft delete the post
-      await db.update('posts',
-        { _row_id: `eq.${postUuid}` },
-        { status: 'removed' }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'delete',
+        postId: postUuid,
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '投稿の削除に失敗しました');
       
       setUserPosts(prev => prev.filter(post => post._row_id !== postUuid));
       
@@ -653,10 +656,13 @@ const Profile = () => {
     try {
       setSavingTracking(true);
 
-      await db.update('posts',
-        { _row_id: `eq.${trackingPost._row_id}` },
-        { tracking_number: trackingNumberInput.trim() }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'set-tracking',
+        postId: trackingPost._row_id,
+        trackingNumber: trackingNumberInput.trim(),
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || '配送情報の保存に失敗しました');
 
       setUserPosts(prev => prev.map(post =>
         post._row_id === trackingPost._row_id
@@ -688,10 +694,13 @@ const Profile = () => {
     try {
       setTogglingPost(post._row_id);
 
-      await db.update('posts',
-        { _row_id: `eq.${post._row_id}` },
-        { status: newStatus }
-      );
+      const result = await functions.post('manage-post', {
+        action: 'set-status',
+        postId: post._row_id,
+        status: newStatus,
+        requestId: crypto.randomUUID()
+      });
+      if (!result?.success) throw new Error(result?.error || 'ステータスの変更に失敗しました');
 
       setUserPosts(prev => prev.map(p =>
         p._row_id === post._row_id ? { ...p, status: newStatus } : p

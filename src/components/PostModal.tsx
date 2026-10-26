@@ -997,14 +997,26 @@ export const PostModal = ({ isOpen, onClose, onPostCreated, user, editingPost }:
         }
       }
 
+      const requestId = crypto.randomUUID();
       if (editingPost) {
         console.log('Updating post:', editingPost._row_id, postData);
-        await db.update('posts', { _row_id: `eq.${editingPost._row_id}` }, postData);
+        const result = await functions.post('manage-post', {
+          action: 'update',
+          postId: editingPost._row_id,
+          requestId,
+          post: postData
+        });
+        if (!result?.success) throw new Error(result?.error || '投稿の更新に失敗しました');
         console.log('Post updated successfully');
         toast({ title: saveAsDraft ? "下書きを保存しました" : "投稿を更新しました" });
       } else {
         console.log('Creating new post:', postData);
-        await db.insert('posts', postData);
+        const result = await functions.post('manage-post', {
+          action: 'create',
+          requestId,
+          post: postData
+        });
+        if (!result?.success) throw new Error(result?.error || '投稿の作成に失敗しました');
         console.log('Post created successfully');
         toast({ title: saveAsDraft ? "下書きを保存しました" : "投稿を作成しました" });
       }
