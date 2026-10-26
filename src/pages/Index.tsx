@@ -21,6 +21,7 @@ import { SERVICE_SUBCATEGORY_GROUPS, SERVICE_SUBCATEGORY_EMOJI } from '@/constan
 import { EVENT_SUBCATEGORIES, EVENT_SUBCATEGORY_EMOJI } from '@/constants/eventSubcategories';
 import { FOR_SALE_SUBCATEGORIES, FOR_SALE_SUBCATEGORY_EMOJI } from '@/constants/forSaleSubcategories';
 import { resizedImageUrl, imageSrcSet } from '@/lib/imageUrl';
+import { setPageSeo, resetPageSeo } from '@/lib/seo';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
@@ -193,6 +194,22 @@ const Index = () => {
     const matchedGroup = SERVICE_SUBCATEGORY_GROUPS.find((g) => g.label === groupParam);
     setSelectedServiceGroup(matchedGroup?.label || SERVICE_SUBCATEGORY_GROUPS[0]?.label || '');
   }, [searchParams]);
+
+  // 検索エンジン向けに、選択中カテゴリーに応じたtitle/description/canonicalを設定する。
+  // サブカテゴリーやソート順などの絞り込みパラメーターはcanonicalに含めず、カテゴリー単位に
+  // 正規化することで、Googleに大量の絞り込みURLを個別ページとして重複認識されるのを防ぐ
+  useEffect(() => {
+    if (selectedCategory && categories.length > 0) {
+      const categoryName = getCategoryName(selectedCategory);
+      setPageSeo({
+        title: `${categoryName} | Sverige.JP`,
+        description: `Sverige.JPの${categoryName}カテゴリーの投稿一覧です。スウェーデン在住の日本人コミュニティサイトで最新の投稿をご覧いただけます。`,
+        path: `/?category=${selectedCategory}`,
+      });
+    } else if (!selectedCategory) {
+      resetPageSeo('/');
+    }
+  }, [selectedCategory, categories]);
 
   // カテゴリーが選択されたら、サブカテゴリーごとの投稿件数を取得する
   // (絞り込み中のallPostsとは別に、常に選択中カテゴリー全体を対象に数える。

@@ -27,6 +27,7 @@ import { toAsciiFile } from '@/lib/asciiFilename';
 import { compressImage, ABUSE_MAX_BYTES } from '@/lib/imageCompression';
 import { SERVICE_SUBCATEGORY_GROUPS } from '@/constants/serviceSubcategories';
 import { resizedImageUrl } from '@/lib/imageUrl';
+import { setPageSeo } from '@/lib/seo';
 
 const BuyIcon = ({ className }: { className?: string }) => (
   <span className={className}>🛍️</span>
@@ -272,138 +273,151 @@ const PostDetail = () => {
   };
 
   const loadPost = async () => {
+    // 投稿本体の取得に失敗、または存在しない場合だけホームに戻す。
+    // (以前はこの後の付随データ取得が1つでも失敗すると、有効な投稿でもホームに
+    //  リダイレクトしてしまっていた。Googlebotのクロールでそれが「リダイレクトのあるページ」
+    //  として検出され、インデックスされない原因になっていたため分離する)
+    let postsData;
     try {
-      const postsData = await db.query('posts', {
+      postsData = await db.query('posts', {
         _row_id: `eq.${postId}`,
         _deleted: 'eq.0',
         status: 'neq.removed'
       });
-
-      if (postsData && postsData.length > 0) {
-        const postData = postsData[0];
-
-        // Get user profile information
-        let userProfile = null;
-
-        if (postData._created_by) {
-          try {
-            // First try to get user profile
-            const profilesData = await db.query('user_profiles', {
-              user_uuid: `eq.${postData._created_by}`,
-              _deleted: 'eq.0'
-            });
-
-            if (profilesData && profilesData.length > 0) {
-              userProfile = profilesData[0];
-
-              console.log('👤 User profile found:', {
-                user_uuid: postData._created_by,
-                display_name: userProfile.display_name,
-                contact_pref: userProfile.contact_pref
-              });
-
-              setUserProfiles(prev => ({
-                ...prev,
-                [postData._created_by]: {
-                  ...userProfile,
-                  contact_pref: userProfile.contact_pref || 'email'
-                }
-              }));
-            } else {
-              console.log('⚠️ User profile not found for:', postData._created_by);
-            }
-          } catch (e) {
-            console.warn('Error fetching user profile for post:', postData._row_id, e);
-          }
-        }
-
-        // 投稿者名を解決
-        // 投稿者が設定されていない投稿(運営が直接追加したイベント等)は「SverigeJP スタッフ」として表示する
-        const userName = await resolveAuthorName(postData._created_by, undefined, 'SverigeJP スタッフ');
-
-        // Parse images JSON for the post
-        let images = [];
-        if (postData.images) {
-          try {
-            if (typeof postData.images === 'string') {
-              images = JSON.parse(postData.images);
-            } else if (Array.isArray(postData.images)) {
-              images = postData.images;
-            }
-            // Ensure images is an array
-            if (!Array.isArray(images)) {
-              images = [];
-            }
-          } catch (e) {
-            console.warn('Error parsing images:', e);
-            images = [];
-          }
-        }
-
-        const postWithImages = {
-          ...postData,
-          images,
-          userName,
-          userProfile
-        };
-
-        console.log('📄 Post loaded with user profile:', {
-          postId: postWithImages._row_id,
-          postTitle: postWithImages.title,
-          createdBy: postWithImages._created_by,
-          createdByType: typeof postWithImages._created_by,
-          userName: postWithImages.userName,
-          hasUserProfile: !!postWithImages.userProfile
-        });
-
-        console.log('👤 投稿作成者情報:', {
-          _created_by: postData._created_by,
-          _created_byType: typeof postData._created_by
-        });
-
-        setPost(postWithImages);
-        trackCategoryView(postData.category_uuid || postData.category);
-        loadRecommendedPosts(postData._row_id);
-
-        // サービス投稿の場合、他のユーザーが投稿した写真も読み込む
-        if (postData.post_type === 'service' || (postData.category_uuid || postData.category) === 'cat-services') {
-          loadPostPhotos(postData._row_id);
-        }
-
-        // サービス投稿なら、このお店に紐づいたイベントを読み込む
-        if ((postData.category_uuid || postData.category) === 'cat-services') {
-          try {
-            const linkedEvents = await db.query('posts', {
-              linked_post_id: `eq.${postData._row_id}`,
-              category_uuid: 'eq.cat-events',
-              status: 'eq.active',
-              _deleted: 'eq.0'
-            });
-            setRelatedEvents(linkedEvents || []);
-          } catch (e) {
-            console.warn('Error loading related events:', e);
-          }
-        }
-
-        // イベント投稿で、お店がリンクされていれば読み込む
-        if ((postData.category_uuid || postData.category) === 'cat-events' && postData.linked_post_id) {
-          try {
-            const shopData = await db.get('posts', postData.linked_post_id);
-            if (shopData && shopData.status !== 'removed' && shopData._deleted !== 1) {
-              setLinkedShop(shopData);
-            }
-          } catch (e) {
-            console.warn('Error loading linked shop:', e);
-          }
-        }
-      } else {
-        navigate('/');
-      }
     } catch (error) {
       console.error('Error loading post:', error);
-      navigate('/');
-    } finally {
       setLoading(false);
+      navigate('/');
+      return;
+    }
+
+    if (!postsData || postsData.length === 0) {
+      setLoading(false);
+      navigate('/');
+      return;
+    }
+
+    const postData = postsData[0];
+
+    // Get user profile information
+    let userProfile = null;
+
+    if (postData._created_by) {
+      try {
+        // First try to get user profile
+        const profilesData = await db.query('user_profiles', {
+          user_uuid: `eq.${postData._created_by}`,
+          _deleted: 'eq.0'
+        });
+
+        if (profilesData && profilesData.length > 0) {
+          userProfile = profilesData[0];
+
+          console.log('👤 User profile found:', {
+            user_uuid: postData._created_by,
+            display_name: userProfile.display_name,
+            contact_pref: userProfile.contact_pref
+          });
+
+          setUserProfiles(prev => ({
+            ...prev,
+            [postData._created_by]: {
+              ...userProfile,
+              contact_pref: userProfile.contact_pref || 'email'
+            }
+          }));
+        } else {
+          console.log('⚠️ User profile not found for:', postData._created_by);
+        }
+      } catch (e) {
+        console.warn('Error fetching user profile for post:', postData._row_id, e);
+      }
+    }
+
+    // 投稿者名を解決
+    // 投稿者が設定されていない投稿(運営が直接追加したイベント等)は「SverigeJP スタッフ」として表示する
+    let userName = 'SverigeJP スタッフ';
+    try {
+      userName = await resolveAuthorName(postData._created_by, undefined, 'SverigeJP スタッフ');
+    } catch (e) {
+      console.warn('Error resolving author name:', e);
+    }
+
+    // Parse images JSON for the post
+    let images = [];
+    if (postData.images) {
+      try {
+        if (typeof postData.images === 'string') {
+          images = JSON.parse(postData.images);
+        } else if (Array.isArray(postData.images)) {
+          images = postData.images;
+        }
+        // Ensure images is an array
+        if (!Array.isArray(images)) {
+          images = [];
+        }
+      } catch (e) {
+        console.warn('Error parsing images:', e);
+        images = [];
+      }
+    }
+
+    const postWithImages = {
+      ...postData,
+      images,
+      userName,
+      userProfile
+    };
+
+    console.log('📄 Post loaded with user profile:', {
+      postId: postWithImages._row_id,
+      postTitle: postWithImages.title,
+      createdBy: postWithImages._created_by,
+      createdByType: typeof postWithImages._created_by,
+      userName: postWithImages.userName,
+      hasUserProfile: !!postWithImages.userProfile
+    });
+
+    console.log('👤 投稿作成者情報:', {
+      _created_by: postData._created_by,
+      _created_byType: typeof postData._created_by
+    });
+
+    setPost(postWithImages);
+    setLoading(false);
+    trackCategoryView(postData.category_uuid || postData.category);
+    loadRecommendedPosts(postData._row_id);
+
+    // サービス投稿の場合、他のユーザーが投稿した写真も読み込む
+    if (postData.post_type === 'service' || (postData.category_uuid || postData.category) === 'cat-services') {
+      loadPostPhotos(postData._row_id);
+    }
+
+    // サービス投稿なら、このお店に紐づいたイベントを読み込む
+    if ((postData.category_uuid || postData.category) === 'cat-services') {
+      try {
+        const linkedEvents = await db.query('posts', {
+          linked_post_id: `eq.${postData._row_id}`,
+          category_uuid: 'eq.cat-events',
+          status: 'eq.active',
+          _deleted: 'eq.0'
+        });
+        setRelatedEvents(linkedEvents || []);
+      } catch (e) {
+        console.warn('Error loading related events:', e);
+      }
+    }
+
+    // イベント投稿で、お店がリンクされていれば読み込む
+    if ((postData.category_uuid || postData.category) === 'cat-events' && postData.linked_post_id) {
+      try {
+        const shopData = await db.get('posts', postData.linked_post_id);
+        if (shopData && shopData.status !== 'removed' && shopData._deleted !== 1) {
+          setLinkedShop(shopData);
+        }
+      } catch (e) {
+        console.warn('Error loading linked shop:', e);
+      }
     }
   };
 
@@ -609,7 +623,18 @@ useEffect(() => {
       const pageUrl = window.location.href;
       const title = post.title || 'Sverige.JP - スウェーデン日本コミュニティ';
       const description = post.description ? post.description.substring(0, 200) : '';
-      
+
+      // 検索エンジン向けにtitle/description/canonicalをこの投稿専用の内容へ更新する。
+      // (これを行わないと全ページがindex.htmlの固定値のままになり、Googleに
+      //  「Alternate page with proper canonical tag」としてホームへ統合され、
+      //  この投稿ページ自体はインデックスされなくなる)
+      setPageSeo({
+        title: `${title} | Sverige.JP`,
+        description: description || 'Sverige.JPのスウェーデン日本コミュニティ掲示板の投稿です。',
+        path: `/post/${postId}`,
+        type: 'article',
+      });
+
       // Set Open Graph tags
       updateMetaTag('og:title', title);
       updateMetaTag('og:description', description);
@@ -633,11 +658,8 @@ useEffect(() => {
         'og:image': imageUrlWithCache,
         'og:url': pageUrl
       });
-      
-      // Update document title as well
-      document.title = `Sverige.JP - ${title}`;
     }
-  }, [post]);
+  }, [post, postId]);
 
   useEffect(() => {
     if (allPosts.length > 0 && post) {

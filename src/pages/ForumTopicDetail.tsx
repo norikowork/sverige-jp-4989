@@ -19,6 +19,7 @@ import { checkIsAdmin } from '@/lib/isAdmin';
 import { resolveAuthorName } from '@/lib/utils/authorHelpers';
 import { FORUM_CATEGORIES } from '@/constants/forumCategories';
 import { toast } from 'sonner';
+import { setPageSeo } from '@/lib/seo';
 
 interface ForumTopic {
   _row_id: number;
@@ -103,7 +104,13 @@ export default function ForumTopicDetail() {
 
   useEffect(() => {
     if (topic) {
-      document.title = `Sverige.JP - ${topic.title}`;
+      const description = topic.body ? topic.body.substring(0, 200) : '';
+      setPageSeo({
+        title: `${topic.title} | Sverige.JP なんでも掲示板`,
+        description: description || 'Sverige.JPのなんでも掲示板のトピックです。',
+        path: `/forum/${topic._row_id}`,
+        type: 'article',
+      });
     }
   }, [topic]);
 
