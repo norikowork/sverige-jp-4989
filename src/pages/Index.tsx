@@ -1499,11 +1499,11 @@ const Index = () => {
                     );
                   })}
                 </div>
+                {group.items.includes('医療') && selectedSubcategory === 'sub-services-medical' && (
+                  <p className="mt-3 text-sm text-red-600">🚑 のマークは救急対応ありを表しています。</p>
+                )}
               </div>
             ))}
-            {selectedSubcategory === 'sub-services-medical' && (
-              <p className="mt-3 text-sm text-red-600">🚑 のマークは救急対応ありを表しています。</p>
-            )}
           </div>
         )}
 
