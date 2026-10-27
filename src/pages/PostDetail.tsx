@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, DollarSign, User, Mail, Phone, Send, Image as ImageIcon, MessageSquare, Home, Shield, ChevronLeft, ChevronRight, ChevronDown, Briefcase, Building, TrendingUp, Package, Share2, Link2, Linkedin, Facebook, AlertCircle, CheckCircle, Wrench, Clock, ShoppingBag, Star, Search, Plus, Truck, ExternalLink, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
@@ -80,6 +80,8 @@ const PostDetail = () => {
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isImageLightboxOpen, setIsImageLightboxOpen] = useState(false);
+  const lightboxTouchStartXRef = useRef<number | null>(null);
+  const lightboxSwipedRef = useRef(false);
   const [postPhotos, setPostPhotos] = useState<any[]>([]);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [locations, setLocations] = useState([]);
@@ -1824,7 +1826,29 @@ useEffect(() => {
                       {isImageLightboxOpen && combinedPhotos.length > 0 && (
                         <div
                           className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-4"
-                          onClick={() => setIsImageLightboxOpen(false)}
+                          onClick={() => {
+                            if (lightboxSwipedRef.current) {
+                              lightboxSwipedRef.current = false;
+                              return;
+                            }
+                            setIsImageLightboxOpen(false);
+                          }}
+                          onTouchStart={(e) => {
+                            lightboxTouchStartXRef.current = e.touches[0].clientX;
+                          }}
+                          onTouchEnd={(e) => {
+                            const startX = lightboxTouchStartXRef.current;
+                            lightboxTouchStartXRef.current = null;
+                            if (startX === null || combinedPhotos.length <= 1) return;
+                            const deltaX = e.changedTouches[0].clientX - startX;
+                            if (Math.abs(deltaX) < 50) return;
+                            lightboxSwipedRef.current = true;
+                            if (deltaX > 0) {
+                              setSelectedImageIndex((prev) => (prev - 1 + combinedPhotos.length) % combinedPhotos.length);
+                            } else {
+                              setSelectedImageIndex((prev) => (prev + 1) % combinedPhotos.length);
+                            }
+                          }}
                         >
                           <button
                             type="button"
