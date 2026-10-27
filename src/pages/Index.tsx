@@ -1501,6 +1501,9 @@ const Index = () => {
                 </div>
               </div>
             ))}
+            {selectedSubcategory === 'sub-services-medical' && (
+              <p className="mt-3 text-sm text-red-600">🚑 のマークは救急対応ありを表しています。</p>
+            )}
           </div>
         )}
 
