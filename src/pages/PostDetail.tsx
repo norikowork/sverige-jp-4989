@@ -82,6 +82,8 @@ const PostDetail = () => {
   const [isImageLightboxOpen, setIsImageLightboxOpen] = useState(false);
   const lightboxTouchStartXRef = useRef<number | null>(null);
   const lightboxSwipedRef = useRef(false);
+  const [lightboxDragX, setLightboxDragX] = useState(0);
+  const [lightboxTransitionEnabled, setLightboxTransitionEnabled] = useState(false);
   const [postPhotos, setPostPhotos] = useState<any[]>([]);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [locations, setLocations] = useState([]);
@@ -1835,19 +1837,34 @@ useEffect(() => {
                           }}
                           onTouchStart={(e) => {
                             lightboxTouchStartXRef.current = e.touches[0].clientX;
+                            setLightboxTransitionEnabled(false);
+                          }}
+                          onTouchMove={(e) => {
+                            if (lightboxTouchStartXRef.current === null || combinedPhotos.length <= 1) return;
+                            setLightboxDragX(e.touches[0].clientX - lightboxTouchStartXRef.current);
                           }}
                           onTouchEnd={(e) => {
                             const startX = lightboxTouchStartXRef.current;
                             lightboxTouchStartXRef.current = null;
-                            if (startX === null || combinedPhotos.length <= 1) return;
-                            const deltaX = e.changedTouches[0].clientX - startX;
-                            if (Math.abs(deltaX) < 50) return;
-                            lightboxSwipedRef.current = true;
-                            if (deltaX > 0) {
-                              setSelectedImageIndex((prev) => (prev - 1 + combinedPhotos.length) % combinedPhotos.length);
-                            } else {
-                              setSelectedImageIndex((prev) => (prev + 1) % combinedPhotos.length);
+                            if (startX === null || combinedPhotos.length <= 1) {
+                              setLightboxTransitionEnabled(true);
+                              setLightboxDragX(0);
+                              return;
                             }
+                            const deltaX = e.changedTouches[0].clientX - startX;
+                            setLightboxTransitionEnabled(true);
+                            if (Math.abs(deltaX) < 50) {
+                              setLightboxDragX(0);
+                              return;
+                            }
+                            lightboxSwipedRef.current = true;
+                            const direction = deltaX > 0 ? -1 : 1; // 右へスワイプ(deltaX>0)したら前の画像へ
+                            setLightboxDragX(direction * window.innerWidth);
+                            window.setTimeout(() => {
+                              setLightboxTransitionEnabled(false);
+                              setSelectedImageIndex((prev) => (prev + direction + combinedPhotos.length) % combinedPhotos.length);
+                              setLightboxDragX(0);
+                            }, 180);
                           }}
                         >
                           <button
@@ -1876,7 +1893,14 @@ useEffect(() => {
                             </button>
                           )}
 
-                          <div className="flex flex-col items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className="flex flex-col items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              transform: `translateX(${lightboxDragX}px)`,
+                              transition: lightboxTransitionEnabled ? 'transform 0.18s ease-out' : 'none',
+                            }}
+                          >
                             <img
                               src={selectedPhoto ? resizedImageUrl(selectedPhoto.url, 2560) : ''}
                               alt={post.title}
