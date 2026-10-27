@@ -1334,13 +1334,23 @@ useEffect(() => {
 
   // 説明文内の **テキスト** を太字で表示する(簡易的なMarkdown風記法)。
   // 元のタイトル(翻訳前の英語/スウェーデン語)を説明文の先頭に太字で
-  // 残す運用のために追加。
+  // 残す運用のために追加。あわせて、本文中のURLをクリックできるリンクにする
+  // (サイト内の投稿リンクはページ遷移、それ以外は新しいタブで開く)。
   const renderDescriptionWithBold = (text: string) => {
     if (!text) return text;
-    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    const parts = text.split(/(\*\*[^*]+\*\*|https?:\/\/[^\s)]+)/g);
     return parts.map((part, index) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      if (/^https?:\/\//.test(part)) {
+        const internalPath = part.startsWith('https://sverige.jp/') ? part.slice('https://sverige.jp'.length) : null;
+        const linkClass = 'text-blue-600 underline hover:text-blue-800 break-all';
+        return internalPath ? (
+          <Link key={index} to={internalPath} className={linkClass}>{part}</Link>
+        ) : (
+          <a key={index} href={part} target="_blank" rel="noopener noreferrer" className={linkClass}>{part}</a>
+        );
       }
       return part;
     });
