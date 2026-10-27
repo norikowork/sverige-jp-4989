@@ -313,10 +313,21 @@ const Index = () => {
         }
       }
       sorted = balanced;
+    } else if (selectedSubcategory) {
+      // サブカテゴリー一覧では、pin_order が設定されている投稿を常に先頭に固定表示する
+      // (値が小さいほど上。未設定の投稿同士は元の並び=新しい順のまま)
+      sorted = [...allPosts].sort((a: any, b: any) => {
+        const pa = a.pin_order;
+        const pb = b.pin_order;
+        if (pa != null && pb != null) return pa - pb;
+        if (pa != null) return -1;
+        if (pb != null) return 1;
+        return 0;
+      });
     }
     setPosts(sorted);
     setCurrentPage(1);
-  }, [allPosts, sortOrder, selectedCategory, searchTerm]);
+  }, [allPosts, sortOrder, selectedCategory, selectedSubcategory, searchTerm]);
 
   // 検索語の入力が落ち着いてから(300ms)実際の検索を実行する
   // (1文字ごとに検索を実行すると、複数のリクエストが前後して結果が
