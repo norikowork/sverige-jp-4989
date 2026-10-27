@@ -54,6 +54,10 @@ const About = () => {
               「訪れてみたい」「ここで暮らせてよかった」<br />
               そんな気持ちにつながるよう、一つひとつの情報を大切に、心を込めてお届けしていきます。
             </p>
+
+            <div className="pt-4 border-t border-gray-200 text-sm text-gray-500">
+              <p>運営: Ryoman AB &amp; Rational Ventures AB</p>
+            </div>
           </CardContent>
         </Card>
       </div>
