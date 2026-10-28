@@ -256,6 +256,7 @@ const PostDetail = () => {
             category_uuid: `eq.${cat}`,
             status: 'eq.active',
             _deleted: 'eq.0',
+            is_hidden: 'eq.0',
             order: '_created_at.desc',
             limit: '5'
           })
@@ -397,14 +398,16 @@ const PostDetail = () => {
       loadPostPhotos(postData._row_id);
     }
 
-    // サービス投稿なら、このお店に紐づいたイベントを読み込む
+    // サービス投稿なら、このお店に紐づいたイベントを読み込む(前の投稿のイベントが残らないよう、まずリセット)
+    setRelatedEvents([]);
     if ((postData.category_uuid || postData.category) === 'cat-services') {
       try {
         const linkedEvents = await db.query('posts', {
           linked_post_id: `eq.${postData._row_id}`,
           category_uuid: 'eq.cat-events',
           status: 'eq.active',
-          _deleted: 'eq.0'
+          _deleted: 'eq.0',
+          is_hidden: 'eq.0'
         });
         setRelatedEvents(linkedEvents || []);
       } catch (e) {
@@ -412,11 +415,12 @@ const PostDetail = () => {
       }
     }
 
-    // イベント投稿で、お店がリンクされていれば読み込む
+    // イベント投稿で、お店がリンクされていれば読み込む(別の投稿へ移動した時に前のお店が残らないよう、まずリセット)
+    setLinkedShop(null);
     if ((postData.category_uuid || postData.category) === 'cat-events' && postData.linked_post_id) {
       try {
         const shopData = await db.get('posts', postData.linked_post_id);
-        if (shopData && shopData.status !== 'removed' && shopData._deleted !== 1) {
+        if (shopData && shopData.status !== 'removed' && shopData._deleted !== 1 && shopData.is_hidden !== 1) {
           setLinkedShop(shopData);
         }
       } catch (e) {

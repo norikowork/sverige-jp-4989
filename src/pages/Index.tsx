@@ -913,6 +913,7 @@ const Index = () => {
               category_uuid: `eq.${cat}`,
               status: 'eq.active',
               _deleted: 'eq.0',
+              is_hidden: 'eq.0',
               order: '_created_at.desc',
               limit: '10'
             })
