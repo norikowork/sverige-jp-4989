@@ -138,8 +138,11 @@ const Messages = () => {
         db.query('messages', { to_uuid: `eq.${userUuid}`, _deleted: 'eq.0' })
       ]);
 
-      // 重複排除してマージ
-      const allMessages = [...sentMessages, ...receivedMessages];
+      // 重複排除してマージ(自分の画面から削除した会話のメッセージは除く)
+      const allMessages = [
+        ...sentMessages.filter((msg: any) => msg.hidden_by_sender !== 1),
+        ...receivedMessages.filter((msg: any) => msg.hidden_by_recipient !== 1)
+      ];
       const uniqueMessages = Array.from(
         new Map(allMessages.map(msg => [msg._row_id, msg])).values()
       );
@@ -445,14 +448,18 @@ const Messages = () => {
     }
 
     try {
-      // その会話で自分が関わるメッセージを論理削除
-      const myMessagesInConv = myMessages.filter(
-        msg => msg.conversation_key === selectedConversation.conversation_key &&
-        (msg.from_uuid === user.userUuid || msg.to_uuid === user.userUuid)
-      );
-
-      for (const msg of myMessagesInConv) {
-        await db.update('messages', { _row_id: `eq.${msg._row_id}` }, { _deleted: 1 });
+      // 自分の画面から会話を消す(サーバー側で処理。相手の画面には残る)。
+      // 1回で消しきれない場合は more: true が返るので繰り返す
+      let more = true;
+      for (let i = 0; i < 20 && more; i++) {
+        const result = await functions.post('send-message', {
+          action: 'hide-conversation',
+          conversationKey: selectedConversation.conversation_key
+        });
+        more = !!result?.more;
+      }
+      if (more) {
+        throw new Error('会話の一部を削除できませんでした');
       }
 
       toast({
@@ -848,7 +855,7 @@ const Footer = () => (
         </div>
         <div>
           <h3 className="font-semibold mb-2">サポート</h3>
-          <p className="text-gray-600">お問い合わせ: noriko@rational.ventures</p>
+          <p className="text-gray-600">お問い合わせ: <a href="mailto:support@sverige.jp" className="hover:text-gray-900 underline">support@sverige.jp</a></p>
         </div>
       </div>
     </div>
